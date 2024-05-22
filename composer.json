@@ -7,8 +7,10 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "brendt/php-sparkline": "dev-period2",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.12",
+        "doctrine/doctrine-fixtures-bundle": "^3.6",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.1",
         "phpdocumentor/reflection-docblock": "^5.4",
@@ -22,6 +24,7 @@
         "symfony/framework-bundle": "7.0.*",
         "symfony/http-client": "7.0.*",
         "symfony/intl": "7.0.*",
+        "symfony/lock": "7.0.*",
         "symfony/mailer": "7.0.*",
         "symfony/mime": "7.0.*",
         "symfony/monolog-bundle": "^3.0",
@@ -36,7 +39,9 @@
         "symfony/string": "7.0.*",
         "symfony/translation": "7.0.*",
         "symfony/twig-bundle": "7.0.*",
-        "symfony/ux-turbo": "^2.17",
+        "symfony/uid": "7.0.*",
+        "symfony/ux-icons": "^2.17",
+        "symfony/ux-live-component": "^2.17",
         "symfony/validator": "7.0.*",
         "symfony/web-link": "7.0.*",
         "symfony/webpack-encore-bundle": "^2.1",
@@ -44,6 +49,12 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },
+    "repositories": [
+        {
+            "url": "https://github.com/tito10047/php-sparkline",
+            "type": "vcs"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
@@ -101,6 +112,7 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "7.0.*",
-        "symfony/web-profiler-bundle": "7.0.*"
+        "symfony/web-profiler-bundle": "7.0.*",
+        "zenstruck/foundry": "^1.37"
     }
 }

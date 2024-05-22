@@ -1,0 +1,8 @@
+<div{{ attributes.defaults({
+    class:'col-2 px-1'
+}) }}>
+    {% set count = this.count %}
+    <div class="w-100 badge text-bg-{% if count==0 %}success0{% elseif count<5 %}warning{% else %}danger{% endif %}  fs-6">
+        <div class="mt-px">{{ count }}</div>
+    </div>
+</div>
