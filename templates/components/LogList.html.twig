@@ -1,3 +1,17 @@
-<div{{ attributes }}>
-    <!-- component html -->
+<div{{ attributes.defaults({
+    class:'my-3 p-3 bg-body rounded shadow-sm'
+}) }}>
+    <h6 class="border-bottom pb-1 mb-0">Errors</h6>
+    {% for data in this.logs %}
+        {% set log=data[0] %}
+        <div class="d-flex text-body-secondary pt-1">
+            <p class="pb-1 mb-0 small lh-sm border-bottom w-100">
+
+                <span class="badge text-bg-danger rounded-pill">{{ log.date|date('d.m.Y H:i:s') }}</span>
+                <span class="badge text-bg-danger rounded-pill">{{ log.project.code|capitalize }}</span>
+                <span class="badge text-bg-danger rounded-pill">{{ data['count'] }}</span>
+                {{ log.message }}
+            </p>
+        </div>
+    {% endfor %}
 </div>

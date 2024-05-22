@@ -20,54 +20,7 @@
                     {% endfor %}
                 </div>
             </div>
-{#            {% if validResponseErrors|length > 0 %}#}
-{#                <div class="my-3 p-3 bg-body rounded shadow-sm">#}
-{#                    <div class="row">#}
-{#                        {% for row in validResponseErrors %}#}
-{#                            <div class="col-md-6 col-lg-6 col-xl-4  align-items-start pb-1">#}
-{#                                <div class="row">#}
-{#                                    <div class="col-4 px-1">#}
-{#                                        <div class="w-100 badge text-bg-{{ row.code == 200 or row.code == 'OK'  ? 'success' : 'danger' }} text-start fs-6">#}
-{#                                            {% if row.code == 200 or row.code == 'OK' %}#}
-{#                                                <twig:ux:icon name="mdi:success-bold" height="18" width="18"/>#}
-{#                                            {% else %}#}
-{#                                                <twig:ux:icon name="jam:triangle-danger" height="18" width="18"/>#}
-{#                                            {% endif %}#}
-{#                                            {{ row.description }}#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="col-2 px-1">#}
-{#                                        <div class="w-100 badge text-bg-{% if row.errors==0 %}success0{% elseif row.errors<5 %}warning{% else %}danger{% endif %}  fs-6">#}
-{#                                            <div class="mt-px">{{ row.errors }}</div>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="col-6 px-1">#}
-{#                                        {{ row.graph|raw }}#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        {% endfor %}#}
-{#                    </div>#}
-{#                </div>#}
-{#            {% endif %}#}
-
-
-            {#            {% if errorsList|length > 0 %} #}
-            {#                <div class="my-3 p-3 bg-body rounded shadow-sm"> #}
-            {#                    <h6 class="border-bottom pb-1 mb-0">Errors</h6> #}
-            {#                    {% for log in errorsList %} #}
-            {#                        <div class="d-flex text-body-secondary pt-1"> #}
-            {#                            <p class="pb-1 mb-0 small lh-sm border-bottom"> #}
-
-            {#                                <span class="badge text-bg-danger rounded-pill">{{ log.createdAt|date('d.m.Y H:i:s') }}</span> #}
-            {#                                <span class="badge text-bg-danger rounded-pill">{{ log.project|capitalize }}</span> #}
-            {#                                <span class="badge text-bg-danger rounded-pill">{{ log.counter }}</span> #}
-            {#                                {{ log.message }} #}
-            {#                            </p> #}
-            {#                        </div> #}
-            {#                    {% endfor %} #}
-            {#                </div> #}
-            {#            {% endif %} #}
+            <twig:LogList/>
         </main>
     </div>
 

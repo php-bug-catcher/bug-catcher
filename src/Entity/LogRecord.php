@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LogRecordRepository::class)]
 #[ORM\Index(name: 'date_idx', columns: ['project_id','date'])]
 #[ORM\Index(name: 'done_idx', columns: ['project_id','checked'])]
+#[ORM\Index(name: 'message_idx', columns: ['checked', 'message'], options: ["lengths" => [1, 255]])]
 class LogRecord extends Record {
 
 	#[ORM\Column]
