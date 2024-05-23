@@ -7,10 +7,13 @@
  */
 namespace App\Entity;
 
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class Record {
 
@@ -21,21 +24,23 @@ abstract class Record {
 	protected ?Uuid $id = null;
 
 	#[ORM\Column(type: Types::DATETIME_MUTABLE)]
-	protected ?\DateTimeInterface $date = null;
+	#[Assert\NotBlank()]
+	protected ?DateTimeInterface $date = null;
 
 	#[ORM\ManyToOne()]
 	#[ORM\JoinColumn(nullable: false)]
+	#[Assert\NotBlank()]
 	protected ?Project $project = null;
 
 	public function getId(): ?Uuid {
 		return $this->id;
 	}
 
-	public function getDate(): ?\DateTimeInterface {
+	public function getDate(): ?DateTimeInterface {
 		return $this->date;
 	}
 
-	public function setDate(\DateTimeInterface $date): static {
+	public function setDate(DateTimeInterface $date): static {
 		$this->date = $date;
 
 		return $this;

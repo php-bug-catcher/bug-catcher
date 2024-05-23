@@ -7,6 +7,7 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "api-platform/core": "^3.3",
         "brendt/php-sparkline": "dev-period2",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.12",
@@ -53,6 +54,10 @@
         {
             "url": "https://github.com/tito10047/php-sparkline",
             "type": "vcs"
+        },
+        {
+            "type": "path",
+            "url": "../logview-reporter"
         }
     ],
     "config": {
@@ -113,6 +118,7 @@
         "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "7.0.*",
         "symfony/web-profiler-bundle": "7.0.*",
+        "zenstruck/browser": "^1.8",
         "zenstruck/foundry": "^1.37"
     }
 }
