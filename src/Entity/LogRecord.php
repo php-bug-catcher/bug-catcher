@@ -24,6 +24,8 @@ class LogRecord extends Record {
 	#[ORM\Column]
 	private ?int $level = null;
 
+	private int $count = 1;
+
 	public function isChecked(): ?bool {
 		return $this->checked;
 	}
@@ -63,5 +65,16 @@ class LogRecord extends Record {
 
 		return $this;
 	}
+
+	public function getCount(): int {
+		return $this->count;
+	}
+
+	public function setCount(int $count): self {
+		$this->count = $count;
+
+		return $this;
+	}
+
 
 }

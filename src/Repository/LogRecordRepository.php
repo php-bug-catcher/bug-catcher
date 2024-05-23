@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\LogRecord;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -60,4 +61,29 @@ class LogRecordRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('l')->setMaxResults(0);
     }
+
+	public function checkOlderThan(DateTimeImmutable $lastDate): void {
+		$qb = $this->createQueryBuilder('l');
+		$qb->update()
+			->set('l.checked', true)
+			->where('l.date <= :date')
+			->setParameter('date', $lastDate)
+			->getQuery()
+			->execute();
+	}
+
+	public function check(LogRecord $log, DateTimeImmutable $lastDate): void {
+		$this->createQueryBuilder('l')
+			->update()
+			->set('l.checked', true)
+			->where('l.checked = 0')
+			->andWhere('l.message = :message')
+			->andWhere('l.date <= :date')
+			->setParameter('date', $lastDate)
+			->setParameter('message', $log->getMessage())
+			->getQuery()
+			->execute();
+	}
+
+
 }
