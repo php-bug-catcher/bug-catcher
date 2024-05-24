@@ -1,6 +1,7 @@
-# Catch every bug in your Symfony application
+# Catch every bug in all your Symfony application in one place
 
 ![screenshot](docs/bug_catcher_01.png)
+![screenshot](docs/stacktrace.png)
 
 ## Setup
 

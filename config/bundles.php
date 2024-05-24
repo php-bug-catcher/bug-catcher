@@ -18,5 +18,6 @@ return [
     Zenstruck\Foundry\ZenstruckFoundryBundle::class => ['dev' => true, 'test' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
     Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
-	ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
+	ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class    => ['all' => true],
+	EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
 ];
