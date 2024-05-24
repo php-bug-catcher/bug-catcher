@@ -1,5 +1,7 @@
 # Catch every bug in your Symfony application
 
+![screenshot](docs/bug_catcher_01.png)
+
 ## Setup
 
 **Download the code**
