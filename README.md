@@ -36,6 +36,17 @@ Run migrate command for setup database
 php bin/console doctrine:migrations:migrate
 ```
 
+**build javascripts**
+
+You need to have downloaded and installed
+[nodejs](https://nodejs.org/en) and
+[yarn](https://classic.yarnpkg.com/en/docs/install#debian-stable)
+
+```
+yarn install
+yarn build
+```
+
 **Start the built-in web server**
 
 You can use Nginx or Apache, but the built-in web server works
