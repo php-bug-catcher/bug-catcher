@@ -20,6 +20,7 @@ final class ProjectStatus extends AbsComponent
 		],[
 			"date"=>"DESC"
 		]);
-		return $ping->getStatusCode()===200;
+
+		return $ping?->getStatusCode() === 200;
 	}
 }
