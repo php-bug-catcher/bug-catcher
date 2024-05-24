@@ -2,20 +2,16 @@
 
 namespace App\Controller;
 
-use App\Repository\LogRecordRepository;
+use App\Entity\LogRecord;
 use App\Repository\ProjectRepository;
+use Kregel\ExceptionProbe\Stacktrace;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapDateTime;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends AbstractController
 {
 
-	public function __construct(
-		private readonly LogRecordRepository $recordRepo
-	) {}
 
 	#[Route('/', name: 'app.dashboard')]
     public function index(ProjectRepository $projectRepo): Response
@@ -24,5 +20,16 @@ class DashboardController extends AbstractController
 			"projects" => $projectRepo->findAll(),
 		]);
     }
+
+	#[Route('/detail/{record}', name: 'app.dashboard.detail')]
+	public function detail(LogRecord $record): Response {
+		$stacktrace = unserialize($record->getStacktrace());
+
+		return $this->render('dashboard/detail.html.twig', [
+			"record"     => $record,
+			"stacktrace" => $stacktrace,
+		]);
+
+	}
 
 }

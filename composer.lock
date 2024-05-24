@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-  "content-hash": "c718367b6d1fc6c272f9bc56ae3a624f",
+  "content-hash": "f7e06bbdff469dd52c385010d7f8668a",
     "packages": [
         {
           "name": "api-platform/core",
@@ -1976,6 +1976,69 @@
             "time": "2024-05-16T21:43:47+00:00"
         },
         {
+          "name": "kregel/exception-probe",
+          "version": "v1.0.0",
+          "source": {
+            "type": "git",
+            "url": "https://github.com/austinkregel/php-exception-probe.git",
+            "reference": "8961f446feb57d7aeb830163ba04faa07cd213fd"
+          },
+          "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/austinkregel/php-exception-probe/zipball/8961f446feb57d7aeb830163ba04faa07cd213fd",
+            "reference": "8961f446feb57d7aeb830163ba04faa07cd213fd",
+            "shasum": ""
+          },
+          "require": {
+            "php": ">=7.1"
+          },
+          "require-dev": {
+            "phpunit/phpunit": "^7.0"
+          },
+          "type": "library",
+          "autoload": {
+            "psr-4": {
+              "Kregel\\ExceptionProbe\\": "src/"
+            }
+          },
+          "notification-url": "https://packagist.org/downloads/",
+          "license": [
+            "MIT"
+          ],
+          "authors": [
+            {
+              "name": "Austin Kregel",
+              "email": "github@austinkregel.com",
+              "homepage": "https://austinkregel.com",
+              "role": "Developer"
+            }
+          ],
+          "description": "A package to help get more information from stack traces, and exceptions",
+          "homepage": "https://github.com/kregel/php-exception-probe",
+          "keywords": [
+            "php-exception-probe"
+          ],
+          "support": {
+            "issues": "https://github.com/austinkregel/php-exception-probe/issues",
+            "source": "https://github.com/austinkregel/php-exception-probe/tree/v1.0.0"
+          },
+          "funding": [
+            {
+              "url": "https://beerpay.io/austinkregel/php-exception-probe",
+              "type": "custom"
+            },
+            {
+              "url": "https://ko-fi.com/kregel",
+              "type": "ko_fi"
+            },
+            {
+              "url": "https://tidelift.com/funding/github/composer/exception-probe",
+              "type": "tidelift"
+            }
+          ],
+          "time": "2021-03-17T23:33:13+00:00"
+        },
+      {
             "name": "monolog/monolog",
             "version": "3.6.0",
             "source": {
@@ -11305,6 +11368,7 @@
     "platform": {
         "php": ">=8.2",
         "ext-ctype": "*",
+      "ext-curl": "*",
         "ext-iconv": "*"
     },
     "platform-dev": [],

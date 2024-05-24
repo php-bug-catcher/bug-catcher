@@ -22,13 +22,19 @@
                         <span class="badge text-bg-danger rounded-pill">{{ log.count }}</span>
                         {{ log.message }}
                     </div>
-                    <button type="button" class="btn btn-outline-success btn-sm"
-                            data-action="live#action"
-                            data-live-action-param="clearOne"
-                            data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
-                            data-live-log-param="{{ log.id }}"
-                    >Fix it
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-outline-success btn-sm"
+                                data-action="live#action"
+                                data-live-action-param="clearOne"
+                                data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                data-live-log-param="{{ log.id }}"
+                        >Fix it
+                        </button>
+                        <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
+                           class="btn btn-outline-success btn-sm"
+                           target="_blank"
+                        >show</a>
+                    </div>
                 </li>
             {% endfor %}
         </ul>

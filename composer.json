@@ -6,8 +6,8 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
+        "ext-curl": "*",
         "ext-iconv": "*",
-      "ext-curl": "*",
         "api-platform/core": "^3.3",
         "brendt/php-sparkline": "dev-period2",
         "doctrine/dbal": "^3",
@@ -15,6 +15,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.6",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.1",
+        "kregel/exception-probe": "^1.0",
         "phpdocumentor/reflection-docblock": "^5.4",
         "phpstan/phpdoc-parser": "^1.29",
         "symfony/asset": "7.0.*",

@@ -3,3 +3,24 @@
 body {
     background-color: lightgray;
 }
+
+code {
+    white-space: pre-wrap;
+}
+
+div.code::before {
+    counter-reset: listing;
+}
+
+div.code code {
+    counter-increment: listing;
+}
+
+div.code code::before {
+    content: counter(listing) ". ";
+    display: inline-block;
+    width: 4em; /* now works */
+    padding-left: auto; /* now works */
+    margin-left: auto; /* now works */
+    text-align: right; /* now works */
+}
