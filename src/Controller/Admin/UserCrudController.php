@@ -55,12 +55,12 @@ class UserCrudController extends AbstractCrudController {
 			->onlyOnForms();
 
 		$roles = [
-			"Admin"    => Role::ROLE_ADMIN,
+			"Admin" => Role::ROLE_DEVELOPER,
 			"User"     => Role::ROLE_USER,
 			"Customer" => Role::ROLE_CUSTOMER,
 		];
-		if ($this->isGranted("role", Role::ROLE_SUPER_ADMIN)) {
-			$roles["Super Admin"] = Role::ROLE_SUPER_ADMIN;
+		if ($this->isGranted("role", Role::ROLE_ADMIN)) {
+			$roles["Super Admin"] = Role::ROLE_ADMIN;
 		}
 
 		return [
@@ -73,6 +73,7 @@ class UserCrudController extends AbstractCrudController {
 				->allowMultipleChoices()
 				->setRequired(true)
 				->onlyOnForms(),
+			AssociationField::new('projects')->setColumns(6)->onlyOnForms(),
 			$password,
 		];
 

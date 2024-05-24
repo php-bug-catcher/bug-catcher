@@ -43,8 +43,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	#[ORM\Column(length: 255)]
 	private ?string $fullname = null;
 
+	/**
+	 * @var Collection<int, Project>
+	 */
+	#[ORM\ManyToMany(targetEntity: Project::class, inversedBy: 'users')]
+	private Collection $projects;
 
-	public function __construct() {}
+
+	public function __construct() {
+		$this->projects = new ArrayCollection();
+	}
 
 	public function getId(): ?Uuid {
 		return $this->id;
@@ -137,6 +145,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	 */
 	public function getUserIdentifier(): string {
 		return $this->fullname??$this->email;
+	}
+
+	/**
+	 * @return Collection<int, Project>
+	 */
+	public function getProjects(): Collection {
+		return $this->projects;
+	}
+
+	public function addProject(Project $project): static {
+		if (!$this->projects->contains($project)) {
+			$this->projects->add($project);
+		}
+
+		return $this;
+	}
+
+	public function removeProject(Project $project): static {
+		$this->projects->removeElement($project);
+
+		return $this;
 	}
 
 

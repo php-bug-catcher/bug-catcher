@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -33,8 +35,16 @@ class Project {
 	#[ORM\Column(length: 255, nullable: true)]
 	private ?string $pingCollector = null;
 
+	/**
+	 * @var Collection<int, User>
+	 */
+	#[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'projects')]
+	private Collection $users;
 
-	public function __construct() {}
+
+	public function __construct() {
+		$this->users = new ArrayCollection();
+	}
 
 	public function getId(): ?Uuid {
 		return $this->id;
@@ -99,5 +109,34 @@ class Project {
 
 		return $this;
 	}
+
+	/**
+	 * @return Collection<int, User>
+	 */
+	public function getUsers(): Collection {
+		return $this->users;
+	}
+
+	public function addUser(User $user): static {
+		if (!$this->users->contains($user)) {
+			$this->users->add($user);
+			$user->addProject($this);
+		}
+
+		return $this;
+	}
+
+	public function removeUser(User $user): static {
+		if ($this->users->removeElement($user)) {
+			$user->removeProject($this);
+		}
+
+		return $this;
+	}
+
+	public function __toString(): string {
+		return $this->name??'Project';
+	}
+
 
 }

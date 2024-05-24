@@ -8,6 +8,7 @@ use App\Entity\Client\Order\Order;
 use App\Entity\Client\Order\Request;
 use App\Entity\Client\Product\Category;
 use App\Entity\Client\Product\Product;
+use App\Entity\Project;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -59,6 +60,7 @@ class DashboardController extends AbstractDashboardController {
 	public function configureMenuItems(): iterable {
 		yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 		yield MenuItem::linkToCrud('Users', 'fa-solid fa-user-tie', User::class);
+		yield MenuItem::linkToCrud('Projects', 'fa-solid fa-shield-dog', Project::class);
 	}
 
 	public function configureActions(): Actions {

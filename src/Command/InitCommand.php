@@ -43,7 +43,7 @@ class InitCommand extends Command {
 			$user = $this->userRepo->createEmpty($username, true);
 			$user
 				->setEnabled(true)
-				->setEnumRoles([Role::ROLE_SUPER_ADMIN])
+				->setEnumRoles([Role::ROLE_ADMIN])
 				->setPassword(
 					$this->passwordHasher->hashPassword($user, $password)
 				);
