@@ -1,4 +1,4 @@
-# Catch every bug in all your Symfony application in one place
+# Catch every bug in all your Symfony applications in one place
 
 ![screenshot](docs/bug_catcher_01.png)
 ![screenshot](docs/stacktrace.png)
@@ -50,6 +50,12 @@ yarn install
 yarn build
 ```
 
+**Create first admin user**
+
+```
+php bin/console app:init <email> <password>
+```
+
 **Start the built-in web server**
 
 You can use Nginx or Apache, but the built-in web server works
@@ -71,10 +77,8 @@ Have fun!
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to
-open an issue on this repository or comment on the course
-itself. We're watching both :).
+open an issue on this repository.
 
 ## Thanks!
 
-And as always, thanks so much for your support and letting
-us do what we love!
+
