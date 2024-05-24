@@ -43,7 +43,7 @@ class SecurityController extends AbstractController {
 </div>
 HTML,
 			'csrf_token_intention'    => 'authenticate',
-			'target_path'             => $this->generateUrl('admin'),
+			'target_path' => $this->generateUrl('app.dashboard'),
 			'username_label'          => 'Your email address',
 			'password_label'          => 'Your password',
 			'sign_in_label'           => 'Log in',

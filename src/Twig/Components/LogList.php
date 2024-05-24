@@ -3,11 +3,13 @@
 namespace App\Twig\Components;
 
 use App\Entity\LogRecord;
+use App\Entity\Role;
 use App\Repository\LogRecordRepository;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
@@ -42,6 +44,7 @@ final class LogList extends AbstractController
 
 
 	#[LiveAction]
+	#[IsGranted(Role::ROLE_DEVELOPER->value)]
 	public function clearAll(#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date) {
 		$this->recordRepo->checkOlderThan($date);
 
@@ -49,6 +52,7 @@ final class LogList extends AbstractController
 	}
 
 	#[LiveAction]
+	#[IsGranted(Role::ROLE_DEVELOPER->value)]
 	public function clearOne(#[LiveArg] LogRecord $log, #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date) {
 		$this->recordRepo->check($log, $date);
 

@@ -3,9 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Project;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Project>
@@ -60,4 +63,19 @@ class ProjectRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')->setMaxResults(0);
     }
+
+	/**
+	 * @param User|null $user
+	 * @return array<Project>
+	 */
+	public function findByAdmin(?User $user): array {
+		$qb = $this->createQueryBuilder('p');
+		$qb
+			->join("p.users", "u")
+			->where('u.id = :admin')
+			->setParameter('admin', $user->getId(), UuidType::NAME);
+
+		return $qb->getQuery()->getResult();
+	}
+
 }

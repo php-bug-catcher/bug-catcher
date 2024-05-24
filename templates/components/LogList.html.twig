@@ -22,6 +22,7 @@
                         <span class="badge text-bg-danger rounded-pill">{{ log.count }}</span>
                         {{ log.message }}
                     </div>
+                    {% if is_granted('ROLE_DEVELOPER') %}
                     <div>
                         <button type="button" class="btn btn-outline-success btn-sm"
                                 data-action="live#action"
@@ -35,6 +36,7 @@
                            target="_blank"
                         >show</a>
                     </div>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>

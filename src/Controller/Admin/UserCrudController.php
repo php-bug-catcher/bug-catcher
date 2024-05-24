@@ -55,14 +55,11 @@ class UserCrudController extends AbstractCrudController {
 			->onlyOnForms();
 
 		$roles = [
-			"Admin" => Role::ROLE_DEVELOPER,
+			"Admin"     => Role::ROLE_ADMIN,
+			"Developer" => Role::ROLE_DEVELOPER,
 			"User"     => Role::ROLE_USER,
 			"Customer" => Role::ROLE_CUSTOMER,
 		];
-		if ($this->isGranted("role", Role::ROLE_ADMIN)) {
-			$roles["Super Admin"] = Role::ROLE_ADMIN;
-		}
-
 		return [
 			TextField::new('email')->setColumns(8),
 			BooleanField::new("enabled")->setColumns(4),

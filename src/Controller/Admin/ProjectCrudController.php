@@ -3,6 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Project;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -17,6 +20,12 @@ class ProjectCrudController extends AbstractCrudController {
 		return Project::class;
 	}
 
+	public function configureActions(Actions $actions): Actions {
+		return parent::configureActions($actions)
+			->remove(Crud::PAGE_INDEX, Action::DELETE)
+			->remove(Crud::PAGE_DETAIL, Action::DELETE);
+	}
+
 
 	public function configureFields(string $pageName): iterable {
 		return [
@@ -24,7 +33,7 @@ class ProjectCrudController extends AbstractCrudController {
 			TextField::new('name'),
 			BooleanField::new("enabled"),
 			ChoiceField::new("pingCollector")->setChoices([
-				"None" => null, 'http' => 'http', 'messenger' => 'messenger',
+				"None" => "none", 'http' => 'http', 'messenger' => 'messenger',
 			])->hideOnIndex(),
 			UrlField::new("url"),
 			TextField::new('dbConnection')->hideOnIndex(),
