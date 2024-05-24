@@ -25,25 +25,32 @@
                         <h4 class=" fw-bold">{{ record.message }}</h4>
                         <p class="col-md-8 fs-4">
                         <div class="accordion" id="accordionExample">
+                            {% set first = true %}
                             {% for key,item in stacktrace %}
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading-{{ key }}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapse-{{ key }}" aria-expanded="false" aria-controls="collapse-{{ key }}">
+                                    <h3 class="accordion-header" id="heading-{{ key }}">
+                                        <button class="accordion-button collapsed"
+                                                type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapse-{{ key }}"
+                                                aria-expanded="{{ first|json_encode }}"
+                                                aria-controls="collapse-{{ key }}">
                                             {{ item.file }} (line {{ item.line }})
                                         </button>
-                                    </h2>
-                                    <div id="collapse-{{ key }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ key }}"
+                                    </h3>
+                                    <div id="collapse-{{ key }}" class="accordion-collapse collapse {% if first %}show{% endif %}"
+                                         aria-labelledby="heading-{{ key }}"
                                          data-bs-parent="#accordionExample">
                                         <div class="accordion-body">
                                             <div class="code">
                                                 {% for lineNum,line in item.code %}
-                                                    <code style="counter-set: listing {{ lineNum }};">{{ line }}</code>
+                                                    <code class="{% if item.line==lineNum %}selected{% endif %}"
+                                                          style="counter-set: listing {{ lineNum }};">{{ line }}</code>
                                                 {% endfor %}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                {% set first = false %}
                             {% endfor %}
                         </div>
                         </p>
