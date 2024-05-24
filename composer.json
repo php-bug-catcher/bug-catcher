@@ -7,6 +7,7 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+      "ext-curl": "*",
         "api-platform/core": "^3.3",
         "brendt/php-sparkline": "dev-period2",
         "doctrine/dbal": "^3",

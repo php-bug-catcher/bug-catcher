@@ -4,6 +4,7 @@ namespace App\Twig\Components;
 
 use App\Repository\PingRecordRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
@@ -21,6 +22,6 @@ final class ProjectStatus extends AbsComponent
 			"date"=>"DESC"
 		]);
 
-		return $ping?->getStatusCode() === 200;
+		return $ping?->getStatusCode() == Response::HTTP_OK;
 	}
 }

@@ -14,7 +14,17 @@ class PingRecord extends Record
     #[ORM\Column(length: 255)]
     private ?string $statusCode = null;
 
-    public function getStatusCode(): ?string
+	/**
+	 * @param string|null $statusCode
+	 */
+	public function __construct(Project $project, ?string $statusCode) {
+		$this->project    = $project;
+		$this->date       = new \DateTimeImmutable();
+		$this->statusCode = $statusCode;
+	}
+
+
+	public function getStatusCode(): ?string
     {
         return $this->statusCode;
     }
