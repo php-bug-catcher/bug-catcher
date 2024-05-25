@@ -3,9 +3,3 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-
-admin_controllers:
-    resource: ../src/Controller/Admin
-    prefix: /admin
-    name_prefix: admin
-    type: attribute

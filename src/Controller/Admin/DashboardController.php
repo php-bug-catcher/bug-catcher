@@ -30,7 +30,7 @@ class DashboardController extends AbstractDashboardController {
 		private readonly string $appName
 	) {}
 
-	#[Route('/admin', name: '')]
+	#[Route('/admin', name: 'admin')]
 	public function index(): Response {
 		return $this->render("admin/dashboard.html.twig");
 	}
