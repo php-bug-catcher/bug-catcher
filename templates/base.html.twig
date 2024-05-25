@@ -12,6 +12,7 @@
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 </head>
 <body class="bg-body-tertiary">
 {% set flashes = app.session.flashbag.all() %}
@@ -29,7 +30,31 @@
         {% endfor %}
     {% endfor %}
     {% endif %}
-    {% block body %}{% endblock %}
+    {% block body %}
+
+        <div class="min-h-screen p-2 h-100">
+            <main class="">
+                <div class="my-3 p-3 bg-body rounded shadow-sm">
+                    <div class="row">
+                        {% block main %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    {% endblock %}
+    <div class="dropup position-absolute bottom-0 end-0 m-5">
+        <button type="button" class="btn btn-success btn-lg hide-toggle rounded-circle" data-bs-toggle="dropdown" aria-expanded="false"
+                aria-haspopup="true">
+            <twig:ux:icon name="pajamas:hamburger" width="20" height="20"/>
+            <span class="visually-hidden">Add Category</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item" href="{{ path('app_change_password') }}">Change password</a>
+                <a class="dropdown-item" href="{{ path('app_logout') }}">Log out</a>
+            </li>
+        </ul>
+    </div>
 </div>
 </body>
 </html>
