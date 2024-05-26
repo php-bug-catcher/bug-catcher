@@ -8,7 +8,7 @@
 **Download the code**
 
 ```
-git clone git@github.com:php-sentinel/bug-catcher.git
+git clone https://github.com/php-sentinel/bug-catcher.git
 ```
 
 To get it working, follow these steps:
@@ -67,18 +67,21 @@ php bin/console server:run
 
 Now check out the site at `http://localhost:8000`
 
-**Setup your applications**
+## Enable Logging
 
-In your application where your want catch errors require package ```php-sentinel/bug-catcher-reporter-bundle```
-and follow instruction in [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle)
+**Setup your Symfony applications**
+
+See package [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle)
 
 Have fun!
+
+**Setup non symfony applications**
+
+See package [php-sentinel/bug-catcher-curl-reporter](https://github.com/php-sentinel/bug-catcher-curl-reporter)
 
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to
 open an issue on this repository.
-
-## Thanks!
 
 
