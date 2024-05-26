@@ -53,9 +53,8 @@ final class LogList extends AbstractController
 	#[IsGranted(Role::ROLE_DEVELOPER->value)]
 	public function clearAll(
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
-		#[LiveArg] LogRecordStatus                                         $status
 	) {
-		$this->recordRepo->setStatusOlderThan($date, $status);
+		$this->recordRepo->setStatusOlderThan($date, LogRecordStatus::RESOLVED);
 
 		return $this->redirectToRoute('app.dashboard');
 	}
