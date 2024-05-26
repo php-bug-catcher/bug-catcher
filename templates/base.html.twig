@@ -42,15 +42,23 @@
             </main>
         </div>
     {% endblock %}
-    <div class="dropup position-absolute bottom-0 end-0 m-5">
+    <div class="dropup position-fixed bottom-0 end-0 m-5">
         <button type="button" class="btn btn-success btn-lg hide-toggle rounded-circle" data-bs-toggle="dropdown" aria-expanded="false"
                 aria-haspopup="true">
-            <twig:ux:icon name="pajamas:hamburger" width="20" height="20"/>
+            <twig:ux:icon name="pajamas:hamburger" width="20" height="25"/>
             <span class="visually-hidden">Add Category</span>
         </button>
         <ul class="dropdown-menu">
             <li>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="dropdown-item" href="{{ path('admin') }}">Administration</a>
+                {% endif %}
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" href="{{ path('app.dashboard',{status:'archived'}) }}">Archived logs</a>
+                <a class="dropdown-item" href="{{ path('app.dashboard',{status:'new'}) }}">New logs</a>
+                <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('app_change_password') }}">Change password</a>
+                <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('app_logout') }}">Log out</a>
             </li>
         </ul>

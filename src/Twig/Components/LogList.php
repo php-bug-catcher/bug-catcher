@@ -14,6 +14,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -21,6 +22,10 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 final class LogList extends AbstractController
 {
 	use DefaultActionTrait;
+
+	#[LiveProp]
+	public LogRecordStatus $status;
+
 	public function __construct(
 		private readonly LogRecordRepository $recordRepo
 	) {}
@@ -29,7 +34,7 @@ final class LogList extends AbstractController
 	 * @return LogRecord[]
 	 */
 	public function getLogs(): array {
-		$logs = $this->recordRepo->findBy(["status" => LogRecordStatus::NEW], ['date' => 'DESC']);
+		$logs = $this->recordRepo->findBy(["status" => $this->status], ['date' => 'DESC']);
 		$grouped = [];
 		foreach ($logs as $log) {
 			$key = md5($log->getMessage());

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\LogRecord;
+use App\Entity\LogRecordStatus;
 use App\Entity\Role;
 use App\Repository\ProjectRepository;
 use Kregel\ExceptionProbe\Stacktrace;
@@ -14,11 +15,12 @@ class DashboardController extends AbstractController
 {
 
 
-	#[Route('/', name: 'app.dashboard')]
-    public function index(ProjectRepository $projectRepo): Response
+	#[Route('/{status}', name: 'app.dashboard')]
+	public function index(ProjectRepository $projectRepo, LogRecordStatus $status = LogRecordStatus::NEW): Response
     {
         return $this->render('dashboard/index.html.twig',[
 			"projects" => $projectRepo->findByAdmin($this->getUser()),
+			"status" => $status,
 		]);
     }
 
