@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\LogRecord;
+use App\Entity\LogRecordStatus;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -62,25 +63,29 @@ class LogRecordRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('l')->setMaxResults(0);
     }
 
-	public function checkOlderThan(DateTimeImmutable $lastDate): void {
+	public function setStatusOlderThan(DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
 		$qb = $this->createQueryBuilder('l');
 		$qb->update()
-			->set('l.checked', true)
+			->set('l.status', "'{$newStatus->value}'")
 			->where('l.date <= :date')
+			->andWhere('l.message = :message')
+			->where('l.status = :status')
 			->setParameter('date', $lastDate)
+			->setParameter('status', $previousStatus)
 			->getQuery()
 			->execute();
 	}
 
-	public function check(LogRecord $log, DateTimeImmutable $lastDate): void {
+	public function setStatus(LogRecord $log, DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
 		$this->createQueryBuilder('l')
 			->update()
-			->set('l.checked', true)
-			->where('l.checked = 0')
+			->set('l.status', "'{$newStatus->value}'")
+			->where('l.status = :status')
 			->andWhere('l.message = :message')
 			->andWhere('l.date <= :date')
 			->setParameter('date', $lastDate)
 			->setParameter('message', $log->getMessage())
+			->setParameter('status', $previousStatus)
 			->getQuery()
 			->execute();
 	}

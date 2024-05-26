@@ -24,12 +24,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: LogRecordRepository::class)]
 #[ORM\Index(name: 'date_idx', columns: ['project_id', 'date'])]
-#[ORM\Index(name: 'done_idx', columns: ['project_id', 'checked'])]
-#[ORM\Index(name: 'message_idx', columns: ['checked', 'message'], options: ["lengths" => [1, 255]])]
+#[ORM\Index(name: 'done_idx', columns: ['project_id', 'status'])]
+#[ORM\Index(name: 'message_idx', columns: ['status', 'message'], options: ["lengths" => [1, 255]])]
 class LogRecord extends Record {
 
-	#[ORM\Column]
-	private bool $checked = false;
+	#[ORM\Column(type: Types::STRING, length: 25, enumType: LogRecordStatus::class)]
+	private LogRecordStatus $status = LogRecordStatus::NEW;
 
 	#[Groups(['record:write'])]
 	#[Assert\NotBlank(groups: ['api'])]
@@ -63,12 +63,12 @@ class LogRecord extends Record {
 	}
 
 
-	public function isChecked(): ?bool {
-		return $this->checked;
+	public function getStatus(): LogRecordStatus {
+		return $this->status;
 	}
 
-	public function setChecked(bool $checked): static {
-		$this->checked = $checked;
+	public function setStatus(LogRecordStatus $status): static {
+		$this->status = $status;
 
 		return $this;
 	}

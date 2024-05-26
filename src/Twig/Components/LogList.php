@@ -3,6 +3,7 @@
 namespace App\Twig\Components;
 
 use App\Entity\LogRecord;
+use App\Entity\LogRecordStatus;
 use App\Entity\Role;
 use App\Repository\LogRecordRepository;
 use DateTimeImmutable;
@@ -28,7 +29,7 @@ final class LogList extends AbstractController
 	 * @return LogRecord[]
 	 */
 	public function getLogs(): array {
-		$logs    = $this->recordRepo->findBy(["checked" => false], ['date' => 'DESC']);
+		$logs = $this->recordRepo->findBy(["status" => LogRecordStatus::NEW], ['date' => 'DESC']);
 		$grouped = [];
 		foreach ($logs as $log) {
 			$key = md5($log->getMessage());
@@ -45,16 +46,23 @@ final class LogList extends AbstractController
 
 	#[LiveAction]
 	#[IsGranted(Role::ROLE_DEVELOPER->value)]
-	public function clearAll(#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date) {
-		$this->recordRepo->checkOlderThan($date);
+	public function clearAll(
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
+		#[LiveArg] LogRecordStatus                                         $status
+	) {
+		$this->recordRepo->setStatusOlderThan($date, $status);
 
 		return $this->redirectToRoute('app.dashboard');
 	}
 
 	#[LiveAction]
 	#[IsGranted(Role::ROLE_DEVELOPER->value)]
-	public function clearOne(#[LiveArg] LogRecord $log, #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date) {
-		$this->recordRepo->check($log, $date);
+	public function clearOne(
+		#[LiveArg] LogRecord                                               $log,
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
+		#[LiveArg] LogRecordStatus                                         $status
+	) {
+		$this->recordRepo->setStatus($log, $date, $status);
 
 		return $this->redirectToRoute('app.dashboard');
 	}

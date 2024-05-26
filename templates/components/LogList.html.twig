@@ -23,18 +23,34 @@
                         {{ log.message }}
                     </div>
                     {% if is_granted('ROLE_DEVELOPER') %}
-                    <div>
-                        <button type="button" class="btn btn-outline-success btn-sm"
+                        <div class="text-nowrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    data-action="live#action"
+                                    data-live-action-param="clearOne"
+                                    data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                    data-live-status-param="resolved"
+                                    data-live-log-param="{{ log.id }}"
+                                    title="Fix it"
+                            >
+                                <twig:ux:icon name="game-icons:magic-broom"/>
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm"
                                 data-action="live#action"
                                 data-live-action-param="clearOne"
                                 data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                    data-live-status-param="archived"
                                 data-live-log-param="{{ log.id }}"
-                        >Fix it
-                        </button>
+                                    title="Archive it"
+                            >
+                                <twig:ux:icon name="clarity:archive-line"/>
+                            </button>
                         <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
                            class="btn btn-outline-success btn-sm"
                            target="_blank"
-                        >show</a>
+                           title="Detail"
+                        >
+                            <twig:ux:icon name="covid:virus-lab-research-magnifier-1"/>
+                        </a>
                     </div>
                     {% endif %}
                 </li>
