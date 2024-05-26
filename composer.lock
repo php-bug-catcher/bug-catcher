@@ -2240,7 +2240,7 @@
           "dist": {
             "type": "path",
             "url": "../logview-reporter",
-            "reference": "dc23588f1c659c8e56928a5dfbdf2c96bbda486d"
+            "reference": "cf279a924f377ccd6c7745ad51640289330bcae5"
           },
           "require": {
             "kregel/exception-probe": "^1.0",
@@ -2248,12 +2248,10 @@
             "php": ">=8.1",
             "symfony/dependency-injection": "^5.4|^6.4|^7.0",
             "symfony/framework-bundle": "^5.4|^6.4|^7.0",
-            "symfony/monolog-bundle": "^3.10",
-            "symfony/uid": "^5.4|^6.4|^7.0"
+            "symfony/monolog-bundle": "^3.10"
           },
           "require-dev": {
             "doctrine/common": "^3.4",
-            "doctrine/doctrine-bundle": "^2.12",
             "phpunit/phpunit": "^9.5",
             "symfony/dotenv": "^5.4|^6.4|^7.0",
             "symfony/http-client": "^5.4|^6.4|^7.0",
