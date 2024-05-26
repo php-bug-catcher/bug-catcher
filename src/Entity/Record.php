@@ -29,7 +29,6 @@ abstract class Record {
 
 	#[ORM\ManyToOne()]
 	#[ORM\JoinColumn(nullable: false)]
-	#[Assert\NotBlank()]
 	protected ?Project $project = null;
 
 	public function getId(): ?Uuid {

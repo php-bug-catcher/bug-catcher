@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c465be562dfe31da4e28150c2b3a9197",
+  "content-hash": "0877f72e98a333e8511831e75e38e486",
     "packages": [
         {
             "name": "api-platform/core",
@@ -2235,6 +2235,52 @@
             "time": "2024-04-12T21:02:21+00:00"
         },
         {
+          "name": "php-sentinel/bug-catcher-reporter-bundle",
+          "version": "dev-main",
+          "dist": {
+            "type": "path",
+            "url": "../logview-reporter",
+            "reference": "dc23588f1c659c8e56928a5dfbdf2c96bbda486d"
+          },
+          "require": {
+            "kregel/exception-probe": "^1.0",
+            "monolog/monolog": "^3.0",
+            "php": ">=8.1",
+            "symfony/dependency-injection": "^5.4|^6.4|^7.0",
+            "symfony/framework-bundle": "^5.4|^6.4|^7.0",
+            "symfony/monolog-bundle": "^3.10",
+            "symfony/uid": "^5.4|^6.4|^7.0"
+          },
+          "require-dev": {
+            "doctrine/common": "^3.4",
+            "doctrine/doctrine-bundle": "^2.12",
+            "phpunit/phpunit": "^9.5",
+            "symfony/dotenv": "^5.4|^6.4|^7.0",
+            "symfony/http-client": "^5.4|^6.4|^7.0",
+            "symfony/orm-pack": "^2.4",
+            "symfony/phpunit-bridge": "^5.4|^6.4|^7.0",
+            "symfony/yaml": "^5.4|^6.4|^7.0"
+          },
+          "type": "symfony-bundle",
+          "autoload": {
+            "psr-4": {
+              "BugCatcher\\Reporter\\": "src/"
+            }
+          },
+          "autoload-dev": {
+            "psr-4": {
+              "BugCatcher\\Reporter\\Tests\\": "tests/"
+            }
+          },
+          "license": [
+            "MIT"
+          ],
+          "description": "A Symfony bundle to report exceptions to Bug Catcher",
+          "transport-options": {
+            "relative": true
+          }
+        },
+      {
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
@@ -11526,7 +11572,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "brendt/php-sparkline": 20
+      "brendt/php-sparkline": 20,
+      "php-sentinel/bug-catcher-reporter-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

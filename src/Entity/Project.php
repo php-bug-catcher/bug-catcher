@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use App\Api\Processor\LogRecordSaveProcessor;
 use App\Repository\ProjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
+#[ApiResource(
+	operations: [],
+	denormalizationContext: ['groups' => ['record:write']],
+	validationContext: ['groups' => ['api']],
+)]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project {
 	#[ORM\Id]

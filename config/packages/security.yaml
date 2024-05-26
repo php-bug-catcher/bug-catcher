@@ -38,8 +38,15 @@ security:
                 - ^/css/
                 - ^/images/
                 - ^/js/
+                - ^/js/
             security: false
+        api:
+            pattern: ^/api/
+            stateless: true
         main:
+            remember_me:
+                secret: '%kernel.secret%' # required
+                lifetime: 604800 # 1 week in seconds
             login_throttling:
                 limiter: app.login_rate_limiter
             lazy: true
