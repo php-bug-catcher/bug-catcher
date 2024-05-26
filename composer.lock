@@ -2240,12 +2240,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-sentinel/bug-catcher-reporter-bundle.git",
-                "reference": "cf279a924f377ccd6c7745ad51640289330bcae5"
+              "reference": "4bcd762710634618a5a59baf3a7b2d1310af6e62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-sentinel/bug-catcher-reporter-bundle/zipball/cf279a924f377ccd6c7745ad51640289330bcae5",
-                "reference": "cf279a924f377ccd6c7745ad51640289330bcae5",
+              "url": "https://api.github.com/repos/php-sentinel/bug-catcher-reporter-bundle/zipball/4bcd762710634618a5a59baf3a7b2d1310af6e62",
+              "reference": "4bcd762710634618a5a59baf3a7b2d1310af6e62",
                 "shasum": ""
             },
             "require": {
@@ -2281,7 +2281,7 @@
                 "issues": "https://github.com/php-sentinel/bug-catcher-reporter-bundle/issues",
                 "source": "https://github.com/php-sentinel/bug-catcher-reporter-bundle/tree/main"
             },
-            "time": "2024-05-26T17:20:27+00:00"
+          "time": "2024-05-26T17:46:23+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
