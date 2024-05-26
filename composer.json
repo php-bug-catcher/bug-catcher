@@ -59,10 +59,6 @@
         {
             "url": "https://github.com/tito10047/php-sparkline",
             "type": "vcs"
-        },
-        {
-            "type": "path",
-            "url": "../logview-reporter"
         }
     ],
     "config": {
