@@ -16,6 +16,9 @@ final class ProjectStatus extends AbsComponent
 	) {}
 
 	public function getLastStatus():string {
+		if ($this->project->getPingCollector() == 'none') {
+			return true;
+		}
 		$ping = $this->recordRepo->findOneBy([
 			"project"=>$this->project
 		],[
