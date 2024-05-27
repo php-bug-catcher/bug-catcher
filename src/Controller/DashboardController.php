@@ -15,7 +15,8 @@ class DashboardController extends AbstractController
 {
 
 
-	#[Route('/{status}', name: 'app.dashboard')]
+	#[Route('/', name: 'app.dashboard')]
+	#[Route('/status/{status}', name: 'app.dashboard.status')]
 	public function index(ProjectRepository $projectRepo, LogRecordStatus $status = LogRecordStatus::NEW): Response
     {
         return $this->render('dashboard/index.html.twig',[

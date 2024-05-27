@@ -68,6 +68,6 @@ final class LogList extends AbstractController
 	) {
 		$this->recordRepo->setStatus($log, $date, $status);
 
-		return $this->redirectToRoute('app.dashboard');
+		return $this->redirectToRoute('app.dashboard.status', ['status' => $this->status->value]);
 	}
 }
