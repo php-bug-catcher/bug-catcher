@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @extends ServiceEntityRepository<LogRecord>
@@ -17,76 +18,80 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method LogRecord[]    findAll()
  * @method LogRecord[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class LogRecordRepository extends ServiceEntityRepository
-{
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, LogRecord::class);
-    }
+class LogRecordRepository extends ServiceEntityRepository {
+	public function __construct(
+		ManagerRegistry $registry,
+		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
+		private bool    $clearStackTrace
+	) {
+		parent::__construct($registry, LogRecord::class);
+	}
 
-    public function save(LogRecord $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+	public function save(LogRecord $entity, bool $flush = false): void {
+		$this->getEntityManager()->persist($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function remove(LogRecord $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
+	public function remove(LogRecord $entity, bool $flush = false): void {
+		$this->getEntityManager()->remove($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function createEmpty(bool $flush): LogRecord
-    {
-        $entity = new LogRecord();
+	public function createEmpty(bool $flush): LogRecord {
+		$entity = new LogRecord();
 
-        $this->save($entity, $flush);
+		$this->save($entity, $flush);
 
-        return $entity;
-    }
+		return $entity;
+	}
 
-    public function getQBWith(): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('l');
+	public function getQBWith(): QueryBuilder {
+		$qb = $this->createQueryBuilder('l');
 
-        return $qb;
-    }
+		return $qb;
+	}
 
-    public function getQBBlank(): QueryBuilder
-    {
-        return $this->createQueryBuilder('l')->setMaxResults(0);
-    }
+	public function getQBBlank(): QueryBuilder {
+		return $this->createQueryBuilder('l')->setMaxResults(0);
+	}
 
 	public function setStatusOlderThan(DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
-		$qb = $this->createQueryBuilder('l');
-		$qb->update()
-			->set('l.status', "'{$newStatus->value}'")
-			->where('l.date <= :date')
-			->andWhere('l.status = :status')
-			->setParameter('date', $lastDate)
-			->setParameter('status', $previousStatus)
+		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
+
+		$qb
 			->getQuery()
 			->execute();
 	}
 
 	public function setStatus(LogRecord $log, DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
-		$this->createQueryBuilder('l')
-			->update()
-			->set('l.status', "'{$newStatus->value}'")
-			->where('l.status = :status')
+		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
+		$qb
 			->andWhere('l.message = :message')
-			->andWhere('l.date <= :date')
-			->setParameter('date', $lastDate)
 			->setParameter('message', $log->getMessage())
-			->setParameter('status', $previousStatus)
 			->getQuery()
 			->execute();
+	}
+
+	private function getUpdateStatusQB($newStatus, DateTimeImmutable $lastDate, mixed $previousStatus): QueryBuilder {
+		$qb = $this->createQueryBuilder('l');
+		$qb = $qb->update()
+			->set('l.status', "'{$newStatus->value}'")
+			->andWhere('l.date <= :date')
+			->andWhere('l.status = :status')
+			->setParameter('date', $lastDate)
+			->setParameter('status', $previousStatus);
+
+		if ($newStatus == LogRecordStatus::RESOLVED && $this->clearStackTrace) {
+			$qb = $qb->set('l.stackTrace', 'NULL');
+		}
+
+		return $qb;
 	}
 
 
