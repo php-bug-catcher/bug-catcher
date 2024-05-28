@@ -8,6 +8,7 @@
 namespace App\Service\PingCollector;
 
 use App\Entity\Project;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,16 +22,17 @@ class MessengerCollector implements PingCollectorInterface {
 
 	public function ping(Project $project): string {
 		if ($connection = $project->getDbConnection()) {
-			$em = $this->registry->getConnection($connection);
+			/** @var Connection $conn */
+			$conn = $this->registry->getConnection($connection);
 
-			return $this->checkMessengerFirstMessage($em) ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
+			return $this->checkMessengerFirstMessage($conn) ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
 		}
 
 		return Response::HTTP_NOT_FOUND;
 	}
 
-	private function checkMessengerFirstMessage(EntityManagerInterface $em): bool {
-		$res = $em->getConnection()->executeQuery("select created_at from messenger_messages order by created_at asc limit 1;")->fetchAssociative();
+	private function checkMessengerFirstMessage(Connection $conn): bool {
+		$res = $conn->executeQuery("select created_at from messenger_messages order by created_at asc limit 1;")->fetchAssociative();
 		if ($res && $res['created_at']) {
 			return (strtotime($res['created_at']) > strtotime('-5 minutes'));
 		}
