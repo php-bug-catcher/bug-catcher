@@ -121,8 +121,8 @@ class Project {
 	/**
 	 * @return Collection<int, User>
 	 */
-	public function getUsers(): Collection {
-		return $this->users;
+	public function getUsers(): array {
+		return $this->users->toArray();
 	}
 
 	public function addUser(User $user): static {
