@@ -72,7 +72,9 @@ Now check out the site at `http://localhost:8000`
 ```
 # /etc/crontab
 * * * * * www-data php /var/www/bug-catcher/bin/console app:ping-collector > /dev/null 2>&1
+#optimize records by grouping them by 5 minutes older than 1 day
 0 * * * * www-data php /var/www/bug-catcher/bin/console app:record-optimizer --past=1 --precision=5
+#optimize records by grouping them by 60 minutes older than 7 days
 0 0 * * * www-data php /var/www/bug-catcher/bin/console app:record-optimizer --past=7 --precision=60
 ```
 
