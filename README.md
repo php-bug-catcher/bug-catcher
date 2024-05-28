@@ -53,7 +53,7 @@ yarn build
 **Create first admin user**
 
 ```
-php bin/console app:init <email> <password>
+php bin/console app:create-user <email> <password>
 ```
 
 **Start the built-in web server**
@@ -66,6 +66,13 @@ php bin/console server:run
 ```
 
 Now check out the site at `http://localhost:8000`
+
+**Setup cron for collection status codes**
+
+```
+# /etc/crontab
+* * * * * www-data php /var/www/bug-catcher/bin/console app:ping-collector > /dev/null 2>&1
+```
 
 ## Enable Logging
 

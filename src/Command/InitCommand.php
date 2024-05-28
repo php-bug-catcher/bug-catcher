@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
-	name: 'app:init',
+	name: 'app:create-user',
 	description: 'Initialize the app with superadmin',
 )]
 class InitCommand extends Command {

@@ -12,9 +12,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use Throwable;
 
 #[AsCommand(
-	name: 'ping-collector',
+	name: 'app:ping-collector',
 )]
 class PingCollectorCommand extends Command implements ServiceSubscriberInterface {
 	public function __construct(
@@ -37,7 +38,7 @@ class PingCollectorCommand extends Command implements ServiceSubscriberInterface
 			}
 			try {
 				$status = $collector->ping($project);
-			} catch (\Throwable $e) {
+			} catch (Throwable $e) {
 				$status = Response::HTTP_INTERNAL_SERVER_ERROR;
 			}
 			$this->pingRecordRepo->save(new PingRecord($project, $status), true);
