@@ -1,4 +1,4 @@
-# Catch every bug in all your Symfony applications in one place
+# Catch every bug in all your PHP applications in one place
 
 ![screenshot](docs/bug_catcher_01.png)
 ![screenshot](docs/stacktrace.png)
@@ -86,7 +86,7 @@ See package [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-se
 
 Have fun!
 
-**Setup non symfony applications**
+**Setup plain PHP applications**
 
 See package [php-sentinel/bug-catcher-curl-reporter](https://github.com/php-sentinel/bug-catcher-curl-reporter)
 
