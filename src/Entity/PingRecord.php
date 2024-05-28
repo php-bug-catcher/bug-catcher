@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PingRecordRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -17,9 +18,9 @@ class PingRecord extends Record
 	/**
 	 * @param string|null $statusCode
 	 */
-	public function __construct(Project $project, ?string $statusCode) {
+	public function __construct(Project $project, ?string $statusCode, DateTimeImmutable $date = new DateTimeImmutable()) {
 		$this->project    = $project;
-		$this->date       = new \DateTimeImmutable();
+		$this->date = $date;
 		$this->statusCode = $statusCode;
 	}
 
