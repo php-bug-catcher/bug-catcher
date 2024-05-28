@@ -52,7 +52,6 @@ HTML,
 			'forgot_password_enabled' => false,
 			'forgot_password_label'   => 'Forgot your password?',
 			'remember_me_enabled'     => true,
-			'remember_me_parameter'   => 'custom_remember_me_param',
 			'remember_me_checked'     => true,
 			'remember_me_label'       => 'Remember me',
 		]);
