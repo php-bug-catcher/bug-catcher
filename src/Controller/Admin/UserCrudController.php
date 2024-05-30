@@ -59,6 +59,7 @@ class UserCrudController extends AbstractCrudController {
 			"Developer" => Role::ROLE_DEVELOPER,
 			"User"     => Role::ROLE_USER,
 			"Customer" => Role::ROLE_CUSTOMER,
+			"Hide menu" => Role::RIGHT_NO_MENU,
 		];
 		return [
 			TextField::new('email')->setColumns(8),

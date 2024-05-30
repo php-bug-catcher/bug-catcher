@@ -42,6 +42,7 @@
             </main>
         </div>
     {% endblock %}
+    {% if not is_granted('RIGHT_NO_MENU') %}
     <div class="dropup position-fixed bottom-0 end-0 m-5">
         <button type="button" class="btn btn-success hide-toggle rounded-circle p-3" data-bs-toggle="dropdown" aria-expanded="false"
                 aria-haspopup="true">
@@ -63,6 +64,7 @@
             </li>
         </ul>
     </div>
+    {% endif %}
 </div>
 </body>
 </html>

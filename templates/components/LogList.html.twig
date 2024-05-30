@@ -3,16 +3,18 @@
 }) }}>
     {% set logs = this.logs %}
     {% if logs|length %}
-        <ul class="nav justify-content-end">
-            <li class="nav-item">
-                <button class="nav-link active " aria-current="page"
-                        data-action="live#action"
-                        data-live-action-param="clearAll"
-                        data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
-                >Fix all
-                </button>
-            </li>
-        </ul>
+        {% if is_granted('ROLE_DEVELOPER') %}
+            <ul class="nav justify-content-end">
+                <li class="nav-item">
+                    <button class="nav-link active " aria-current="page"
+                            data-action="live#action"
+                            data-live-action-param="clearAll"
+                            data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
+                    >Fix all
+                    </button>
+                </li>
+            </ul>
+        {% endif %}
         <ul class="list-group">
             {% for log in this.logs %}
                 <li class="list-group-item d-flex justify-content-between align-items-center p-1">
@@ -35,30 +37,30 @@
                                 <twig:ux:icon name="game-icons:magic-broom"/>
                             </button>
                             <button type="button" class="btn btn-outline-info btn-sm"
-                                data-action="live#action"
-                                data-live-action-param="clearOne"
-                                data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                    data-action="live#action"
+                                    data-live-action-param="clearOne"
+                                    data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
                                     data-live-status-param="archived"
-                                data-live-log-param="{{ log.id }}"
+                                    data-live-log-param="{{ log.id }}"
                                     title="Archive it"
                             >
                                 <twig:ux:icon name="clarity:archive-line"/>
                             </button>
-                        <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
-                           class="btn btn-outline-success btn-sm"
-                           target="_blank"
-                           title="Detail"
-                        >
-                            <twig:ux:icon name="covid:virus-lab-research-magnifier-1"/>
-                        </a>
-                    </div>
+                            <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
+                               class="btn btn-outline-success btn-sm"
+                               target="_blank"
+                               title="Detail"
+                            >
+                                <twig:ux:icon name="covid:virus-lab-research-magnifier-1"/>
+                            </a>
+                        </div>
                     {% endif %}
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <h6 class="border-bottom pb-1 mb-0">Your are happy, No Errors
-            <twig:ux:icon name="game-icons:schrodingers-cat-alive" width="30px" height="30px"/>
-        </h6>
+        <h2 class="border-bottom pb-1 mb-0">No Errors
+            <twig:ux:icon name="game-icons:schrodingers-cat-alive" width="60px" height="60px"/>
+        </h2>
     {% endif %}
 </div>

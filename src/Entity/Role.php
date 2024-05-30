@@ -12,6 +12,7 @@ enum Role: string {
 	case ROLE_DEVELOPER = 'ROLE_DEVELOPER';
 	case ROLE_CUSTOMER  = 'ROLE_CUSTOMER';
 	case ROLE_USER      = 'ROLE_USER';
+	case RIGHT_NO_MENU = 'RIGHT_NO_MENU';
 
 	public static function getGlobalRoles(): array {
 		return [
