@@ -9,9 +9,9 @@
         <main class="">
             <div class="container py-4">
                 <header class="pb-3 mb-4 border-bottom">
-                    <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                    <a href="{{ record.requestUri }}" target="_blank" class="d-flex align-items-center text-dark text-decoration-none">
                         <twig:ux:icon name="fontisto:bug" width="40" height="32" class="me-2"/>
-                        <span class="fs-4">{{ record.requestUri }}</span>
+                        <span class="fs-4">{{ record.requestUri|u.truncate(150, '...') }} </span>
                     </a>
                 </header>
 

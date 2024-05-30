@@ -37,8 +37,8 @@ class LogRecord extends Record {
 	private ?string $message = null;
 
 	#[Groups(['record:write'])]
-	#[ORM\Column(length: 255)]
-	#[Assert\Length(max: 255, groups: ['api'])]
+	#[ORM\Column(length: 1500)]
+	#[Assert\Length(max: 1500, groups: ['api'])]
 	private ?string $requestUri = null;
 
 	#[Groups(['record:write'])]
