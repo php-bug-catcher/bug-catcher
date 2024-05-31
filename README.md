@@ -14,8 +14,6 @@
 composer create-project symfony/skeleton:"7.1.*" bug-catcher
 ```
 
-**Enable bundle if not already enabled**
-
 **Add depenedencies**
 
 ```
@@ -32,7 +30,9 @@ composer create-project symfony/skeleton:"7.1.*" bug-catcher
 ```bash
 composer require php-sentinel/bug-catcher:dev-main
 composer require brendt/php-sparkline:dev-period2
+````
 
+**Enable bundle if not already enabled**
 ```php
 //config/bundles.php
 return [
@@ -40,7 +40,6 @@ return [
     PhpSentinel\BugCatcher\BugCatcherBundle::class => ['all' => true],
     ...
 ];
-```
 ```
 ## Configuration
 **setup packages**
