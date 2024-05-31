@@ -28,12 +28,12 @@ final class LogList extends AbstractController
 	use DefaultActionTrait;
 
 	#[LiveProp]
-	public RecordStatus $status;
+	public string $status;
 
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
 		private ManagerRegistry $registry,
-		#[Autowire(param: 'records_log')]
+		#[Autowire(param: 'dashboard_list_items')]
 		private array $classes
 	) {}
 
@@ -88,7 +88,7 @@ final class LogList extends AbstractController
 			if (!($repo instanceof RecordRepositoryInterface)){
 				throw new \Exception("Repository for Entity '{$class}' does not implement RecordRepositoryInterface");
 			}
-			$repo->setStatusOlderThan($date, RecordStatus::RESOLVED, $this->status);
+			$repo->setStatusOlderThan($date, 'resolved', $this->status);
 
 		}
 
@@ -99,7 +99,7 @@ final class LogList extends AbstractController
 	public function clearOne(
 		#[LiveArg] Record                                                  $log,
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
-		#[LiveArg] RecordStatus $status
+		#[LiveArg] string $status
 	) {
 		$class = $log::class;
 		$repo  = $this->registry->getRepository($class);

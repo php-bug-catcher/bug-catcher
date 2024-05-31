@@ -7,20 +7,9 @@
 
     <div class="min-h-screen p-2 h-100">
         <main class="">
-            <div class="my-3 p-3 bg-body rounded shadow-sm">
-                <div class="row">
-                    {% for project in projects %}
-                    <div class="col-md-6 col-lg-6 col-xl-4  align-items-start pb-1">
-                        <div class="row">
-                            <twig:ProjectStatus :project="project"/>
-                            <twig:LogCount :project="project"/>
-                            <twig:LogSparkLine :project="project"/>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <twig:LogList :status="status"/>
+            {% for dashboardComponent in components %}
+                {{ component(dashboardComponent,{status:status}) }}
+            {% endfor %}
         </main>
     </div>
 

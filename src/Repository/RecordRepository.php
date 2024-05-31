@@ -24,7 +24,7 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 		parent::__construct($registry, $class);
 	}
 
-	public function setStatusOlderThan(\DateTimeInterface $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
+	public function setStatusOlderThan(\DateTimeInterface $lastDate, $newStatus, $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		$qb
@@ -32,7 +32,7 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 			->execute();
 	}
 
-	public function setStatus(Record $log, \DateTimeInterface $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
+	public function setStatus(Record $log, \DateTimeInterface $lastDate, $newStatus, $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 		$qb
 			->andWhere('l.message = :message')

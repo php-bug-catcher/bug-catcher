@@ -31,7 +31,7 @@ class RecordLogTraceRepository extends RecordRepository implements RecordReposit
 	protected function getUpdateStatusQB($newStatus, \DateTimeInterface $lastDate, mixed $previousStatus): QueryBuilder {
 		$qb = parent::getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
-		if ($newStatus == RecordStatus::RESOLVED && $this->clearStackTrace) {
+		if ($newStatus == 'resolved' && $this->clearStackTrace) {
 			$qb = $qb->set('l.stackTrace', 'NULL');
 		}
 

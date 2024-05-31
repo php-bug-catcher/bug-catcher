@@ -13,9 +13,18 @@ namespace {
 	return static function (ContainerConfigurator $container): void {
 		$container
 			->parameters()
-			->set("records_log",[
+			->set("dashboard_components", [
+				"StatusList",
+				"LogList",
+			])
+			->set("dashboard_list_items", [
 				RecordLog::class,
 				RecordLogTrace::class
+			])
+			->set("status_list_components", [
+				"ProjectStatus",
+				"LogCount",
+				"LogSparkLine",
 			])
 		;
 		$services = $container->services()

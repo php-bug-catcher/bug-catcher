@@ -18,7 +18,7 @@ final class LogCount extends AbsComponent
 	public function getCount():int {
 		return $this->recordRepo->count([
 			"project"=>$this->project,
-			"status" => RecordStatus::NEW,
+			"status" => 'new',
 		]);
 	}
 }
