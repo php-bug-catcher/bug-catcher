@@ -99,7 +99,14 @@ security:
         ROLE_ADMIN: ROLE_DEVELOPER
         ROLE_DEVELOPER: ROLE_CUSTOMER
         ROLE_CUSTOMER: ROLE_USER
-
+```
+```yaml
+#config/packages/doctrine.yaml
+doctrine:
+    orm:
+        dql:
+            string_functions:
+                TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction
 ```
 **Routes**
 
@@ -113,7 +120,7 @@ _bug_catcher:
 **Download icons**
 
 ```bash
-php bin/console ux:icons:import pajamas:hamburger
+php bin/console ux:icons:import pajamas:hamburger covid:virus-lab-research-magnifier-1 clarity:archive-line game-icons:magic-broom
 ```
 
 ## First Run

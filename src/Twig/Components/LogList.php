@@ -2,11 +2,13 @@
 
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
+use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Entity\RecordStatus;
 use PhpSentinel\BugCatcher\Entity\Role;
 use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use DateTimeImmutable;
+use PhpSentinel\BugCatcher\Repository\RecordRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +29,8 @@ final class LogList extends AbstractController
 	public RecordStatus $status;
 
 	public function __construct(
-		private readonly RecordLogRepository $recordRepo
+		private readonly RecordRepository $recordRepo,
+		private ManagerRegistry $registry
 	) {}
 
 	/**
@@ -54,9 +57,22 @@ final class LogList extends AbstractController
 	public function clearAll(
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 	) {
-		$this->recordRepo->setStatusOlderThan($date, RecordStatus::RESOLVED);
+		$rows = $this->recordRepo->createQueryBuilder("record")
+			->addSelect('TYPE(record) as type')
+			->where("record.status = :status")
+			->andWhere("record.date <= :date")
+			->setParameter("status", $this->status)
+			->setParameter("date", $date)
+			->groupBy('type')
+			->getQuery()->getResult()
+		;
+		foreach ($rows as $row) {
+			$this->registry->getRepository($row['0']::class)
+				->setStatusOlderThan($date, RecordStatus::RESOLVED, $this->status);
 
-		return $this->redirectToRoute('app.dashboard');
+		}
+
+		return $this->redirectToRoute('bug_catcher.dashboard.index');
 	}
 
 	#[LiveAction]
@@ -66,8 +82,8 @@ final class LogList extends AbstractController
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 		#[LiveArg] RecordStatus $status
 	) {
-		$this->recordRepo->setStatus($log, $date, $status);
+		$this->registry->getRepository($log::class)->setStatus($log, $date, $status, $this->status);
 
-		return $this->redirectToRoute('app.dashboard.status', ['status' => $this->status->value]);
+		return $this->redirectToRoute('bug_catcher.dashboard.status', ['status' => $this->status->value]);
 	}
 }

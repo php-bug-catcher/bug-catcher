@@ -25,7 +25,8 @@ final class LogSparkLine extends AbsComponent
 select
     count(*) as cnt ,
     concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$this->minutes})*{$this->minutes})*60),'%i'),':00') as period
-from log_record
+from record_log
+join record r on r.id = record_log.id
 where project_id={$this->project->getId()->toHex()}
 group by period
 SQL;

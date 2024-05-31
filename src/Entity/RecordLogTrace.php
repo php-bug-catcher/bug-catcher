@@ -7,11 +7,23 @@
  */
 namespace PhpSentinel\BugCatcher\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
+use PhpSentinel\BugCatcher\Api\Processor\LogRecordSaveProcessor;
 use PhpSentinel\BugCatcher\Repository\RecordLogTraceRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+	operations: [
+		new Post(
+			processor: LogRecordSaveProcessor::class
+		),
+	],
+	denormalizationContext: ['groups' => ['record:write']],
+	validationContext: ['groups' => ['api']],
+)]
 #[ORM\Entity(repositoryClass: RecordLogTraceRepository::class)]
 class RecordLogTrace extends RecordLog{
 

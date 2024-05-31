@@ -3,6 +3,7 @@
 namespace PhpSentinel\BugCatcher\Repository;
 
 use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Entity\RecordLog;
 use PhpSentinel\BugCatcher\Entity\RecordStatus;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -21,10 +22,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class RecordLogRepository extends ServiceEntityRepository {
 	public function __construct(
 		ManagerRegistry $registry,
-		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
-		private bool    $clearStackTrace
+		string $className = RecordLog::class,
 	) {
-		parent::__construct($registry, Record::class);
+		parent::__construct($registry, $className);
 	}
 
 	public function save(Record $entity, bool $flush = false): void {
@@ -44,7 +44,7 @@ class RecordLogRepository extends ServiceEntityRepository {
 	}
 
 	public function createEmpty(bool $flush): Record {
-		$entity = new Record();
+		$entity = new RecordLog();
 
 		$this->save($entity, $flush);
 
@@ -78,7 +78,7 @@ class RecordLogRepository extends ServiceEntityRepository {
 			->execute();
 	}
 
-	private function getUpdateStatusQB($newStatus, DateTimeImmutable $lastDate, mixed $previousStatus): QueryBuilder {
+	protected function getUpdateStatusQB($newStatus, DateTimeImmutable $lastDate, mixed $previousStatus): QueryBuilder {
 		$qb = $this->createQueryBuilder('l');
 		$qb = $qb->update()
 			->set('l.status', "'{$newStatus->value}'")

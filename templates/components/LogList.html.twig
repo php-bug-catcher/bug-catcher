@@ -32,7 +32,7 @@
                                     data-live-log-param="{{ log.id }}"
                                     title="Fix it"
                             >
-                                <twig:ux:icon name="game-icons:magic-broom"/>
+                                <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
                             </button>
                             <button type="button" class="btn btn-outline-info btn-sm"
                                 data-action="live#action"
@@ -42,14 +42,14 @@
                                 data-live-log-param="{{ log.id }}"
                                     title="Archive it"
                             >
-                                <twig:ux:icon name="clarity:archive-line"/>
+                                <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
                             </button>
-                        <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
+                        <a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
                            class="btn btn-outline-success btn-sm"
                            target="_blank"
                            title="Detail"
                         >
-                            <twig:ux:icon name="covid:virus-lab-research-magnifier-1"/>
+                            <twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="20px" height="20px"/>
                         </a>
                     </div>
                     {% endif %}
