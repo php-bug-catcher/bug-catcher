@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+</head>
+<body class="bg-body-tertiary">
+{% set flashes = app.session.flashbag.all() %}
+{% if flashes|length > 0 %}
+<div class="block w-full">
+    {% for type, flashMessages in flashes %}
+        {% set colors = {
+            'warning':'bg-orange-500',
+            "danger":"bg-red-500",
+            "info":"bg-blue-500",
+            "success":"bg-green-500"
+        } %}
+        {% for flashMessage in flashMessages %}
+            <div class="font-regular relative mb-4 block w-full rounded-lg {{ colors[type]|default("bg-green-500") }} p-4 text-base leading-5 text-white opacity-100">{{ flashMessage|raw }}</div>
+        {% endfor %}
+    {% endfor %}
+    {% endif %}
+    {% block body %}
+
+        <div class="min-h-screen p-2 h-100">
+            <main class="">
+                <div class="my-3 p-3 bg-body rounded shadow-sm">
+                    <div class="row">
+                        {% block main %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    {% endblock %}
+    <div class="dropup position-fixed bottom-0 end-0 m-5">
+        <button type="button" class="btn btn-success hide-toggle rounded-circle p-3" data-bs-toggle="dropdown" aria-expanded="false"
+                aria-haspopup="true">
+            <twig:ux:icon name="pajamas:hamburger" width="25" height="25"/>
+            <span class="visually-hidden">Add Category</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="dropdown-item" href="{{ path('admin') }}">Administration</a>
+                {% endif %}
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" href="{{ path('app.dashboard.status',{status:'archived'}) }}">Archived logs</a>
+                <a class="dropdown-item" href="{{ path('app.dashboard') }}">New logs</a>
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" href="{{ path('app_change_password') }}">Change password</a>
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" href="{{ path('app_logout') }}">Log out</a>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

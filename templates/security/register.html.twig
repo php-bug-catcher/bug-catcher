@@ -1,0 +1,56 @@
+{% extends ea is defined ? ea.templatePath('layout') : '@EasyAdmin/page/login_minimal.html.twig' %}
+{% trans_default_domain ea is defined ? ea.i18n.translationDomain : (translation_domain is defined ? translation_domain ?? 'messages') %}
+
+{% block body_class 'page-login' %}
+{% block page_title %}{{ page_title is defined ? page_title|raw : (ea is defined ? ea.dashboardTitle|raw : '') }}{% endblock %}
+
+{% block head_favicon %}
+    {% if favicon_path|default(false) %}
+        <link rel="shortcut icon" href="{{ favicon_path }}">
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block wrapper_wrapper %}
+    {% include '@EasyAdmin/flash_messages.html.twig' %}
+
+    <div class="login-wrapper">
+        <header class="main-header">
+            <div id="header-logo">
+                <div class="logo {{ appName|length > 14 ? 'logo-long' }}">
+                    {{ appName }}
+                </div>
+            </div>
+        </header>
+
+        <section class="content">
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="w-100 alert alert-danger rounded mb-3">
+                    <i class="fas fa-times-circle mr-1"></i>{{ flash_error }}
+                </div>
+            {% endfor %}
+
+            {{ form_errors(registrationForm) }}
+
+
+
+            {{ form_start(registrationForm) }}
+            {{ form_row(registrationForm.email) }}
+            {{ form_row(registrationForm.firstName) }}
+            {{ form_row(registrationForm.lastName) }}
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Password'
+            }) }}
+            {{ form_row(registrationForm.agreeTerms) }}
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Register</button>
+                <a href="{{ path('app_login') }}" class="btn btn-secondary btn-lg btn-block">Login</a>
+            </div>
+            {{ form_end(registrationForm) }}
+
+            <script src="{{ asset('login.js', constant('EasyCorp\\Bundle\\EasyAdminBundle\\Asset\\AssetPackage::PACKAGE_NAME')) }}"></script>
+        </section>
+    </div>
+{% endblock %}

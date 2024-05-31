@@ -1,0 +1,64 @@
+<div{{ attributes.defaults({
+    class:'my-3 p-3 bg-body rounded shadow-sm'
+}) }}>
+    {% set logs = this.logs %}
+    {% if logs|length %}
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <button class="nav-link active " aria-current="page"
+                        data-action="live#action"
+                        data-live-action-param="clearAll"
+                        data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
+                >Fix all
+                </button>
+            </li>
+        </ul>
+        <ul class="list-group">
+            {% for log in this.logs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center p-1">
+                    <div>
+                        <span class="badge text-bg-danger rounded-pill">{{ log.date|date('d.m.Y H:i:s') }}</span>
+                        <span class="badge text-bg-info rounded-pill">{{ log.project.code|capitalize }}</span>
+                        <span class="badge text-bg-danger rounded-pill">{{ log.count }}</span>
+                        {{ log.message }}
+                    </div>
+                    {% if is_granted('ROLE_DEVELOPER') %}
+                        <div class="text-nowrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    data-action="live#action"
+                                    data-live-action-param="clearOne"
+                                    data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                    data-live-status-param="resolved"
+                                    data-live-log-param="{{ log.id }}"
+                                    title="Fix it"
+                            >
+                                <twig:ux:icon name="game-icons:magic-broom"/>
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm"
+                                data-action="live#action"
+                                data-live-action-param="clearOne"
+                                data-live-date-param="{{ log.date|date('Y-m-d-H-i-s') }}"
+                                    data-live-status-param="archived"
+                                data-live-log-param="{{ log.id }}"
+                                    title="Archive it"
+                            >
+                                <twig:ux:icon name="clarity:archive-line"/>
+                            </button>
+                        <a href="{{ path('app.dashboard.detail',{"record":log.id}) }}"
+                           class="btn btn-outline-success btn-sm"
+                           target="_blank"
+                           title="Detail"
+                        >
+                            <twig:ux:icon name="covid:virus-lab-research-magnifier-1"/>
+                        </a>
+                    </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h6 class="border-bottom pb-1 mb-0">Your are happy, No Errors
+            <twig:ux:icon name="game-icons:schrodingers-cat-alive" width="30px" height="30px"/>
+        </h6>
+    {% endif %}
+</div>
