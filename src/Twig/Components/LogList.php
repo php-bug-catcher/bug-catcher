@@ -9,7 +9,9 @@ use PhpSentinel\BugCatcher\Entity\Role;
 use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use DateTimeImmutable;
 use PhpSentinel\BugCatcher\Repository\RecordRepository;
+use PhpSentinel\BugCatcher\Repository\RecordRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -30,14 +32,29 @@ final class LogList extends AbstractController
 
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
-		private ManagerRegistry $registry
+		private ManagerRegistry $registry,
+		#[Autowire(param: 'records_log')]
+		private array $classes
 	) {}
 
 	/**
 	 * @return Record[]
 	 */
 	public function getLogs(): array {
-		$logs = $this->recordRepo->findBy(["status" => $this->status], ['date' => 'DESC']);
+
+		$em = $this->registry->getManager();
+		$classMetadata = $em->getClassMetadata(Record::class);
+		$discriminatorMap = $classMetadata->discriminatorMap;
+		$discriminatorMap = array_flip($discriminatorMap);
+		$keys = array_map(fn($class) => $discriminatorMap[$class]??null, $this->classes);
+
+		$logs = $this->recordRepo->createQueryBuilder("record")
+			->where("record.status = :status")
+			->andWhere("record INSTANCE OF :class")
+			->setParameter("status", $this->status)
+			->setParameter("class", $keys)
+			->orderBy("record.date", "DESC")
+			->getQuery()->getResult();
 		$grouped = [];
 		foreach ($logs as $log) {
 			$key = md5($log->getMessage());
@@ -53,7 +70,6 @@ final class LogList extends AbstractController
 
 
 	#[LiveAction]
-	#[IsGranted('ROLE_DEVELOPER')]
 	public function clearAll(
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 	) {
@@ -67,8 +83,12 @@ final class LogList extends AbstractController
 			->getQuery()->getResult()
 		;
 		foreach ($rows as $row) {
-			$this->registry->getRepository($row['0']::class)
-				->setStatusOlderThan($date, RecordStatus::RESOLVED, $this->status);
+			$class = $row['0']::class;
+			$repo  = $this->registry->getRepository($class);
+			if (!($repo instanceof RecordRepositoryInterface)){
+				throw new \Exception("Repository for Entity '{$class}' does not implement RecordRepositoryInterface");
+			}
+			$repo->setStatusOlderThan($date, RecordStatus::RESOLVED, $this->status);
 
 		}
 
@@ -76,13 +96,17 @@ final class LogList extends AbstractController
 	}
 
 	#[LiveAction]
-	#[IsGranted('ROLE_DEVELOPER')]
 	public function clearOne(
 		#[LiveArg] Record                                                  $log,
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 		#[LiveArg] RecordStatus $status
 	) {
-		$this->registry->getRepository($log::class)->setStatus($log, $date, $status, $this->status);
+		$class = $log::class;
+		$repo  = $this->registry->getRepository($class);
+		if (!($repo instanceof RecordRepositoryInterface)){
+			throw new \Exception("Repository for Entity '{$class}' does not implement RecordRepositoryInterface");
+		}
+		$repo->setStatus($log, $date, $status, $this->status);
 
 		return $this->redirectToRoute('bug_catcher.dashboard.status', ['status' => $this->status->value]);
 	}

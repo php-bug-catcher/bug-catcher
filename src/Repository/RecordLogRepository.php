@@ -19,12 +19,11 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @method Record[]    findAll()
  * @method Record[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogRepository extends ServiceEntityRepository {
+class RecordLogRepository extends RecordRepository implements RecordRepositoryInterface{
 	public function __construct(
 		ManagerRegistry $registry,
-		string $className = RecordLog::class,
 	) {
-		parent::__construct($registry, $className);
+		parent::__construct($registry, RecordLog::class);
 	}
 
 	public function save(Record $entity, bool $flush = false): void {
@@ -59,39 +58,6 @@ class RecordLogRepository extends ServiceEntityRepository {
 
 	public function getQBBlank(): QueryBuilder {
 		return $this->createQueryBuilder('l')->setMaxResults(0);
-	}
-
-	public function setStatusOlderThan(DateTimeImmutable $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
-		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
-
-		$qb
-			->getQuery()
-			->execute();
-	}
-
-	public function setStatus(Record $log, DateTimeImmutable $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
-		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
-		$qb
-			->andWhere('l.message = :message')
-			->setParameter('message', $log->getMessage())
-			->getQuery()
-			->execute();
-	}
-
-	protected function getUpdateStatusQB($newStatus, DateTimeImmutable $lastDate, mixed $previousStatus): QueryBuilder {
-		$qb = $this->createQueryBuilder('l');
-		$qb = $qb->update()
-			->set('l.status', "'{$newStatus->value}'")
-			->andWhere('l.date <= :date')
-			->andWhere('l.status = :status')
-			->setParameter('date', $lastDate)
-			->setParameter('status', $previousStatus);
-
-		if ($newStatus == RecordStatus::RESOLVED && $this->clearStackTrace) {
-			$qb = $qb->set('l.stackTrace', 'NULL');
-		}
-
-		return $qb;
 	}
 
 

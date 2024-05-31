@@ -3,6 +3,8 @@
 namespace {
 
 	use PhpSentinel\BugCatcher\Command\PingCollectorCommand;
+	use PhpSentinel\BugCatcher\Entity\RecordLog;
+	use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 	/**
@@ -10,7 +12,11 @@ namespace {
 	 */
 	return static function (ContainerConfigurator $container): void {
 		$container
-			->parameters()// ->set('php.param_name', 'param_value');
+			->parameters()
+			->set("records_log",[
+				RecordLog::class,
+				RecordLogTrace::class
+			])
 		;
 		$services = $container->services()
 			->defaults()

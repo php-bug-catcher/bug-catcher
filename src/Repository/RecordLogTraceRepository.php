@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @method RecordLogTrace[] findAll()
  * @method RecordLogTrace[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogTraceRepository extends RecordLogRepository {
+class RecordLogTraceRepository extends RecordRepository implements RecordRepositoryInterface{
 	public function __construct(
 		ManagerRegistry $registry,
 		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
@@ -28,7 +28,7 @@ class RecordLogTraceRepository extends RecordLogRepository {
 		parent::__construct($registry,  RecordLogTrace::class);
 	}
 
-	protected function getUpdateStatusQB($newStatus, \DateTimeImmutable $lastDate, mixed $previousStatus): QueryBuilder {
+	protected function getUpdateStatusQB($newStatus, \DateTimeInterface $lastDate, mixed $previousStatus): QueryBuilder {
 		$qb = parent::getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		if ($newStatus == RecordStatus::RESOLVED && $this->clearStackTrace) {

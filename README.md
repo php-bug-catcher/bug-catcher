@@ -94,6 +94,8 @@ security:
         - { path: ^/api, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/detail, roles: ROLE_DEVELOPER }
+        - { path: ^/_components/LogList/clearAll, roles: ROLE_DEVELOPER }
+        - { path: ^/_components/LogList/clearOne, roles: ROLE_DEVELOPER }
         - { path: ^/, roles: ROLE_CUSTOMER }
     role_hierarchy:
         ROLE_ADMIN: ROLE_DEVELOPER

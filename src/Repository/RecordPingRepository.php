@@ -15,7 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method RecordPing[]    findAll()
  * @method RecordPing[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordPingRepository extends ServiceEntityRepository
+class RecordPingRepository extends RecordRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
