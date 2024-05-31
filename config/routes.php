@@ -29,7 +29,7 @@ namespace {
 				->controller(DashboardController::class . "::index")
 				->methods(['GET'])
 			->add('bug_catcher.dashboard.detail', '/detail/{record}')
-				->controller(DashboardController::class . "::index")
+			->controller(DashboardController::class . "::detail")
 				->methods(['GET']);
 		$routes
 			->add('bug_catcher.admin', '/admin')
