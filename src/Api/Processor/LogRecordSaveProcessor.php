@@ -5,13 +5,13 @@
  * Date: 23. 5. 2024
  * Time: 10:54
  */
-namespace App\Api\Processor;
+namespace PhpSentinel\BugCatcher\Api\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
-use App\Entity\LogRecord;
-use App\Repository\ProjectRepository;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class LogRecordSaveProcessor implements ProcessorInterface {
@@ -24,7 +24,7 @@ class LogRecordSaveProcessor implements ProcessorInterface {
 
 
 	public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []) {
-		if (false === $data instanceof LogRecord) {
+		if (false === $data instanceof Record) {
 			return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
 		}
 

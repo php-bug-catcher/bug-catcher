@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace PhpSentinel\BugCatcher\Entity;
 
-use App\Entity\Client\Center\Center;
-use App\Entity\Client\Client;
-use App\Repository\UserRepository;
-use App\Validator\NotAbandoned;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use PhpSentinel\BugCatcher\Entity\Client\Center\Center;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Repository\UserRepository;
+use PhpSentinel\BugCatcher\Validator\NotAbandoned;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -18,6 +18,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[ORM\MappedSuperclass()]
 class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	#[ORM\Id]
 	#[ORM\Column(type: UuidType::NAME, unique: true)]
@@ -29,10 +30,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	private ?string $email = null;
 
 	/**
-	 * @var list<Role> The user roles
+	 * @var string[] The user roles
 	 */
-	#[ORM\Column(name: 'roles', type: 'simple_array', nullable: true, enumType: Role::class)]
-	private array $enumRoles = [];
+	#[ORM\Column(type: 'simple_array', nullable: true)]
+	private array $roles = [];
 
 	#[ORM\Column]
 	private ?string $password = null;
@@ -74,23 +75,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	 *
 	 */
 	public function getRoles(): array {
-		$roles   = array_map(fn(Role $role) => $role->value, $this->enumRoles);
-		$roles[] = Role::ROLE_USER->value;
+		$roles   = $this->roles;
+		$roles[] = "ROLE_USER";
 
 		return array_unique($roles);
-	}
-
-	public function getEnumRoles(): array {
-		return $this->enumRoles;
-	}
-
-	/**
-	 * @param list<Role> $enumRoles
-	 */
-	public function setEnumRoles(array $enumRoles): static {
-		$this->enumRoles = $enumRoles;
-
-		return $this;
 	}
 
 	/**
@@ -164,6 +152,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
 	public function removeProject(Project $project): static {
 		$this->projects->removeElement($project);
+
+		return $this;
+	}
+
+	public function setRoles(array $array): static {
+		$this->roles = $array;
 
 		return $this;
 	}

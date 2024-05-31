@@ -5,9 +5,9 @@
  * Date: 24. 5. 2024
  * Time: 11:18
  */
-namespace App\Service\PingCollector;
+namespace PhpSentinel\BugCatcher\Service\PingCollector;
 
-use App\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\Project;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\HttpFoundation\Response;

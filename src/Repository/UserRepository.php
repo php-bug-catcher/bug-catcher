@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace PhpSentinel\BugCatcher\Repository;
 
-use App\Entity\User;
+use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -50,7 +50,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 		$entity = new User();
 		$entity
 			->setEmail($email)
-			->setEnumRoles([])
+			->setRoles([])
 			->setPassword("empty password")
 			->setFullname("John Doe");
 

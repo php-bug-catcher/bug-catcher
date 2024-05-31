@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace PhpSentinel\BugCatcher\Controller\Admin;
 
-use App\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\Project;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;

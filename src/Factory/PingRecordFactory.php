@@ -1,32 +1,32 @@
 <?php
 
-namespace App\Factory;
+namespace PhpSentinel\BugCatcher\Factory;
 
-use App\Entity\PingRecord;
-use App\Repository\PingRecordRepository;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
+use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<PingRecord>
+ * @extends ModelFactory<RecordPing>
  *
- * @method        PingRecord|Proxy                     create(array|callable $attributes = [])
- * @method static PingRecord|Proxy                     createOne(array $attributes = [])
- * @method static PingRecord|Proxy                     find(object|array|mixed $criteria)
- * @method static PingRecord|Proxy                     findOrCreate(array $attributes)
- * @method static PingRecord|Proxy                     first(string $sortedField = 'id')
- * @method static PingRecord|Proxy                     last(string $sortedField = 'id')
- * @method static PingRecord|Proxy                     random(array $attributes = [])
- * @method static PingRecord|Proxy                     randomOrCreate(array $attributes = [])
- * @method static PingRecordRepository|RepositoryProxy repository()
- * @method static PingRecord[]|Proxy[]                 all()
- * @method static PingRecord[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static PingRecord[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static PingRecord[]|Proxy[]                 findBy(array $attributes)
- * @method static PingRecord[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static PingRecord[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        RecordPing|Proxy                     create(array|callable $attributes = [])
+ * @method static RecordPing|Proxy                     createOne(array $attributes = [])
+ * @method static RecordPing|Proxy                     find(object|array|mixed $criteria)
+ * @method static RecordPing|Proxy                     findOrCreate(array $attributes)
+ * @method static RecordPing|Proxy                     first(string $sortedField = 'id')
+ * @method static RecordPing|Proxy                     last(string $sortedField = 'id')
+ * @method static RecordPing|Proxy                     random(array $attributes = [])
+ * @method static RecordPing|Proxy                     randomOrCreate(array $attributes = [])
+ * @method static RecordPingRepository|RepositoryProxy repository()
+ * @method static RecordPing[]|Proxy[]                 all()
+ * @method static RecordPing[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
+ * @method static RecordPing[]|Proxy[]                 createSequence(iterable|callable $sequence)
+ * @method static RecordPing[]|Proxy[]                 findBy(array $attributes)
+ * @method static RecordPing[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
+ * @method static RecordPing[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
 final class PingRecordFactory extends ModelFactory {
 	/**
@@ -66,6 +66,6 @@ final class PingRecordFactory extends ModelFactory {
 	}
 
 	protected static function getClass(): string {
-		return PingRecord::class;
+		return RecordPing::class;
 	}
 }

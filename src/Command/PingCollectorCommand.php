@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Command;
+namespace PhpSentinel\BugCatcher\Command;
 
-use App\Entity\PingRecord;
-use App\Repository\PingRecordRepository;
-use App\Repository\ProjectRepository;
-use App\Service\PingCollector\PingCollectorInterface;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
+use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
+use PhpSentinel\BugCatcher\Repository\ProjectRepository;
+use PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ class PingCollectorCommand extends Command implements ServiceSubscriberInterface
 	public function __construct(
 		private readonly array                $collectors,
 		private readonly ProjectRepository    $projectRepo,
-		private readonly PingRecordRepository $pingRecordRepo
+		private readonly RecordPingRepository $pingRecordRepo
 	) {
 		parent::__construct();
 	}
@@ -41,7 +41,7 @@ class PingCollectorCommand extends Command implements ServiceSubscriberInterface
 			} catch (Throwable $e) {
 				$status = Response::HTTP_INTERNAL_SERVER_ERROR;
 			}
-			$this->pingRecordRepo->save(new PingRecord($project, $status), true);
+			$this->pingRecordRepo->save(new RecordPing($project, $status), true);
 		}
 
 		return Command::SUCCESS;

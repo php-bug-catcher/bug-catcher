@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Twig\Components;
+namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use App\Repository\PingRecordRepository;
+use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -12,7 +12,7 @@ final class ProjectStatus extends AbsComponent
 {
 
 	public function __construct(
-		private readonly PingRecordRepository $recordRepo
+		private readonly RecordPingRepository $recordRepo
 	) {}
 
 	public function getLastStatus():string {

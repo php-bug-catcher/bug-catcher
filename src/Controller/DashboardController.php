@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller;
+namespace PhpSentinel\BugCatcher\Controller;
 
-use App\Entity\LogRecord;
-use App\Entity\LogRecordStatus;
-use App\Entity\Role;
-use App\Repository\ProjectRepository;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use PhpSentinel\BugCatcher\Entity\Role;
+use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Kregel\ExceptionProbe\Stacktrace;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,22 +15,18 @@ class DashboardController extends AbstractController
 {
 
 
-	#[Route('/', name: 'app.dashboard')]
-	#[Route('/status/{status}', name: 'app.dashboard.status')]
-	public function index(ProjectRepository $projectRepo, LogRecordStatus $status = LogRecordStatus::NEW): Response
+	public function index(ProjectRepository $projectRepo, RecordStatus $status = RecordStatus::NEW): Response
     {
-        return $this->render('dashboard/index.html.twig',[
+        return $this->render('@BugCatcher/dashboard/index.html.twig',[
 			"projects" => $projectRepo->findByAdmin($this->getUser()),
 			"status" => $status,
 		]);
     }
 
-	#[Route('/detail/{record}', name: 'app.dashboard.detail')]
-	#[IsGranted(Role::ROLE_DEVELOPER->value)]
-	public function detail(LogRecord $record): Response {
+	public function detail(Record $record): Response {
 		$stacktrace = unserialize($record->getStacktrace());
 
-		return $this->render('dashboard/detail.html.twig', [
+		return $this->render('@BugCatcher/dashboard/detail.html.twig', [
 			"record"     => $record,
 			"stacktrace" => $stacktrace,
 		]);

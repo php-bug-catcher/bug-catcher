@@ -1,31 +1,31 @@
 <?php
 
-namespace App\Factory;
+namespace PhpSentinel\BugCatcher\Factory;
 
-use App\Entity\LogRecord;
-use App\Repository\LogRecordRepository;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<LogRecord>
+ * @extends ModelFactory<Record>
  *
- * @method        LogRecord|Proxy                     create(array|callable $attributes = [])
- * @method static LogRecord|Proxy                     createOne(array $attributes = [])
- * @method static LogRecord|Proxy                     find(object|array|mixed $criteria)
- * @method static LogRecord|Proxy                     findOrCreate(array $attributes)
- * @method static LogRecord|Proxy                     first(string $sortedField = 'id')
- * @method static LogRecord|Proxy                     last(string $sortedField = 'id')
- * @method static LogRecord|Proxy                     random(array $attributes = [])
- * @method static LogRecord|Proxy                     randomOrCreate(array $attributes = [])
- * @method static LogRecordRepository|RepositoryProxy repository()
- * @method static LogRecord[]|Proxy[]                 all()
- * @method static LogRecord[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static LogRecord[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static LogRecord[]|Proxy[]                 findBy(array $attributes)
- * @method static LogRecord[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static LogRecord[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        Record|Proxy                     create(array|callable $attributes = [])
+ * @method static Record|Proxy                     createOne(array $attributes = [])
+ * @method static Record|Proxy                     find(object|array|mixed $criteria)
+ * @method static Record|Proxy                     findOrCreate(array $attributes)
+ * @method static Record|Proxy                     first(string $sortedField = 'id')
+ * @method static Record|Proxy                     last(string $sortedField = 'id')
+ * @method static Record|Proxy                     random(array $attributes = [])
+ * @method static Record|Proxy                     randomOrCreate(array $attributes = [])
+ * @method static RecordLogRepository|RepositoryProxy repository()
+ * @method static Record[]|Proxy[]                 all()
+ * @method static Record[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
+ * @method static Record[]|Proxy[]                 createSequence(iterable|callable $sequence)
+ * @method static Record[]|Proxy[]                 findBy(array $attributes)
+ * @method static Record[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
+ * @method static Record[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
 final class LogRecordFactory extends ModelFactory
 {
@@ -72,6 +72,6 @@ final class LogRecordFactory extends ModelFactory
 
     protected static function getClass(): string
     {
-        return LogRecord::class;
+        return Record::class;
     }
 }

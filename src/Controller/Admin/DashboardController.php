@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace PhpSentinel\BugCatcher\Controller\Admin;
 
-use App\Entity\Client\Center\Center;
-use App\Entity\Client\Client;
-use App\Entity\Client\Order\Order;
-use App\Entity\Client\Order\Request;
-use App\Entity\Client\Product\Category;
-use App\Entity\Client\Product\Product;
-use App\Entity\Project;
-use App\Entity\User;
+use PhpSentinel\BugCatcher\Entity\Client\Center\Center;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Entity\Client\Order\Order;
+use PhpSentinel\BugCatcher\Entity\Client\Order\Request;
+use PhpSentinel\BugCatcher\Entity\Client\Product\Category;
+use PhpSentinel\BugCatcher\Entity\Client\Product\Product;
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -32,14 +32,14 @@ class DashboardController extends AbstractDashboardController {
 
 	#[Route('/admin', name: 'admin')]
 	public function index(): Response {
-		return $this->render("admin/dashboard.html.twig");
+		return $this->render("@BugCatcher/admin/dashboard.html.twig");
 	}
 
 
 	public function configureUserMenu(UserInterface $user): UserMenu {
 		return parent::configureUserMenu($user)
 			->addMenuItems([
-				MenuItem::linkToRoute('Change password', 'fa fa-key', 'app_change_password'),
+				MenuItem::linkToRoute('Change password', 'fa fa-key', 'bug_catcher.security.change-password'),
 			]);
 	}
 
@@ -52,13 +52,12 @@ class DashboardController extends AbstractDashboardController {
 		return parent::configureCrud()
 			->setFormThemes([
 				'@EasyAdmin/crud/form_theme.html.twig',
-				'extension/form.html.twig',
 			]);
 	}
 
 
 	public function configureMenuItems(): iterable {
-		yield MenuItem::linkToRoute('Dashboard', 'fa fa-home', 'app.dashboard');
+		yield MenuItem::linkToRoute('Dashboard', 'fa fa-home', 'bug_catcher.dashboard.index');
 		yield MenuItem::linkToCrud('Users', 'fa-solid fa-user-tie', User::class);
 		yield MenuItem::linkToCrud('Projects', 'fa-solid fa-shield-dog', Project::class);
 	}

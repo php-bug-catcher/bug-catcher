@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository;
+namespace PhpSentinel\BugCatcher\Repository;
 
-use App\Entity\LogRecord;
-use App\Entity\LogRecordStatus;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Entity\RecordStatus;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -11,23 +11,23 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * @extends ServiceEntityRepository<LogRecord>
+ * @extends ServiceEntityRepository<Record>
  *
- * @method LogRecord|null find($id, $lockMode = null, $lockVersion = null)
- * @method LogRecord|null findOneBy(array $criteria, array $orderBy = null)
- * @method LogRecord[]    findAll()
- * @method LogRecord[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Record|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Record|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Record[]    findAll()
+ * @method Record[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class LogRecordRepository extends ServiceEntityRepository {
+class RecordLogRepository extends ServiceEntityRepository {
 	public function __construct(
 		ManagerRegistry $registry,
 		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
 		private bool    $clearStackTrace
 	) {
-		parent::__construct($registry, LogRecord::class);
+		parent::__construct($registry, Record::class);
 	}
 
-	public function save(LogRecord $entity, bool $flush = false): void {
+	public function save(Record $entity, bool $flush = false): void {
 		$this->getEntityManager()->persist($entity);
 
 		if ($flush) {
@@ -35,7 +35,7 @@ class LogRecordRepository extends ServiceEntityRepository {
 		}
 	}
 
-	public function remove(LogRecord $entity, bool $flush = false): void {
+	public function remove(Record $entity, bool $flush = false): void {
 		$this->getEntityManager()->remove($entity);
 
 		if ($flush) {
@@ -43,8 +43,8 @@ class LogRecordRepository extends ServiceEntityRepository {
 		}
 	}
 
-	public function createEmpty(bool $flush): LogRecord {
-		$entity = new LogRecord();
+	public function createEmpty(bool $flush): Record {
+		$entity = new Record();
 
 		$this->save($entity, $flush);
 
@@ -61,7 +61,7 @@ class LogRecordRepository extends ServiceEntityRepository {
 		return $this->createQueryBuilder('l')->setMaxResults(0);
 	}
 
-	public function setStatusOlderThan(DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
+	public function setStatusOlderThan(DateTimeImmutable $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		$qb
@@ -69,7 +69,7 @@ class LogRecordRepository extends ServiceEntityRepository {
 			->execute();
 	}
 
-	public function setStatus(LogRecord $log, DateTimeImmutable $lastDate, $newStatus, $previousStatus = LogRecordStatus::NEW): void {
+	public function setStatus(Record $log, DateTimeImmutable $lastDate, $newStatus, $previousStatus = RecordStatus::NEW): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 		$qb
 			->andWhere('l.message = :message')
@@ -87,7 +87,7 @@ class LogRecordRepository extends ServiceEntityRepository {
 			->setParameter('date', $lastDate)
 			->setParameter('status', $previousStatus);
 
-		if ($newStatus == LogRecordStatus::RESOLVED && $this->clearStackTrace) {
+		if ($newStatus == RecordStatus::RESOLVED && $this->clearStackTrace) {
 			$qb = $qb->set('l.stackTrace', 'NULL');
 		}
 

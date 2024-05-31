@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Security\Voter;
+namespace PhpSentinel\BugCatcher\Security\Voter;
 
-use App\Entity\Role;
+use PhpSentinel\BugCatcher\Entity\Role;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;

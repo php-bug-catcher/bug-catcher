@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Command;
+namespace PhpSentinel\BugCatcher\Command;
 
-use App\Entity\Role;
-use App\Repository\UserRepository;
-use App\Service\Transaction;
+use PhpSentinel\BugCatcher\Entity\Role;
+use PhpSentinel\BugCatcher\Repository\UserRepository;
+use PhpSentinel\BugCatcher\Service\Transaction;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +18,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 	name: 'app:create-user',
 	description: 'Initialize the app with superadmin',
 )]
-class InitCommand extends Command {
+class CreateUserCommand extends Command {
 	public function __construct(
 		private readonly UserRepository              $userRepo,
 		private readonly Transaction                 $transaction,
@@ -43,7 +43,7 @@ class InitCommand extends Command {
 			$user = $this->userRepo->createEmpty($username, true);
 			$user
 				->setEnabled(true)
-				->setEnumRoles([Role::ROLE_ADMIN])
+				->setRoles(['ROLE_ADMIN'])
 				->setPassword(
 					$this->passwordHasher->hashPassword($user, $password)
 				);

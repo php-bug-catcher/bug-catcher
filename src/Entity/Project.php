@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace PhpSentinel\BugCatcher\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
-use App\Api\Processor\LogRecordSaveProcessor;
-use App\Repository\ProjectRepository;
+use PhpSentinel\BugCatcher\Api\Processor\LogRecordSaveProcessor;
+use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,6 +17,7 @@ use Symfony\Component\Uid\Uuid;
 	denormalizationContext: ['groups' => ['record:write']],
 	validationContext: ['groups' => ['api']],
 )]
+#[ORM\MappedSuperclass()]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project {
 	#[ORM\Id]

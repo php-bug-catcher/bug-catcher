@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Twig\Components;
+namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use App\Repository\LogRecordRepository;
+use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use Brendt\SparkLine\Period;
 use Brendt\SparkLine\SparkLine;
 use Brendt\SparkLine\SparkLineInterval;

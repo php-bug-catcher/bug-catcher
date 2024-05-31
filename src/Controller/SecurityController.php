@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller;
+namespace PhpSentinel\BugCatcher\Controller;
 
-use App\Form\ChangePasswordType;
+use PhpSentinel\BugCatcher\Form\ChangePasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,7 +23,6 @@ class SecurityController extends AbstractController {
 		private string $appName
 	) {}
 
-	#[Route(path: '/login', name: 'app_login')]
 	public function login(AuthenticationUtils $authenticationUtils, Packages $assetManager): Response {
 		// get the login error if there is one
 		$error = $authenticationUtils->getLastAuthenticationError();
@@ -32,7 +31,7 @@ class SecurityController extends AbstractController {
 		$lastUsername = $authenticationUtils->getLastUsername();
 		$logoUrl      = $assetManager->getUrl("images/logo.svg");
 
-		return $this->render('security/login.html.twig', [
+		return $this->render('@BugCatcher/security/login.html.twig', [
 			'error'                   => $error,
 			'last_username'           => $lastUsername,
 			'favicon_path'            => '/favicon-admin.svg',
@@ -43,7 +42,7 @@ class SecurityController extends AbstractController {
 </div>
 HTML,
 			'csrf_token_intention'    => 'authenticate',
-			'target_path' => $this->generateUrl('app.dashboard'),
+			'target_path' => $this->generateUrl('bug_catcher.dashboard.index'),
 			'username_label'          => 'Your email address',
 			'password_label'          => 'Your password',
 			'sign_in_label'           => 'Log in',
@@ -57,7 +56,6 @@ HTML,
 		]);
 	}
 
-	#[Route(path: '/change-password', name: 'app_change_password')]
 	public function changePassword(
 		Request                     $request,
 		UserPasswordHasherInterface $userPasswordHasher,
@@ -90,12 +88,11 @@ HTML,
 			return $this->redirectToRoute('admin');
 		}
 
-		return $this->render('security/change_password.html.twig', [
+		return $this->render('@BugCatcher/security/change_password.html.twig', [
 			'form' => $form->createView(),
 		]);
 	}
 
-	#[Route(path: '/logout', name: 'app_logout')]
 	public function logout(): void {
 		throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
 	}

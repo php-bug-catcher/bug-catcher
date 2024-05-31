@@ -6,7 +6,7 @@
  * Time: 8:38
  */
 
-namespace App\Service;
+namespace PhpSentinel\BugCatcher\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;

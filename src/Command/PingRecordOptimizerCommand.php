@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Command;
+namespace PhpSentinel\BugCatcher\Command;
 
-use App\Entity\PingRecord;
-use App\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
+use PhpSentinel\BugCatcher\Entity\Project;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -58,7 +58,7 @@ SQL;
 			$rows = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
 			$this->em->getConnection()->executeQuery($deleteSql);
 			foreach ($rows as $row) {
-				$this->em->persist(new PingRecord(
+				$this->em->persist(new RecordPing(
 					$this->em->getReference(Project::class, Uuid::fromString($row["project_id"])),
 					$row["status_code"],
 					new DateTimeImmutable($row["period"]),

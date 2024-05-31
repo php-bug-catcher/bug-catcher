@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository;
+namespace PhpSentinel\BugCatcher\Repository;
 
-use App\Entity\PingRecord;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PingRecord>
+ * @extends ServiceEntityRepository<RecordPing>
  *
- * @method PingRecord|null find($id, $lockMode = null, $lockVersion = null)
- * @method PingRecord|null findOneBy(array $criteria, array $orderBy = null)
- * @method PingRecord[]    findAll()
- * @method PingRecord[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method RecordPing|null find($id, $lockMode = null, $lockVersion = null)
+ * @method RecordPing|null findOneBy(array $criteria, array $orderBy = null)
+ * @method RecordPing[]    findAll()
+ * @method RecordPing[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PingRecordRepository extends ServiceEntityRepository
+class RecordPingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, PingRecord::class);
+        parent::__construct($registry, RecordPing::class);
     }
 
-    public function save(PingRecord $entity, bool $flush = false): void
+    public function save(RecordPing $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -31,7 +31,7 @@ class PingRecordRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(PingRecord $entity, bool $flush = false): void
+    public function remove(RecordPing $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,9 +40,9 @@ class PingRecordRepository extends ServiceEntityRepository
         }
     }
 
-    public function createEmpty(bool $flush): PingRecord
+    public function createEmpty(bool $flush): RecordPing
     {
-        $entity = new PingRecord();
+        $entity = new RecordPing();
 
         $this->save($entity, $flush);
 

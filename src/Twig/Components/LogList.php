@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Twig\Components;
+namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use App\Entity\LogRecord;
-use App\Entity\LogRecordStatus;
-use App\Entity\Role;
-use App\Repository\LogRecordRepository;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use PhpSentinel\BugCatcher\Entity\Role;
+use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
@@ -24,14 +24,14 @@ final class LogList extends AbstractController
 	use DefaultActionTrait;
 
 	#[LiveProp]
-	public LogRecordStatus $status;
+	public RecordStatus $status;
 
 	public function __construct(
-		private readonly LogRecordRepository $recordRepo
+		private readonly RecordLogRepository $recordRepo
 	) {}
 
 	/**
-	 * @return LogRecord[]
+	 * @return Record[]
 	 */
 	public function getLogs(): array {
 		$logs = $this->recordRepo->findBy(["status" => $this->status], ['date' => 'DESC']);
@@ -50,21 +50,21 @@ final class LogList extends AbstractController
 
 
 	#[LiveAction]
-	#[IsGranted(Role::ROLE_DEVELOPER->value)]
+	#[IsGranted('ROLE_DEVELOPER')]
 	public function clearAll(
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 	) {
-		$this->recordRepo->setStatusOlderThan($date, LogRecordStatus::RESOLVED);
+		$this->recordRepo->setStatusOlderThan($date, RecordStatus::RESOLVED);
 
 		return $this->redirectToRoute('app.dashboard');
 	}
 
 	#[LiveAction]
-	#[IsGranted(Role::ROLE_DEVELOPER->value)]
+	#[IsGranted('ROLE_DEVELOPER')]
 	public function clearOne(
-		#[LiveArg] LogRecord                                               $log,
+		#[LiveArg] Record                                                  $log,
 		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
-		#[LiveArg] LogRecordStatus                                         $status
+		#[LiveArg] RecordStatus $status
 	) {
 		$this->recordRepo->setStatus($log, $date, $status);
 

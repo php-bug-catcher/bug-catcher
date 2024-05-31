@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace PhpSentinel\BugCatcher\Controller\Admin;
 
-use App\Controller\AbstractCrudController;
-use App\Entity\Client\Client;
-use App\Entity\Role;
-use App\Entity\User;
+use PhpSentinel\BugCatcher\Controller\AbstractCrudController;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Entity\Role;
+use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -55,17 +55,17 @@ class UserCrudController extends AbstractCrudController {
 			->onlyOnForms();
 
 		$roles = [
-			"Admin"     => Role::ROLE_ADMIN,
-			"Developer" => Role::ROLE_DEVELOPER,
-			"User"     => Role::ROLE_USER,
-			"Customer" => Role::ROLE_CUSTOMER,
+			"Admin"     => 'ROLE_ADMIN',
+			"Developer" => 'ROLE_DEVELOPER',
+			"User"     => 'ROLE_USER',
+			"Customer" => 'ROLE_CUSTOMER',
 		];
 		return [
 			TextField::new('email')->setColumns(8),
 			BooleanField::new("enabled")->setColumns(4),
 			TextField::new('userIdentifier')->onlyOnIndex(),
 			TextField::new('fullname')->setColumns(4)->onlyOnForms(),
-			ChoiceField::new('enumRoles')
+			ChoiceField::new('roles')
 				->setChoices($roles)
 				->allowMultipleChoices()
 				->setRequired(true)

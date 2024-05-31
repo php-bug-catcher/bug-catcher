@@ -1,57 +1,50 @@
 {
-    "name": "php-sentinel/bug-catcher",
-    "type": "symfony-bundle",
-    "license": "MIT",
-    "description": "Catch all bugs from all your applications in one place",
-    "minimum-stability": "stable",
-    "require": {
-        "php": ">=8.3",
-        "api-platform/core": "^3.3",
-        "easycorp/easyadmin-bundle": "^4.10",
-        "kregel/exception-probe": "^1.0",
-        "symfony/framework-bundle": "^7.1",
-        "symfony/orm-pack": "^2.4",
-        "symfony/translation": "^7.1",
-        "symfony/twig-bundle": "^7.1",
-        "symfony/asset": "7.1.*",
-        "symfony/console": "7.1.*",
-        "symfony/form": "7.1.*",
-        "symfony/http-client": "7.1.*",
-        "symfony/lock": "7.1.*",
-        "symfony/monolog-bundle": "^3.0",
-        "symfony/rate-limiter": "7.1.*",
-        "symfony/security-bundle": "7.1.*",
-        "symfony/serializer": "7.1.*",
-        "symfony/stimulus-bundle": "^2.17",
-        "symfony/string": "7.1.*",
-        "symfony/uid": "7.1.*",
-        "symfony/ux-icons": "^2.17",
-        "symfony/ux-live-component": "^2.17",
-        "symfony/validator": "7.1.*",
-        "symfony/web-link": "7.1.*",
-        "symfony/webpack-encore-bundle": "^2.1",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/string-extra": "^3.10",
-        "twig/twig": "^2.12|^3.0",
-        "brendt/php-sparkline": "dev-period2"
-    },
-    "repositories": [
-        {
-            "url": "https://github.com/tito10047/php-sparkline",
-            "type": "vcs"
-        }
-    ],
-    "config": {
-        "sort-packages": true
-    },
-    "autoload": {
-        "psr-4": {
-            "PhpSentinel\\BugCatcher\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "PhpSentinel\\BugCatcher\\Tests\\": "tests/"
-        }
+  "name": "php-sentinel/bug-catcher",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "description": "Catch all bugs from all your applications in one place",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.3",
+    "api-platform/core": "^3.3",
+    "easycorp/easyadmin-bundle": "^4.10",
+    "kregel/exception-probe": "^1.0",
+    "symfony/asset": "7.1.*",
+    "symfony/console": "7.1.*",
+    "symfony/form": "7.1.*",
+    "symfony/framework-bundle": "^7.1",
+    "symfony/http-client": "7.1.*",
+    "symfony/lock": "7.1.*",
+    "symfony/monolog-bundle": "^3.0",
+    "symfony/orm-pack": "^2.4",
+    "symfony/rate-limiter": "7.1.*",
+    "symfony/security-bundle": "^7.1",
+    "symfony/serializer": "7.1.*",
+    "symfony/stimulus-bundle": "^2.17",
+    "symfony/string": "7.1.*",
+    "symfony/translation": "^7.1",
+    "symfony/twig-bundle": "^7.1",
+    "symfony/uid": "7.1.*",
+    "symfony/ux-icons": "^2.17",
+    "symfony/ux-live-component": "^2.17",
+    "symfony/validator": "7.1.*",
+    "symfony/web-link": "7.1.*",
+    "symfony/webpack-encore-bundle": "^2.1",
+    "twig/extra-bundle": "^2.12|^3.0",
+    "twig/string-extra": "^3.10",
+    "twig/twig": "^2.12|^3.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpSentinel\\BugCatcher\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpSentinel\\BugCatcher\\Tests\\": "tests/"
+    }
+  }
 }

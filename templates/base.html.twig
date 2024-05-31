@@ -6,11 +6,11 @@
     <link rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
     {% block stylesheets %}
-        {{ encore_entry_link_tags('app') }}
+        {{ encore_entry_link_tags('bug_catcher',null,'bug_catcher') }}
     {% endblock %}
 
     {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
+        {{ encore_entry_script_tags('bug_catcher',null,'bug_catcher') }}
     {% endblock %}
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 </head>
@@ -51,15 +51,15 @@
         <ul class="dropdown-menu">
             <li>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a class="dropdown-item" href="{{ path('admin') }}">Administration</a>
+                    <a class="dropdown-item" href="{{ path('bug_catcher.admin') }}">Administration</a>
                 {% endif %}
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('app.dashboard.status',{status:'archived'}) }}">Archived logs</a>
-                <a class="dropdown-item" href="{{ path('app.dashboard') }}">New logs</a>
+                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.status',{status:'archived'}) }}">Archived logs</a>
+                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index') }}">New logs</a>
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('app_change_password') }}">Change password</a>
+                <a class="dropdown-item" href="{{ path('bug_catcher.security.change-password') }}">Change password</a>
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('app_logout') }}">Log out</a>
+                <a class="dropdown-item" href="{{ path('bug_catcher.security.logout') }}">Log out</a>
             </li>
         </ul>
     </div>

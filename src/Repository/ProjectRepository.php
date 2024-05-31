@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository;
+namespace PhpSentinel\BugCatcher\Repository;
 
-use App\Entity\Project;
-use App\Entity\User;
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;

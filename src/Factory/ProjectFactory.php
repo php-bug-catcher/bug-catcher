@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Factory;
+namespace PhpSentinel\BugCatcher\Factory;
 
-use App\Entity\Project;
-use App\Repository\ProjectRepository;
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;

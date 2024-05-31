@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Entity;
+namespace PhpSentinel\BugCatcher\Entity;
 
-use App\Repository\PingRecordRepository;
+use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: PingRecordRepository::class)]
-#[ORM\Index(name: 'full_idx', columns: ['project_id','date','status_code'])]
-class PingRecord extends Record
+#[ORM\Entity(repositoryClass: RecordPingRepository::class)]
+class RecordPing extends Record
 {
     #[ORM\Column(length: 255)]
     private ?string $statusCode = null;
@@ -36,4 +35,8 @@ class PingRecord extends Record
 
         return $this;
     }
+
+	function getGroup(): ?string {
+		return null;
+	}
 }

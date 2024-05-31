@@ -1,18 +1,18 @@
 <?php
 
-namespace App\DataFixtures;
+namespace PhpSentinel\BugCatcher\DataFixtures;
 
-use App\Factory\LogRecordFactory;
-use App\Factory\PingRecordFactory;
-use App\Factory\ProjectFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ObjectManager;
+use PhpSentinel\BugCatcher\Factory\LogRecordFactory;
+use PhpSentinel\BugCatcher\Factory\PingRecordFactory;
+use PhpSentinel\BugCatcher\Factory\ProjectFactory;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class AppFixtures extends Fixture
+class BugCatcherFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {

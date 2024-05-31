@@ -5,9 +5,9 @@
  * Date: 26. 5. 2024
  * Time: 19:36
  */
-namespace App\Entity;
+namespace PhpSentinel\BugCatcher\Entity;
 
-enum LogRecordStatus: string {
+enum RecordStatus: string {
 	case NEW      = 'new';
 	case ARCHIVED = 'archived';
 	case RESOLVED = 'resolved';

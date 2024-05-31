@@ -5,7 +5,7 @@
  * Date: 22. 3. 2024
  * Time: 20:10
  */
-namespace App\Form;
+namespace PhpSentinel\BugCatcher\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;

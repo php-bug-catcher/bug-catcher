@@ -5,10 +5,10 @@
  * Date: 31. 8. 2023
  * Time: 20:33
  */
-namespace App\Controller;
+namespace PhpSentinel\BugCatcher\Controller;
 
-use App\Entity\Client\Client;
-use App\Entity\User;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController as EAAbstractCrudController;
 use LogicException;
