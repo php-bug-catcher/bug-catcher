@@ -79,5 +79,10 @@ class RecordLog extends Record {
 		return md5($this->project->getId()->toHex() .$this->message );
 	}
 
+	function getComponentName(): string {
+		return "LogListRecordLog";
+	}
+
+
 
 }

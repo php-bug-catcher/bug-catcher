@@ -39,4 +39,8 @@ class RecordPing extends Record
 	function getGroup(): ?string {
 		return null;
 	}
+
+	function getComponentName(): string {
+		return "RecordLog";
+	}
 }

@@ -40,4 +40,8 @@ class RecordLogTrace extends RecordLog{
 
 		return $this;
 	}
+
+	function getComponentName(): string {
+		return "LogList:RecordLog";
+	}
 }
