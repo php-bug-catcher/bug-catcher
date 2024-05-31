@@ -1,4 +1,10 @@
-# BugCatcher
+# Catch every bug in all your PHP applications in one place
+
+<center>
+<img src="docs/logo.jpeg" width="600"><br>
+</center>
+<img src="docs/bug_catcher_01.png" width="800" >
+<img src="docs/stacktrace.png" width="800" >
 
 ## Installation
 
@@ -171,11 +177,15 @@ Now check out the site at `http://localhost:8000`
 
 See package [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle)
 
-Have fun!
-
 **Setup plain PHP applications**
 
 See package [php-sentinel/bug-catcher-curl-reporter](https://github.com/php-sentinel/bug-catcher-curl-reporter)
+
+Have fun!
+
+## Modifications
+
+See [docs/extending.md](docs/extending.md) for more information on how to extend the
 
 ## Have Ideas, Feedback or an Issue?
 
