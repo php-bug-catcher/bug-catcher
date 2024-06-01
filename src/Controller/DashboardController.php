@@ -29,11 +29,8 @@ class DashboardController extends AbstractController
     }
 
 	public function detail(Record $record): Response {
-		$stacktrace = unserialize($record->getStacktrace());
-
 		return $this->render('@BugCatcher/dashboard/detail.html.twig', [
-			"record"     => $record,
-			"stacktrace" => $stacktrace,
+			"record" => $record,
 		]);
 
 	}
