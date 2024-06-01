@@ -88,5 +88,5 @@ services:
             $collectors:
                 http: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
                 messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
-                cron: '@App\Service\CronPingCollector'
+                your_collector_key: '@App\Service\ToyrCollectorClass'
 ```
