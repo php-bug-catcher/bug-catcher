@@ -46,22 +46,25 @@ return [
 ```yaml
 #config/packages/twig.yaml
 twig:
+    ...
     form_themes: [ '@EasyAdmin/symfony-form-themes/bootstrap_5_layout.html.twig' ]
 ```
 ```yaml
 #config/packages/twig_component.yaml
 twig_component:
-    anonymous_template_directory: 'components/'
+    ...
     defaults:
-        # Namespace & directory for components
+        ...
         PhpSentinel\BugCatcher\Twig\Components\: '@BugCatcher/components/'
 ```
 ```yaml
 #config/packages/webpack_encore.yaml
 webpack_encore:
+    ...
     builds:
         bug_catcher: '%kernel.project_dir%/public/bundles/bugcatcher/'
 framework:
+    ...
     assets:
         packages:
             app:
@@ -77,16 +80,19 @@ Modify these:
 ```yaml
 #config/packages/security.yaml
 security:
+    ...
     providers:
         app_user_provider:
             entity:
                 class: PhpSentinel\BugCatcher\Entity\User
                 property: email
     firewalls:
+        ...
         api:
             pattern: ^/api/
             stateless: true
         main:
+            ...
             provider: app_user_provider
             form_login:
                 login_path: bug_catcher.security.login
@@ -111,6 +117,7 @@ security:
 #config/packages/doctrine.yaml
 doctrine:
     orm:
+        ...
         dql:
             string_functions:
                 TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction

@@ -73,3 +73,41 @@ parameters:
             - Detail:Header
             - Detail:Title
 ```
+
+## Custom Ping collector
+
+Create  your class extending ```PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface```
+
+```php
+namespace App\Service;
+
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface;
+use Symfony\Component\HttpFoundation\Response;
+
+class OkPingCollector implements PingCollectorInterface {
+
+	public function ping(Project $project): string {
+		return Response::HTTP_OK;
+	}
+}
+```
+
+Add it to configurations:
+```yaml
+#config/services.yaml
+parameters:
+    ...
+    collectors:
+        Http: http
+        Messenger: messenger
+        Always Ok: always_ok
+services:
+    ...
+    PhpSentinel\BugCatcher\Command\PingCollectorCommand:
+        arguments:
+            $collectors:
+                http: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
+                messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
+                always_ok: '@App\Service\OkPingCollector'
+```
