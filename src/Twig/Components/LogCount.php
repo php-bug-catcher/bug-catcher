@@ -7,18 +7,17 @@ use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
-final class LogCount extends AbsComponent
-{
+final class LogCount extends AbsComponent {
 
 
 	public function __construct(
 		private readonly RecordLogRepository $recordRepo
 	) {}
 
-	public function getCount():int {
+	public function getCount(): int {
 		return $this->recordRepo->count([
-			"project"=>$this->project,
-			"status" => 'new',
+			"project" => $this->project,
+			"status"  => 'new',
 		]);
 	}
 }

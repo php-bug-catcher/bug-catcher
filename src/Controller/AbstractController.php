@@ -7,9 +7,9 @@
  */
 namespace PhpSentinel\BugCatcher\Controller;
 
+use LogicException;
 use PhpSentinel\BugCatcher\Entity\Client\Client;
 use PhpSentinel\BugCatcher\Entity\User;
-use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as SymfonyAbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
 

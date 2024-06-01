@@ -7,6 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\Twig\Components\Detail;
 
+use Exception;
 use Kregel\ExceptionProbe\Codeframe;
 use PhpSentinel\BugCatcher\Entity\Record;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -33,7 +34,7 @@ class StackTrace {
 						break;
 					}
 				}
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				$this->trace = [
 					new Codeframe("Unable to unserialize stacktrace", 0, [], ""),
 				];

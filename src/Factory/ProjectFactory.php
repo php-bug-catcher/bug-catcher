@@ -27,43 +27,37 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Project[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Project[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class ProjectFactory extends ModelFactory
-{
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+final class ProjectFactory extends ModelFactory {
+	/**
+	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
+	 *
+	 * @todo inject services if required
+	 */
+	public function __construct() {
+		parent::__construct();
+	}
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
-    protected function getDefaults(): array
-    {
-        return [
-            'code' => self::faker()->word(),
-            'name' => self::faker()->words(3,true),
-        ];
-    }
+	/**
+	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+	 *
+	 * @todo add your default values here
+	 */
+	protected function getDefaults(): array {
+		return [
+			'code' => self::faker()->word(),
+			'name' => self::faker()->words(3, true),
+		];
+	}
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): self
-    {
-        return $this
-            // ->afterInstantiate(function(Project $project): void {})
-        ;
-    }
+	/**
+	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
+	 */
+	protected function initialize(): self {
+		return $this// ->afterInstantiate(function(Project $project): void {})
+			;
+	}
 
-    protected static function getClass(): string
-    {
-        return Project::class;
-    }
+	protected static function getClass(): string {
+		return Project::class;
+	}
 }

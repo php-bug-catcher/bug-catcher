@@ -10,11 +10,12 @@ namespace PhpSentinel\BugCatcher\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Api\Processor\LogRecordSaveProcessor;
 use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\ORM\Mapping as ORM;
+
 #[ApiResource(
 	operations: [
 		new Post(
@@ -76,13 +77,12 @@ class RecordLog extends Record {
 	}
 
 	function getGroup(): ?string {
-		return md5($this->project->getId()->toHex() .$this->message );
+		return md5($this->project->getId()->toHex() . $this->message);
 	}
 
 	function getComponentName(): string {
 		return "LogListRecordLog";
 	}
-
 
 
 }

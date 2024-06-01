@@ -2,9 +2,10 @@
 
 namespace PhpSentinel\BugCatcher\Entity;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use PhpSentinel\BugCatcher\Repository\RecordRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -23,8 +24,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 	'ping'      => RecordPing::class,
 ])]
 #[ORM\MappedSuperclass()]
-#[ORM\Index(name: 'full_idx', columns: ['discr','project_id','date','status'])]
-#[ORM\Index(name: 'full_idx', columns: ['discr','status','date'])]
+#[ORM\Index(name: 'full_idx', columns: ['discr', 'project_id', 'date', 'status'])]
+#[ORM\Index(name: 'full_idx', columns: ['discr', 'status', 'date'])]
 abstract class Record {
 
 
@@ -36,7 +37,7 @@ abstract class Record {
 
 	#[ORM\Column(type: Types::DATETIME_MUTABLE)]
 	#[Assert\NotBlank()]
-	protected ?\DateTimeInterface $date = null;
+	protected ?DateTimeInterface $date = null;
 
 	#[ORM\ManyToOne()]
 	#[ORM\JoinColumn(nullable: false)]
@@ -52,7 +53,7 @@ abstract class Record {
 	protected ?string $projectCode = null;
 
 	public function __construct() {
-		$this->date = new \DateTimeImmutable();
+		$this->date = new DateTimeImmutable();
 	}
 
 	private int $count = 1;
@@ -61,11 +62,11 @@ abstract class Record {
 		return $this->id;
 	}
 
-	public function getDate(): ?\DateTimeInterface {
+	public function getDate(): ?DateTimeInterface {
 		return $this->date;
 	}
 
-	public function setDate(\DateTimeInterface $date): static {
+	public function setDate(DateTimeInterface $date): static {
 		$this->date = $date;
 
 		return $this;
@@ -113,7 +114,7 @@ abstract class Record {
 		return $this;
 	}
 
-	abstract function getGroup():?string;
+	abstract function getGroup(): ?string;
 
 	abstract function getComponentName(): string;
 

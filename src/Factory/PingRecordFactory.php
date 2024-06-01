@@ -45,7 +45,7 @@ final class PingRecordFactory extends ModelFactory {
 	 */
 	protected function getDefaults(): array {
 		return [
-			'date' => self::faker()->dateTimeBetween("-10 days"),
+			'date'    => self::faker()->dateTimeBetween("-10 days"),
 			'project' => ProjectFactory::random(),
 			'statusCode' => self::faker()->randomElement([
 				Response::HTTP_OK,

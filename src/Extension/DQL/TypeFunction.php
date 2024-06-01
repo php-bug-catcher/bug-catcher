@@ -1,8 +1,8 @@
 <?php
 namespace PhpSentinel\BugCatcher\Extension\DQL;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
-use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\SqlWalker;
@@ -34,8 +34,7 @@ use Doctrine\ORM\Query\TokenType;
  * - get the type when we only have an ID
  * - query within a subset of all the available types
  */
-class TypeFunction extends FunctionNode
-{
+class TypeFunction extends FunctionNode {
 	/**
 	 * @var string
 	 */
@@ -46,8 +45,8 @@ class TypeFunction extends FunctionNode
 	 * @return string
 	 */
 	public function getSql(SqlWalker $sqlWalker): string {
-		$qComp      = $sqlWalker->getQueryComponent($this->dqlAlias);
-		/** @var \Doctrine\ORM\Mapping\ClassMetadataInfo $class */
+		$qComp = $sqlWalker->getQueryComponent($this->dqlAlias);
+		/** @var ClassMetadataInfo $class */
 		$class      = $qComp['metadata'];
 		$tableAlias = $sqlWalker->getSQLTableAlias($class->getTableName(), $this->dqlAlias);
 

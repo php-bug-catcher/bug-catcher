@@ -7,11 +7,11 @@
  */
 namespace PhpSentinel\BugCatcher\Controller;
 
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController as EAAbstractCrudController;
 use LogicException;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Entity\User;
 
 abstract class AbstractCrudController extends EAAbstractCrudController {
 	protected function getUser(): ?User {

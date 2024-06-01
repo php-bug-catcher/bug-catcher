@@ -2,10 +2,10 @@
 
 namespace PhpSentinel\BugCatcher\Command;
 
+use Exception;
 use PhpSentinel\BugCatcher\Entity\Role;
 use PhpSentinel\BugCatcher\Repository\UserRepository;
 use PhpSentinel\BugCatcher\Service\Transaction;
-use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

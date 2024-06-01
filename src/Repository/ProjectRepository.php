@@ -2,13 +2,12 @@
 
 namespace PhpSentinel\BugCatcher\Repository;
 
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\User;
 use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Project>
@@ -18,51 +17,44 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @method Project[]    findAll()
  * @method Project[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ProjectRepository extends ServiceEntityRepository
-{
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Project::class);
-    }
+class ProjectRepository extends ServiceEntityRepository {
+	public function __construct(ManagerRegistry $registry) {
+		parent::__construct($registry, Project::class);
+	}
 
-    public function save(Project $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+	public function save(Project $entity, bool $flush = false): void {
+		$this->getEntityManager()->persist($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function remove(Project $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
+	public function remove(Project $entity, bool $flush = false): void {
+		$this->getEntityManager()->remove($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function createEmpty(bool $flush): Project
-    {
-        $entity = new Project();
+	public function createEmpty(bool $flush): Project {
+		$entity = new Project();
 
-        $this->save($entity, $flush);
+		$this->save($entity, $flush);
 
-        return $entity;
-    }
+		return $entity;
+	}
 
-    public function getQBWith(): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('p');
+	public function getQBWith(): QueryBuilder {
+		$qb = $this->createQueryBuilder('p');
 
-        return $qb;
-    }
+		return $qb;
+	}
 
-    public function getQBBlank(): QueryBuilder
-    {
-        return $this->createQueryBuilder('p')->setMaxResults(0);
-    }
+	public function getQBBlank(): QueryBuilder {
+		return $this->createQueryBuilder('p')->setMaxResults(0);
+	}
 
 	/**
 	 * @param User|null $user

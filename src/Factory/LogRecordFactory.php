@@ -27,51 +27,46 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Record[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Record[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class LogRecordFactory extends ModelFactory
-{
+final class LogRecordFactory extends ModelFactory {
 	private $messages = [];
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-        parent::__construct();
-		for($i=0;$i<50;$i++){
+
+	/**
+	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
+	 *
+	 * @todo inject services if required
+	 */
+	public function __construct() {
+		parent::__construct();
+		for ($i = 0; $i < 50; $i++) {
 			$this->messages[] = self::faker()->text();
 		}
-    }
+	}
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
-    protected function getDefaults(): array
-    {
-        return [
-            'checked' => self::faker()->boolean(),
-            'date' => self::faker()->dateTimeBetween("-10 days"),
-            'level' => self::faker()->randomElement([500,200,100,50]),
-            'message' => self::faker()->randomElement($this->messages),
-            'project' => ProjectFactory::random(),
-            'requestUri' => self::faker()->text(255),
-        ];
-    }
+	/**
+	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+	 *
+	 * @todo add your default values here
+	 */
+	protected function getDefaults(): array {
+		return [
+			'checked'    => self::faker()->boolean(),
+			'date'       => self::faker()->dateTimeBetween("-10 days"),
+			'level'      => self::faker()->randomElement([500, 200, 100, 50]),
+			'message'    => self::faker()->randomElement($this->messages),
+			'project'    => ProjectFactory::random(),
+			'requestUri' => self::faker()->text(255),
+		];
+	}
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): self
-    {
-        return $this
-            // ->afterInstantiate(function(LogRecord $logRecord): void {})
-        ;
-    }
+	/**
+	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
+	 */
+	protected function initialize(): self {
+		return $this// ->afterInstantiate(function(LogRecord $logRecord): void {})
+			;
+	}
 
-    protected static function getClass(): string
-    {
-        return Record::class;
-    }
+	protected static function getClass(): string {
+		return Record::class;
+	}
 }

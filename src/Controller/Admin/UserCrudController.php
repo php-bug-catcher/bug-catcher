@@ -2,23 +2,17 @@
 
 namespace PhpSentinel\BugCatcher\Controller\Admin;
 
-use PhpSentinel\BugCatcher\Controller\AbstractCrudController;
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Entity\Role;
-use PhpSentinel\BugCatcher\Entity\User;
-use Doctrine\ORM\QueryBuilder;
-use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
-use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Bridge\Doctrine\Types\UuidType;
+use PhpSentinel\BugCatcher\Controller\AbstractCrudController;
+use PhpSentinel\BugCatcher\Entity\Client\Client;
+use PhpSentinel\BugCatcher\Entity\Role;
+use PhpSentinel\BugCatcher\Entity\User;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -60,6 +54,7 @@ class UserCrudController extends AbstractCrudController {
 			"User"     => 'ROLE_USER',
 			"Customer" => 'ROLE_CUSTOMER',
 		];
+
 		return [
 			TextField::new('email')->setColumns(8),
 			BooleanField::new("enabled")->setColumns(4),

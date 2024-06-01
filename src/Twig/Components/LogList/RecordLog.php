@@ -12,10 +12,6 @@ use App\Entity\Search\SearchTarget;
 use App\Entity\Search\Speech;
 use App\Repository\Search\SearchRepository;
 use PhpSentinel\BugCatcher\Entity\Record;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
-use Symfony\UX\LiveComponent\Attribute\LiveProp;
-use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 

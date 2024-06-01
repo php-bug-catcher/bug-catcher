@@ -7,10 +7,9 @@
  */
 namespace PhpSentinel\BugCatcher\Service\PingCollector;
 
-use PhpSentinel\BugCatcher\Entity\Project;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpSentinel\BugCatcher\Entity\Project;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessengerCollector implements PingCollectorInterface {

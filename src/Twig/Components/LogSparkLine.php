@@ -2,16 +2,15 @@
 
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
 use Brendt\SparkLine\Period;
 use Brendt\SparkLine\SparkLine;
 use Brendt\SparkLine\SparkLineInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
-final class LogSparkLine extends AbsComponent
-{
+final class LogSparkLine extends AbsComponent {
 	public int $minutes = 15;
 	public int $treshold = 5;
 	public int $graphHours = 24;
@@ -31,10 +30,10 @@ where project_id={$this->project->getId()->toHex()}
 group by period
 SQL;
 		$rows    = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
-		$indexed = array_map(fn(array $row) => new SparkLineInterval($row["cnt"], new \DateTimeImmutable($row["period"])), $rows);
+		$indexed = array_map(fn(array $row) => new SparkLineInterval($row["cnt"], new DateTimeImmutable($row["period"])), $rows);
 //		array_unshift($indexed, new SparkLineInterval(self::TRESHOLD, new \DateTimeImmutable("-" . (self::GRAPH_HOURS + 1) . "hour")));
 		$sparkLine = SparkLine::new(collect($indexed), Period::MINUTE, $this->minutes)
-			->withMaxItemAmount(($this->graphHours* 60) / $this->minutes)
+			->withMaxItemAmount(($this->graphHours * 60) / $this->minutes)
 			->withDimensions(250, 30)
 			->withMaxValue($this->treshold)
 			->withColors('#4fae00', '#0857fd', '#ff0000');

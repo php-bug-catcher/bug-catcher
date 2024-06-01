@@ -2,14 +2,12 @@
 
 namespace PhpSentinel\BugCatcher\Repository;
 
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordLog;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Entity\RecordLog;
+use PhpSentinel\BugCatcher\Entity\RecordStatus;
 
 /**
  * @extends ServiceEntityRepository<Record>
@@ -19,7 +17,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @method Record[]    findAll()
  * @method Record[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogRepository extends RecordRepository implements RecordRepositoryInterface{
+class RecordLogRepository extends RecordRepository implements RecordRepositoryInterface {
 	public function __construct(
 		ManagerRegistry $registry,
 	) {

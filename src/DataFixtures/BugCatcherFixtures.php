@@ -12,10 +12,8 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class BugCatcherFixtures extends Fixture
-{
-    public function load(ObjectManager $manager): void
-    {
+class BugCatcherFixtures extends Fixture {
+	public function load(ObjectManager $manager): void {
 		/** @var Connection $object */
 		$object = $manager->getConnection();
 		$object->getConfiguration()->setSQLLogger(null);
@@ -27,7 +25,7 @@ class BugCatcherFixtures extends Fixture
 		ProjectFactory::createMany(8);
 		$io->writeln("creating pings");
 		$io->progressStart(1000);
-		PingRecordFactory::createMany(1000,static function (int $i) use ($io) {
+		PingRecordFactory::createMany(1000, static function (int $i) use ($io) {
 			$io->progressAdvance(1);
 
 			return [];
@@ -36,13 +34,13 @@ class BugCatcherFixtures extends Fixture
 		$io->writeln("");
 		$io->writeln("creating logs");
 		$io->progressStart(1000);
-		LogRecordFactory::createMany(1000,static function (int $i) use ($io) {
+		LogRecordFactory::createMany(1000, static function (int $i) use ($io) {
 			$io->progressAdvance(1);
 
 			return [];
 		});
 		$io->progressFinish();
 
-        $manager->flush();
-    }
+		$manager->flush();
+	}
 }

@@ -2,10 +2,10 @@
 
 namespace PhpSentinel\BugCatcher\Repository;
 
-use PhpSentinel\BugCatcher\Entity\RecordPing;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
 
 /**
  * @extends ServiceEntityRepository<RecordPing>
@@ -15,49 +15,42 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method RecordPing[]    findAll()
  * @method RecordPing[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordPingRepository extends RecordRepository
-{
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, RecordPing::class);
-    }
+class RecordPingRepository extends RecordRepository {
+	public function __construct(ManagerRegistry $registry) {
+		parent::__construct($registry, RecordPing::class);
+	}
 
-    public function save(RecordPing $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
+	public function save(RecordPing $entity, bool $flush = false): void {
+		$this->getEntityManager()->persist($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function remove(RecordPing $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
+	public function remove(RecordPing $entity, bool $flush = false): void {
+		$this->getEntityManager()->remove($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
+	}
 
-    public function createEmpty(bool $flush): RecordPing
-    {
-        $entity = new RecordPing();
+	public function createEmpty(bool $flush): RecordPing {
+		$entity = new RecordPing();
 
-        $this->save($entity, $flush);
+		$this->save($entity, $flush);
 
-        return $entity;
-    }
+		return $entity;
+	}
 
-    public function getQBWith(): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('p');
+	public function getQBWith(): QueryBuilder {
+		$qb = $this->createQueryBuilder('p');
 
-        return $qb;
-    }
+		return $qb;
+	}
 
-    public function getQBBlank(): QueryBuilder
-    {
-        return $this->createQueryBuilder('p')->setMaxResults(0);
-    }
+	public function getQBBlank(): QueryBuilder {
+		return $this->createQueryBuilder('p')->setMaxResults(0);
+	}
 }

@@ -2,9 +2,8 @@
 
 namespace PhpSentinel\BugCatcher\Controller;
 
+use Exception;
 use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
-use PhpSentinel\BugCatcher\Entity\Role;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,7 +34,7 @@ class DashboardController extends AbstractController {
 				]);
 			}
 		}
-		throw new \Exception("No detail components definition found for record type. See " .
+		throw new Exception("No detail components definition found for record type. See " .
 			"'https://github.com/php-sentinel/bug-catcher/blob/main/docs/extending.md#detail-page-components'");
 	}
 

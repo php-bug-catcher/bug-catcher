@@ -8,8 +8,6 @@
 namespace PhpSentinel\BugCatcher\Service\PingCollector;
 
 use PhpSentinel\BugCatcher\Entity\Project;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\HttpFoundation\Response;
 
 class HttpPingCollector implements PingCollectorInterface {
