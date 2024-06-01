@@ -78,6 +78,21 @@ parameters:
 
 Create  your class extending ```PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface```
 
+```php
+namespace App\Service;
+
+use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface;
+use Symfony\Component\HttpFoundation\Response;
+
+class OkPingCollector implements PingCollectorInterface {
+
+	public function ping(Project $project): string {
+		return Response::HTTP_OK;
+	}
+}
+```
+
 Add it to configurations:
 ```yaml
 #config/services.yaml
@@ -88,5 +103,5 @@ services:
             $collectors:
                 http: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
                 messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
-                your_collector_key: '@App\Service\ToyrCollectorClass'
+                always_ok: '@App\Service\OkPingCollector'
 ```
