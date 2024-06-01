@@ -116,4 +116,5 @@ abstract class Record {
 	abstract function getGroup():?string;
 
 	abstract function getComponentName(): string;
+
 }

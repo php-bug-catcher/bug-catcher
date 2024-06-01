@@ -26,6 +26,17 @@ namespace {
 				"LogCount",
 				"LogSparkLine",
 			])
+			->set("detail_components", [
+				RecordLogTrace::class => [
+					'Detail:Header',
+					'Detail:Title',
+					'Detail:StackTrace',
+				],
+				RecordLog::class      => [
+					'Detail:Header',
+					'Detail:Title',
+				],
+			])
 		;
 		$services = $container->services()
 			->defaults()

@@ -50,4 +50,26 @@ parameters:
         - RecordLog::class
         - RecordLogTrace::class
         - YourRecord::class
-``
+```
+
+## Detail page components
+
+When you have cusoim record item, you can create your own detail page components.
+First founded class in order by instance of record item is used as detail page component.
+
+```yaml
+# config/services.yaml
+parameters:
+    detail_components:
+        PhpSentinel\BugCatcher\Entity\YourRecord:
+            - Detail:Header
+            - Detail:Title
+            - YourComponentName
+        PhpSentinel\BugCatcher\Entity\RecordLogTrace:
+            - Detail:Header
+            - Detail:Title
+            - Detail:StackTrace
+        PhpSentinel\BugCatcher\Entity\RecordLog:
+            - Detail:Header
+            - Detail:Title
+```
