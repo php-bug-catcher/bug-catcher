@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use PhpSentinel\BugCatcher\Entity\Project;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ProjectCrudController extends AbstractCrudController {
 	public static function getEntityFqcn(): string {
@@ -26,17 +27,27 @@ class ProjectCrudController extends AbstractCrudController {
 
 
 	public function configureFields(string $pageName): iterable {
+		$collectorTypes = $this->container->get(ParameterBagInterface::class)->get('collectors');
+		if (array_is_list($collectorTypes)) {
+			$collectorTypes = array_combine($collectorTypes, $collectorTypes);
+		}
 		return [
 			TextField::new('code'),
 			TextField::new('name'),
 			BooleanField::new("enabled"),
-			ChoiceField::new("pingCollector")->setChoices([
-				"None" => "none", 'http' => 'http', 'messenger' => 'messenger',
-			])->hideOnIndex(),
+			ChoiceField::new("pingCollector")->setChoices($collectorTypes)->hideOnIndex(),
 			UrlField::new("url"),
 			TextField::new('dbConnection')->hideOnIndex(),
 			AssociationField::new('users')->setColumns(6)->onlyOnForms(),
 		];
 	}
+
+	public static function getSubscribedServices(): array {
+		$services                               = parent::getSubscribedServices();
+		$services[ParameterBagInterface::class] = ParameterBagInterface::class;
+
+		return $services;
+	}
+
 
 }

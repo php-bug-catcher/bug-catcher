@@ -40,6 +40,10 @@ namespace {
 					'Detail:Title',
 				],
 			])
+			->set("collectors", [
+				'http',
+				'messenger',
+			])
 		;
 		$services = $container->services()
 			->defaults()
