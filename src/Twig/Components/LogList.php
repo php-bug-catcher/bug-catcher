@@ -103,6 +103,6 @@ final class LogList extends AbstractController {
 		}
 		$repo->setStatus($log, $date, $status, $this->status);
 
-		return $this->redirectToRoute('bug_catcher.dashboard.status', ['status' => $this->status->value]);
+		return $this->redirectToRoute('bug_catcher.dashboard.status', ['status' => $this->status]);
 	}
 }
