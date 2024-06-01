@@ -1,0 +1,26 @@
+<div{{ attributes.defaults({
+    class:'my-3 p-3 bg-body rounded shadow-sm'
+}) }}>
+    {% set logs = this.logs %}
+    {% if logs|length %}
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <button class="nav-link active " aria-current="page"
+                        data-action="live#action"
+                        data-live-action-param="clearAll"
+                        data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
+                >Fix all
+                </button>
+            </li>
+        </ul>
+        <ul class="list-group">
+            {% for log in this.logs %}
+                {{ component(log.componentName, {log: log}) }}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h6 class="border-bottom pb-1 mb-0">Your are happy, No Errors
+            <twig:ux:icon name="game-icons:schrodingers-cat-alive" width="30px" height="30px"/>
+        </h6>
+    {% endif %}
+</div>

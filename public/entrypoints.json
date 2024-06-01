@@ -1,0 +1,15 @@
+{
+  "entrypoints": {
+    "bug_catcher": {
+      "js": [
+        "/bundles/bugcatcher/runtime.8ab7f0c8.js",
+        "/bundles/bugcatcher/317.535de096.js",
+        "/bundles/bugcatcher/bug_catcher.e99065ab.js"
+      ],
+      "css": [
+        "/bundles/bugcatcher/317.75e149f1.css",
+        "/bundles/bugcatcher/bug_catcher.2da793b8.css"
+      ]
+    }
+  }
+}

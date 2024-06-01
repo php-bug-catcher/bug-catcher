@@ -1,0 +1,30 @@
+@import "bootstrap";
+
+body {
+    background-color: lightgray;
+}
+
+code {
+    white-space: pre-wrap;
+}
+
+div.code::before {
+    counter-reset: listing;
+}
+
+div.code code {
+    counter-increment: listing;
+    display: block;
+    width: 100%;
+}
+
+div.code code.selected {
+    background-color: #b5f5ec;
+}
+
+div.code code::before {
+    content: counter(listing) ". ";
+    display: inline-block;
+    width: 4em; /* now works */
+    text-align: right; /* now works */
+}

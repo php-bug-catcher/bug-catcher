@@ -1,0 +1,1 @@
+body{background-color:#d3d3d3}code{white-space:pre-wrap}div.code:before{counter-reset:listing}div.code code{counter-increment:listing;display:block;width:100%}div.code code.selected{background-color:#b5f5ec}div.code code:before{content:counter(listing) ". ";display:inline-block;text-align:right;width:4em}

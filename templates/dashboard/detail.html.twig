@@ -1,0 +1,19 @@
+{% extends "@BugCatcher/base.html.twig" %}
+
+{% block title %}{{ title|default('Log View') }}{% endblock %}
+
+{% block body %}
+
+
+    <div class="min-h-screen p-2 h-100">
+        <main class="">
+            <div class="container py-4">
+                {% for detailComponent in components %}
+                    {{ component(detailComponent,{record:record}) }}
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+
+{% endblock %}

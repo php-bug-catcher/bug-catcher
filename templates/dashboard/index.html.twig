@@ -1,0 +1,31 @@
+{% extends "@BugCatcher/base.html.twig" %}
+
+{% block title %}{{ title|default('Log View') }}{% endblock %}
+
+{% block body %}
+
+
+    <div class="min-h-screen p-2 h-100">
+        <main class="">
+            {% for dashboardComponent in components %}
+                {{ component(dashboardComponent,{status:status}) }}
+            {% endfor %}
+        </main>
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+
+        {% if app.environment == 'prod' %}
+		document.addEventListener("DOMContentLoaded", function () {
+			setInterval(function () {
+				window.location.reload();
+			}, 15000);
+		});
+        {% endif %}
+    </script>
+{% endblock %}

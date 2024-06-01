@@ -1,0 +1,15 @@
+<div{{ attributes.defaults({
+    class:'col-4 px-1'
+}) }}>
+    {% set status = this.lastStatus %}
+    <div class="w-100 badge
+    text-bg-{{ status  ? 'success' : 'danger' }}
+    text-start fs-6">
+        {% if status %}
+            <twig:ux:icon name="mdi:success-bold" height="18" width="18"/>
+        {% else %}
+            <twig:ux:icon name="jam:triangle-danger" height="18" width="18"/>
+        {% endif %}
+        {{ project.code }}
+    </div>
+</div>
