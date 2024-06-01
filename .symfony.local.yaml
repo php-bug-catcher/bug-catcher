@@ -1,8 +1,0 @@
-proxy:
-    domains:
-        - bug-catcher
-http:
-    daemon: true # Run the server in the background
-workers:
-    yarn_encore_watch:
-        cmd: [ 'yarn', 'encore', 'dev', '--watch' ]
