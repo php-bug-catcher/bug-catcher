@@ -10,6 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Throwable;
@@ -19,6 +20,7 @@ use Throwable;
 )]
 class PingCollectorCommand extends Command implements ServiceSubscriberInterface {
 	public function __construct(
+		#[Autowire(param: 'ping_collectors')]
 		private readonly array                $collectors,
 		private readonly ProjectRepository    $projectRepo,
 		private readonly RecordPingRepository $pingRecordRepo
@@ -26,7 +28,6 @@ class PingCollectorCommand extends Command implements ServiceSubscriberInterface
 		parent::__construct();
 	}
 
-	protected function configure(): void {}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$projects = $this->projectRepo->findAll();

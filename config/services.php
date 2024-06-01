@@ -5,7 +5,10 @@ namespace {
 	use PhpSentinel\BugCatcher\Command\PingCollectorCommand;
 	use PhpSentinel\BugCatcher\Entity\RecordLog;
 	use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
+	use PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector;
+	use PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+	use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 	/**
 	 * @link https://symfony.com/doc/current/bundles/best_practices.html#services
@@ -46,7 +49,10 @@ namespace {
 			->load('PhpSentinel\\BugCatcher\\', '../src/')
 			->exclude('../src/{DependencyInjection,DataFixtures,Entity,Factory,Extension,BugCatcherBundle.php}');
 
-		$services->set(PingCollectorCommand::class)->arg('$collectors',[]);
+		$services->set(PingCollectorCommand::class)->arg('$collectors',[
+			'http'=>service(HttpPingCollector::class),
+			'messenger'=>service(MessengerCollector::class),
+		]);
 	};
 
 }
