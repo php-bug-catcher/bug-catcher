@@ -73,3 +73,20 @@ parameters:
             - Detail:Header
             - Detail:Title
 ```
+
+## Custom Ping collector
+
+Create  your class extending ```PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface```
+
+Add it to configurations:
+```yaml
+#config/services.yaml
+services:
+    ...
+    PhpSentinel\BugCatcher\Command\PingCollectorCommand:
+        arguments:
+            $collectors:
+                http: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
+                messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
+                cron: '@App\Service\CronPingCollector'
+```
