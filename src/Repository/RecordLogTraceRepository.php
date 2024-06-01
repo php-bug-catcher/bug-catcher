@@ -28,7 +28,7 @@ class RecordLogTraceRepository extends RecordRepository implements RecordReposit
 		parent::__construct($registry, RecordLogTrace::class);
 	}
 
-	protected function getUpdateStatusQB($newStatus, DateTimeInterface $lastDate, mixed $previousStatus): QueryBuilder {
+	protected function getUpdateStatusQB($newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {
 		$qb = parent::getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		if ($newStatus == 'resolved' && $this->clearStackTrace) {

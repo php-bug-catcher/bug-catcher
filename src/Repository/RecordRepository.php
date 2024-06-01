@@ -33,7 +33,7 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 			->execute();
 	}
 
-	public function setStatus(Record $log, DateTimeInterface $lastDate, $newStatus, $previousStatus = 'new'): void {
+	public function setStatus(Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 		$qb
 			->andWhere('l.message = :message')
@@ -42,10 +42,10 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 			->execute();
 	}
 
-	protected function getUpdateStatusQB($newStatus, DateTimeInterface $lastDate, mixed $previousStatus): QueryBuilder {
+	protected function getUpdateStatusQB(string $newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {
 		$qb = $this->createQueryBuilder('l');
 		$qb = $qb->update()
-			->set('l.status', "'{$newStatus->value}'")
+			->set('l.status', "'{$newStatus}'")
 			->andWhere('l.date <= :date')
 			->andWhere('l.status = :status')
 			->setParameter('date', $lastDate)
