@@ -96,6 +96,12 @@ class OkPingCollector implements PingCollectorInterface {
 Add it to configurations:
 ```yaml
 #config/services.yaml
+parameters:
+    ...
+    collectors:
+        Http: http
+        Messenger: messenger
+        Always Ok: always_ok
 services:
     ...
     PhpSentinel\BugCatcher\Command\PingCollectorCommand:
