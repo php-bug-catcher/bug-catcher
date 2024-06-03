@@ -102,7 +102,7 @@ parameters:
         Http: http
         Messenger: messenger
         Always Ok: always_ok
-	None: none
+        None: none
 services:
     ...
     PhpSentinel\BugCatcher\Command\PingCollectorCommand:
