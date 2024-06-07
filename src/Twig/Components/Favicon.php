@@ -24,6 +24,6 @@ class Favicon {
 	public function getIcon(): string {
 		$color = $this->status->getImportance()->getColor()->value;
 
-		return $this->assetManager->getUrl("/images/logo/icon-{$color}.svg", 'bug_catcher');
+		return $this->assetManager->getUrl("/assets/logo/icon-{$color}.svg", 'bug_catcher');
 	}
 }

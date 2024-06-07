@@ -8,8 +8,7 @@ use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: NotifierRepository::class)]
-class NotifierRepeated extends Notifier {
+abstract class NotifierRepeated extends Notifier {
 
 
 	#[ORM\Column(name: '`repeat`', length: 255, enumType: NotifyRepeat::class)]

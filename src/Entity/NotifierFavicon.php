@@ -9,4 +9,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: NotifierRepository::class)]
 class NotifierFavicon extends Notifier {
 
+	#[ORM\Column(nullable: false)]
+	#[Assert\NotBlank()]
+	#[Assert\Length(min: 1, max: 99999)]
+	private ?int $importance = 0;
+
+	public function getImportance(): int {
+		return $this->importance;
+	}
+
+	public function setImportance(int $importance): self {
+		$this->importance = $importance;
+
+		return $this;
+	}
+
+
+
 }

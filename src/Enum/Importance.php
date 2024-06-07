@@ -27,6 +27,21 @@ enum Importance: string {
 		];
 	}
 
+	public function isHigher(Importance $importance): bool {
+		foreach (self::all() as $i) {
+			if ($i === $importance) {
+				return false;
+			}
+			if ($i === $this) {
+				return true;
+			}
+		}
+	}
+
+	public function isHigherOrEqual(Importance $importance): bool {
+		return $this === $importance || $this->isHigher($importance);
+	}
+
 	public static function min(): Importance {
 		return self::Normal;
 	}

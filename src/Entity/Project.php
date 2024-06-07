@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -154,6 +155,18 @@ class Project {
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @psalm-param class-string<T> $class
+	 * @psalm-return T
+	 * @template T of Notifier
+	 */
+	public function getNotifier(string $class, Importance $minimalImportance = Importance::Normal): ?Notifier {
+		//TODO: sort by importance from lowest to highest
+		return $this->notifiers->findFirst(function (int $i, Notifier $notifier) use ($class, $minimalImportance) {
+			return $notifier instanceof $class && $notifier->getMinimalImportance()->isHigherOrEqual($minimalImportance);
+		});
 	}
 
 	/**

@@ -14,6 +14,7 @@ class DashboardStatus {
 
 	/** @var array<Importance, Importance> */
 	private array $importances = [];
+	private array $increments = [];
 
 	public function levelUp(Importance $group): void {
 		if (!array_key_exists($group->value, $this->importances)) {
@@ -35,11 +36,14 @@ class DashboardStatus {
 		if (!$importance) {
 			return;
 		}
+		if (!array_key_exists($group->value, $this->increments)) {
+			$this->increments[$group->value] = 0;
+		}
 		$max = count(Importance::all()) - 1;
 		$ratio            = $max / $topImportance;
-		$importance       = $importance * $ratio;
-		$this->importance += $importance;
-		$this->setImportance($group, $this->importance, $max);
+		$newImportance = $importance * $ratio;
+		$newImportance = $this->increments[$group->value] += $newImportance;
+		$this->setImportance($group, $newImportance, $max);
 	}
 
 	public function setImportance(Importance $group, float $importance, float $topImportance = 10): void {
