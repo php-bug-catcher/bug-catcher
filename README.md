@@ -48,6 +48,8 @@ return [
 twig:
     ...
     form_themes: [ '@EasyAdmin/symfony-form-themes/bootstrap_5_layout.html.twig' ]
+    globals:
+        app_name: '%env(APP_NAME)%'
 ```
 ```yaml
 #config/packages/twig_component.yaml

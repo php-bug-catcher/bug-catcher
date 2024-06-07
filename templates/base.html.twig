@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <title>{% block title %}{{ app_name|default('Bug Catcher') }}{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('/images/logo/icon.svg','bug_catcher') }}">
     <link rel="icon" type="image/png" href="{{ asset('/images/logo/icon.png','bug_catcher') }}">
     {% block stylesheets %}
