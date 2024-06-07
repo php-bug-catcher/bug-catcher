@@ -6,6 +6,9 @@
 <img src="docs/bug_catcher_01.png" width="800" >
 <img src="docs/stacktrace.png" width="800" >
 
+> [!CAUTION]
+> **Work in progress, use at your own risk**
+
 ## Installation
 
 **Create blank symfony project**
