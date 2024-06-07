@@ -10,7 +10,7 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
 final class StatusList extends AbstractController {
-	public readonly string $status;
+	public string $status = 'new';
 
 	public function __construct(
 		private readonly ProjectRepository $projectRepo,
