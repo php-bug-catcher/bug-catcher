@@ -108,7 +108,7 @@ services:
     PhpSentinel\BugCatcher\Command\PingCollectorCommand:
         arguments:
             $collectors:
-                http: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
-                messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
+                http: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
+                messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
                 always_ok: '@App\Service\OkPingCollector'
 ```
