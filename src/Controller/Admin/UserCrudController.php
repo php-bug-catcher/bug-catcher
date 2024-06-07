@@ -58,8 +58,7 @@ class UserCrudController extends AbstractCrudController {
 		return [
 			TextField::new('email')->setColumns(8),
 			BooleanField::new("enabled")->setColumns(4),
-			TextField::new('userIdentifier')->onlyOnIndex(),
-			TextField::new('fullname')->setColumns(4)->onlyOnForms(),
+			TextField::new('fullname')->setColumns(4),
 			ChoiceField::new('roles')
 				->setChoices($roles)
 				->allowMultipleChoices()
