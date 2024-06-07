@@ -122,6 +122,14 @@ doctrine:
             string_functions:
                 TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction
 ```
+```yaml
+#config/packages/api_platform.yaml
+api_platform:
+    ...
+    formats
+        ...
+        json: [ 'application/json' ]
+```
 **Routes**
 
 ```yaml
