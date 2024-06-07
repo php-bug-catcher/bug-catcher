@@ -3,7 +3,7 @@
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
 use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
-use PhpSentinel\BugCatcher\Service\FaviconStatus;
+use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -12,7 +12,7 @@ final class ProjectStatus extends AbsComponent {
 
 	public function __construct(
 		private readonly RecordPingRepository $recordRepo,
-		private readonly FaviconStatus        $status,
+		private readonly DashboardStatus $status,
 	) {}
 
 	public function getLastStatus(): string {

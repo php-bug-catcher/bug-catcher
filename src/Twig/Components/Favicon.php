@@ -8,7 +8,7 @@
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
 use PhpSentinel\BugCatcher\Enum\BootstrapColor;
-use PhpSentinel\BugCatcher\Service\FaviconStatus;
+use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\Component\Asset\Packages;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -17,11 +17,13 @@ class Favicon {
 
 	public function __construct(
 		private readonly Packages      $assetManager,
-		private readonly FaviconStatus $status
+		private readonly DashboardStatus $status
 	) {}
 
 
 	public function getIcon(): string {
-		return $this->assetManager->getUrl("/images/logo/icon-{$this->status->getStatus()->value}.svg", 'bug_catcher');
+		$color = $this->status->getImportance()->getColor()->value;
+
+		return $this->assetManager->getUrl("/images/logo/icon-{$color}.svg", 'bug_catcher');
 	}
 }

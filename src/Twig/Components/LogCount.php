@@ -3,7 +3,7 @@
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
 use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
-use PhpSentinel\BugCatcher\Service\FaviconStatus;
+use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
@@ -12,7 +12,7 @@ final class LogCount extends AbsComponent {
 
 	public function __construct(
 		private readonly RecordLogRepository $recordRepo,
-		private readonly FaviconStatus       $status,
+		private readonly DashboardStatus $status,
 	) {}
 
 	public function getCount(): int {
