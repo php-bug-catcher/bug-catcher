@@ -69,7 +69,6 @@ class DashboardStatus {
 		usort($this->importances, function (Importance $a, Importance $b) use ($all) {
 			return array_search($b, $all) <=> array_search($a, $all);
 		});
-
 		return $this->importances[0]??Importance::Normal;
 	}
 }

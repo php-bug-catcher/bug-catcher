@@ -30,10 +30,10 @@ final class ProjectStatus extends AbsComponent {
 		$state = $ping?->getStatusCode() == Response::HTTP_OK;
 		$favIconNotifiers = $this->project->findNotifiers(NotifierFavicon::class, Importance::Low);
 		$favIconNotifier = $favIconNotifiers->findFirst(function (int $i, NotifierFavicon $notifier) {
-			return $notifier->getComponent() === 'LogCount';
+			return $notifier->getComponent() === 'ProjectStatus';
 		});
 		if (!$state && $favIconNotifier) {
-			$this->status->incrementImportance(Importance::High, 4, $favIconNotifier->getImportance());
+			$this->status->incrementImportance(Importance::High, 1, $favIconNotifier->getImportance());
 		}
 
 		return $state;
