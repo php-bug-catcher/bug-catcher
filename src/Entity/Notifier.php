@@ -7,9 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\InheritanceType('JOINED')]
+#[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
 #[ORM\DiscriminatorMap([
 	'repeated' => NotifierRepeated::class,
@@ -21,9 +23,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: NotifierRepository::class)]
 abstract class Notifier {
 	#[ORM\Id]
-	#[ORM\GeneratedValue]
-	#[ORM\Column]
-	protected ?int $id = null;
+	#[ORM\Column(type: UuidType::NAME, unique: true)]
+	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
+	#[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+	protected ?Uuid $id = null;
+
 
 	#[ORM\Column(length: 255, nullable: false)]
 	#[Assert\NotBlank()]
@@ -44,7 +48,8 @@ abstract class Notifier {
 		$this->projects = new ArrayCollection();
 	}
 
-	public function getId(): ?int {
+
+	public function getId(): ?Uuid {
 		return $this->id;
 	}
 
