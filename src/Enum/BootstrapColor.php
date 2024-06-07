@@ -15,4 +15,5 @@ enum BootstrapColor: string {
 	case Warning   = "warning";
 	case Danger    = "danger";
 	case Default   = "default";
+
 }
