@@ -159,12 +159,11 @@ class Project {
 
 	/**
 	 * @psalm-param class-string<T> $class
-	 * @psalm-return T
+	 * @psalm-return Collection<int, T>
 	 * @template T of Notifier
 	 */
-	public function getNotifier(string $class, Importance $minimalImportance = Importance::Normal): ?Notifier {
-		//TODO: sort by importance from lowest to highest
-		return $this->notifiers->findFirst(function (int $i, Notifier $notifier) use ($class, $minimalImportance) {
+	public function findNotifiers(string $class, Importance $minimalImportance = Importance::Normal): Collection {
+		return $this->notifiers->filter(function (Notifier $notifier) use ($class, $minimalImportance) {
 			return $notifier instanceof $class && $notifier->getMinimalImportance()->isHigherOrEqual($minimalImportance);
 		});
 	}

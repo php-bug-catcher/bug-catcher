@@ -22,9 +22,12 @@ final class LogCount extends AbsComponent {
 			"project" => $this->project,
 			"status"  => 'new',
 		]);
-		$favIconNotifiers = $this->project->getNotifier(NotifierFavicon::class, Importance::Low);
-		if ($count && $favIconNotifiers) {
-			$this->status->incrementImportance(Importance::Medium, $count, $favIconNotifiers->getImportance());
+		$favIconNotifiers = $this->project->findNotifiers(NotifierFavicon::class, Importance::Low);
+		$favIconNotifier = $favIconNotifiers->findFirst(function (int $i, NotifierFavicon $notifier) {
+			return $notifier->getComponent() === 'LogCount';
+		});
+		if ($count && $favIconNotifier) {
+			$this->status->incrementImportance(Importance::Medium, $count, $favIconNotifier->getImportance());
 		}
 
 		return $count;

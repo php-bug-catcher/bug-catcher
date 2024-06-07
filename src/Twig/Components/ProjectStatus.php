@@ -2,6 +2,8 @@
 
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
+use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
+use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
 use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,8 +28,12 @@ final class ProjectStatus extends AbsComponent {
 		]);
 
 		$state = $ping?->getStatusCode() == Response::HTTP_OK;
-		if (!$state) {
-			$this->status->incrementImportance(10, 4);
+		$favIconNotifiers = $this->project->findNotifiers(NotifierFavicon::class, Importance::Low);
+		$favIconNotifier = $favIconNotifiers->findFirst(function (int $i, NotifierFavicon $notifier) {
+			return $notifier->getComponent() === 'LogCount';
+		});
+		if (!$state && $favIconNotifier) {
+			$this->status->incrementImportance(Importance::High, 4, $favIconNotifier->getImportance());
 		}
 
 		return $state;

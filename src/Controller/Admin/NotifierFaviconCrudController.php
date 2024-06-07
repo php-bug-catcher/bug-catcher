@@ -14,10 +14,24 @@ class NotifierFaviconCrudController extends NotifierCrudController {
 	}
 
 	public function configureFields(string $pageName): iterable {
+		$parameterBag = $this->container->get(ParameterBagInterface::class);
+		$components   = $parameterBag->get('favicon_components');
+		if (array_is_list($components)) {
+			$components = array_combine($components, $components);
+		}
 		$fields = iterator_to_array(parent::configureFields($pageName));
 
 		return array_merge($fields, [
 			NumberField::new('importance')->setColumns(4),
+			ChoiceField::new("component")->setChoices($components),
 		]);
 	}
+
+	public static function getSubscribedServices(): array {
+		$services                               = parent::getSubscribedServices();
+		$services[ParameterBagInterface::class] = ParameterBagInterface::class;
+
+		return $services;
+	}
+
 }

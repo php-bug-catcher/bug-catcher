@@ -14,6 +14,10 @@ class NotifierFavicon extends Notifier {
 	#[Assert\Length(min: 1, max: 99999)]
 	private ?int $importance = 0;
 
+	#[ORM\Column(length: 255, nullable: true)]
+	#[Assert\NotBlank()]
+	private ?string $component = null;
+
 	public function getImportance(): int {
 		return $this->importance;
 	}
@@ -24,6 +28,14 @@ class NotifierFavicon extends Notifier {
 		return $this;
 	}
 
+	public function getComponent(): ?string {
+		return $this->component;
+	}
 
+	public function setComponent(?string $component): self {
+		$this->component = $component;
+
+		return $this;
+	}
 
 }
