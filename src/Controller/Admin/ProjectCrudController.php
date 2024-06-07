@@ -9,9 +9,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ProjectCrudController extends AbstractCrudController {
@@ -27,7 +29,8 @@ class ProjectCrudController extends AbstractCrudController {
 
 
 	public function configureFields(string $pageName): iterable {
-		$collectorTypes = $this->container->get(ParameterBagInterface::class)->get('collectors');
+		$parameterBag   = $this->container->get(ParameterBagInterface::class);
+		$collectorTypes = $parameterBag->get('collectors');
 		if (array_is_list($collectorTypes)) {
 			$collectorTypes = array_combine($collectorTypes, $collectorTypes);
 		}

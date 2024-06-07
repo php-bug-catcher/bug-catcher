@@ -7,13 +7,13 @@
  */
 namespace PhpSentinel\BugCatcher\Enum;
 
-enum Importance: int {
-	case Normal   = 0;
-	case Low      = 1;
-	case Medium   = 2;
-	case High     = 3;
-	case Critical = 4;
-	case MamaMia  = 5;
+enum Importance: string {
+	case Normal   = 'normal';
+	case Low      = 'low';
+	case Medium   = 'medium';
+	case High     = 'high';
+	case Critical = 'critical';
+	case MamaMia  = 'mama-mia';
 
 	/** @return array<Importance> */
 	public static function all(): array {

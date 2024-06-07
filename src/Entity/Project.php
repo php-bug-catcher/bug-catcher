@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
 	operations: [],
@@ -25,18 +26,24 @@ class Project {
 	private ?Uuid $id = null;
 
 	#[ORM\Column(length: 255)]
+	#[Assert\NotBlank()]
+	#[Assert\Length(min: 3, max: 255)]
 	private ?string $code = null;
 
 	#[ORM\Column(length: 255)]
+	#[Assert\NotBlank()]
+	#[Assert\Length(min: 3, max: 255)]
 	private ?string $name = null;
 
 	#[ORM\Column]
 	private bool $enabled = true;
 
 	#[ORM\Column(length: 255, nullable: true)]
+	#[Assert\Length(min: 3, max: 255)]
 	private ?string $url = null;
 
 	#[ORM\Column(length: 255, nullable: true)]
+	#[Assert\Length(min: 3, max: 255)]
 	private ?string $dbConnection = null;
 
 	#[ORM\Column(length: 255, nullable: true)]
@@ -49,8 +56,16 @@ class Project {
 	private Collection $users;
 
 
+	/**
+	 * @var Collection<int, Notifier>
+	 */
+	#[ORM\ManyToMany(targetEntity: Notifier::class, mappedBy: 'projects')]
+	private Collection $notifiers;
+
+
 	public function __construct() {
-		$this->users = new ArrayCollection();
+		$this->users     = new ArrayCollection();
+		$this->notifiers = new ArrayCollection();
 	}
 
 	public function getId(): ?Uuid {
@@ -137,6 +152,31 @@ class Project {
 		if ($this->users->removeElement($user)) {
 			$user->removeProject($this);
 		}
+
+		return $this;
+	}
+
+	/**
+	 * @return Notifier[]
+	 */
+	public function getNotifiers(): array {
+		return $this->notifiers->toArray();
+	}
+
+	public function addNotifier(Notifier $notifier): self {
+		if (!$this->notifiers->contains($notifier)) {
+			$this->notifiers->add($notifier);
+			$notifier->addProject($this);
+		}
+
+		return $this;
+	}
+
+	public function removeNotifier(Notifier $notifier): self {
+		if ($this->notifiers->removeElement($notifier)) {
+			$notifier->removeProject($this);
+		}
+
 
 		return $this;
 	}

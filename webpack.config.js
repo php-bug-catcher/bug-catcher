@@ -16,7 +16,11 @@ Encore
     //.setManifestKeyPrefix('build/')
     .copyFiles([{
         from: "./assets/images/",
-        to: "images/[path][name].[hash:8].[ext]",
+        to: "assets/[path][name].[hash:8].[ext]",
+    }])
+    .copyFiles([{
+        from: "./assets/sound/",
+        to: "assets/[path][name].[hash:8].[ext]",
     }])
 
     /*
