@@ -28,16 +28,14 @@ class SecurityController extends AbstractController {
 
 		// last username entered by the user
 		$lastUsername = $authenticationUtils->getLastUsername();
-		$logoUrl      = $assetManager->getUrl("images/logo.svg");
-
+		$logoUrl = $assetManager->getUrl("/images/logo/horizontal.svg", 'bug_catcher');
 		return $this->render('@BugCatcher/security/login.html.twig', [
 			'error'                   => $error,
 			'last_username'           => $lastUsername,
 			'favicon_path'            => '/favicon-admin.svg',
 			'page_title'              => <<<HTML
-<div style="text-align: center;">
+<div class="d-flex justify-content-center  px-5 py-3">
 <img src="$logoUrl"/>
-<h2>{$this->appName}</h2>
 </div>
 HTML,
 			'csrf_token_intention'    => 'authenticate',

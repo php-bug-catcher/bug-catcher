@@ -4,14 +4,6 @@
 {% block body_class 'page-login' %}
 {% block page_title %}{{ page_title is defined ? page_title|raw : (ea is defined ? ea.dashboardTitle|raw : '') }}{% endblock %}
 
-{% block head_favicon %}
-    {% if favicon_path|default(false) %}
-        <link rel="shortcut icon" href="{{ favicon_path }}">
-    {% else %}
-        {{ parent() }}
-    {% endif %}
-{% endblock %}
-
 {% block wrapper_wrapper %}
     {% set page_title = block('page_title') %}
     {% set _username_label = username_label is defined ? username_label|trans : 'login_page.username'|trans({}, 'EasyAdminBundle') %}
@@ -100,4 +92,14 @@
             <script src="{{ asset('login.js', constant('EasyCorp\\Bundle\\EasyAdminBundle\\Asset\\AssetPackage::PACKAGE_NAME')) }}"></script>
         </section>
     </div>
+{% endblock %}
+
+{% block head_favicon %}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('/images/logo/icon.svg','bug_catcher') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/images/logo/icon.png','bug_catcher') }}">
+{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    {% include '@BugCatcher/admin/_colors.html.twig' %}
 {% endblock %}

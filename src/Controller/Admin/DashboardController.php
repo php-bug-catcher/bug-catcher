@@ -35,6 +35,7 @@ class DashboardController extends AbstractDashboardController {
 	}
 
 
+
 	public function configureUserMenu(UserInterface $user): UserMenu {
 		return parent::configureUserMenu($user)
 			->addMenuItems([
@@ -49,6 +50,7 @@ class DashboardController extends AbstractDashboardController {
 
 	public function configureCrud(): Crud {
 		return parent::configureCrud()
+			->overrideTemplate("layout", '@BugCatcher/admin/layout.html.twig')
 			->setFormThemes([
 				'@EasyAdmin/crud/form_theme.html.twig',
 			]);

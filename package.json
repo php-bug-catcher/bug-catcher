@@ -24,6 +24,8 @@
     "dependencies": {
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.3",
-        "file-loader": "^6.2.0"
+      "file-loader": "^6.2.0",
+      "sass": "^1.77.4",
+      "sass-loader": "^14.2.1"
     }
 }

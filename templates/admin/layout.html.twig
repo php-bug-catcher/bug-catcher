@@ -1,0 +1,11 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block head_favicon %}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('/images/logo/icon.svg','bug_catcher') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/images/logo/icon.png','bug_catcher') }}">
+{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    {% include '@BugCatcher/admin/_colors.html.twig' %}
+{% endblock %}

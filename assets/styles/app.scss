@@ -1,4 +1,19 @@
-@import "bootstrap";
+//https://huemint.com/bootstrap-basic/#palette=e3e8eb-ffffff-030619-204e7a-64b9e3-6c6b59
+$min-contrast-ratio: 3;
+$white: #ffffff;
+
+$theme-colors: (
+        "light": #e3e8eb,
+        "dark": #030619,
+        "primary": #204e7a,
+        "secondary": #64b9e3,
+        "info": #6c6b59,
+        "success": #23a761,
+        "warning": #e4cb22,
+        "danger": #f41611,
+);
+
+@import "bootstrap/scss/bootstrap";
 
 body {
     background-color: lightgray;
