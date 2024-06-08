@@ -27,7 +27,7 @@ final class LogCount extends AbsComponent {
 			return $notifier->getComponent() === 'LogCount';
 		});
 		if ($count && $favIconNotifier) {
-			$this->status->incrementImportance(Importance::Medium, $count, $favIconNotifier->getImportance());
+			$this->status->incrementImportance(Importance::Medium, $count, $favIconNotifier->getThreshold());
 		}
 
 		return $count;

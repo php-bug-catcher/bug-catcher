@@ -5,37 +5,125 @@ namespace PhpSentinel\BugCatcher\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\Notifier;
+use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 
 /**
  * @extends ServiceEntityRepository<Notifier>
  */
 class NotifierRepository extends ServiceEntityRepository {
-	public function __construct(ManagerRegistry $registry) {
-		parent::__construct($registry, Notifier::class);
+	public function __construct(ManagerRegistry $registry, string $entityClass = Notifier::class) {
+		parent::__construct($registry, $entityClass);
 	}
 
-	//    /**
-	//     * @return Notifier[] Returns an array of Notifier objects
-	//     */
-	//    public function findByExampleField($value): array
-	//    {
-	//        return $this->createQueryBuilder('n')
-	//            ->andWhere('n.exampleField = :val')
-	//            ->setParameter('val', $value)
-	//            ->orderBy('n.id', 'ASC')
-	//            ->setMaxResults(10)
-	//            ->getQuery()
-	//            ->getResult()
-	//        ;
-	//    }
 
-	//    public function findOneBySomeField($value): ?Notifier
-	//    {
-	//        return $this->createQueryBuilder('n')
-	//            ->andWhere('n.exampleField = :val')
-	//            ->setParameter('val', $value)
-	//            ->getQuery()
-	//            ->getOneOrNullResult()
-	//        ;
-	//    }
+	public function stopNotify(Notifier $notifier): void {
+		if ($this->canClear($notifier)) {
+			$notifier->setLastFailedStatus(null);
+			$notifier->setFailedStatusCount(0);
+			$notifier->setFirstOkStatus(null);
+			$notifier->setLastOkStatusCount(0);
+		}
+	}
+
+	/**
+	 * @param bool $status true if notification want to be sent
+	 * @return bool true if notification should be sent
+	 */
+	public function shouldNotify(Notifier $notifier, bool $status): bool {
+		if ($status) {
+			$this->everythingOk($notifier);
+
+			return false;
+		} else {
+			return $this->checkDelay($notifier) && $this->checkRepeat($notifier);
+		}
+	}
+
+	private function canClear(Notifier $notifier): bool {
+		switch ($notifier->getClearAt()) {
+			case NotifyRepeat::None:
+				return true;
+			case NotifyRepeat::FrequencyRecords:
+				if ($notifier->getLastOkStatusCount() >= $notifier->getClearInterval()) {
+					return true;
+				}
+				$notifier->setLastOkStatusCount($notifier->getLastOkStatusCount() + 1);
+
+				return false;
+			case NotifyRepeat::PeriodTime:
+				if ($notifier->getFirstOkStatus()?->getTimestamp() < time() - $notifier->getClearInterval()) {
+					$notifier->setFirstOkStatus(null);
+
+					return true;
+				}
+				if ($notifier->getFirstOkStatus() === null) {
+					$notifier->setFirstOkStatus(new \DateTimeImmutable());
+				}
+
+				return false;
+			default:
+				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+		}
+	}
+
+	private function checkRepeat(Notifier $notifier): bool {
+		switch ($notifier->getRepeat()) {
+			case NotifyRepeat::None:
+				if ($notifier->getLastNotified()) {
+					return true;
+				}
+				$notifier->setLastNotified(new \DateTimeImmutable());
+
+				return false;
+			case NotifyRepeat::PeriodTime:
+				if ($notifier->getLastNotified() == null) {
+					$notifier->setLastNotified(new \DateTimeImmutable());
+
+					return true;
+				}
+				if ($notifier->getLastNotified()->getTimestamp() < time() - $notifier->getRepeatInterval()) {
+					$notifier->setLastNotified(new \DateTimeImmutable());
+
+					return true;
+				}
+
+				return false;
+			case NotifyRepeat::FrequencyRecords:
+				if ($notifier->getRepeatAtSkipped() > $notifier->getRepeatInterval()) {
+					$notifier->setRepeatAtSkipped(0);
+
+					return true;
+				}
+				$notifier->setRepeatAtSkipped($notifier->getRepeatAtSkipped() + 1);
+
+				return false;
+			default:
+				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+		}
+	}
+
+	private function checkDelay(Notifier $notifier): bool {
+		switch ($notifier->getDelay()) {
+			case NotifyRepeat::None:
+				return true;
+			case NotifyRepeat::FrequencyRecords:
+				if ($notifier->getFailedStatusCount() >= $notifier->getDelayInterval() - 1) {
+					return true;
+				}
+				$notifier->setFailedStatusCount($notifier->getFailedStatusCount() + 1);
+
+				return false;
+			case NotifyRepeat::PeriodTime:
+				if ($notifier->getLastFailedStatus()?->getTimestamp() > time() - $notifier->getDelayInterval()) {
+					return true;
+				}
+				if ($notifier->getLastFailedStatus() === null) {
+					$notifier->setLastFailedStatus(new \DateTimeImmutable());
+				}
+
+				return false;
+			default:
+				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+		}
+	}
 }

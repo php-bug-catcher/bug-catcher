@@ -33,7 +33,7 @@ final class ProjectStatus extends AbsComponent {
 			return $notifier->getComponent() === 'ProjectStatus';
 		});
 		if (!$state && $favIconNotifier) {
-			$this->status->incrementImportance(Importance::High, 1, $favIconNotifier->getImportance());
+			$this->status->incrementImportance(Importance::High, 1, $favIconNotifier->getThreshold());
 		}
 
 		return $state;

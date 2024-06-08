@@ -12,18 +12,18 @@ class NotifierFavicon extends Notifier {
 	#[ORM\Column(nullable: false)]
 	#[Assert\NotBlank()]
 	#[Assert\Length(min: 1, max: 99999)]
-	private ?int $importance = 0;
+	private ?int $threshold = 0;
 
 	#[ORM\Column(length: 255, nullable: true)]
-	#[Assert\NotBlank()]
+	#[Assert\NotNull()]
 	private ?string $component = null;
 
-	public function getImportance(): int {
-		return $this->importance;
+	public function getThreshold(): int {
+		return $this->threshold;
 	}
 
-	public function setImportance(int $importance): self {
-		$this->importance = $importance;
+	public function setThreshold(int $threshold): self {
+		$this->threshold = $threshold;
 
 		return $this;
 	}

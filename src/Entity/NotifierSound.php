@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
 
 #[ORM\Entity(repositoryClass: NotifierRepository::class)]
-class NotifierSound extends NotifierRepeated {
+class NotifierSound extends Notifier {
 
 	#[ORM\Column(type: "string", length: 255)]
 	private string $file;

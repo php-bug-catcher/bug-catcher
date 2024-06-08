@@ -8,7 +8,7 @@
 namespace PhpSentinel\BugCatcher\Enum;
 
 enum NotifyRepeat: string {
-	case Once           = 'once';
-	case OnPeriodTime   = 'on_period_time';
-	case OnPeriodReload = 'on_period_reload';
+	case None             = 'none';
+	case FrequencyRecords = 'frequency_records';
+	case PeriodTime       = 'period_time';
 }
