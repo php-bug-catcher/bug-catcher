@@ -15,6 +15,7 @@
     "symfony/framework-bundle": "^7.1",
     "symfony/http-client": "7.1.*",
     "symfony/lock": "7.1.*",
+    "symfony/mime": "7.1.*",
     "symfony/monolog-bundle": "^3.0",
     "symfony/orm-pack": "^2.4",
     "symfony/rate-limiter": "7.1.*",
@@ -22,7 +23,6 @@
     "symfony/serializer": "7.1.*",
     "symfony/stimulus-bundle": "^2.17",
     "symfony/string": "7.1.*",
-    "symfony/mime": "7.1.*",
     "symfony/translation": "^7.1",
     "symfony/twig-bundle": "^7.1",
     "symfony/uid": "7.1.*",
@@ -47,5 +47,11 @@
     "psr-4": {
       "PhpSentinel\\BugCatcher\\Tests\\": "tests/"
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "symfony/dotenv": "^7.1",
+    "symfony/phpunit-bridge": "^7.1",
+    "symfony/yaml": "^7.1"
   }
 }

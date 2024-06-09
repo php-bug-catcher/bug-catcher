@@ -31,7 +31,7 @@ class NotifierRepository extends ServiceEntityRepository {
 	 */
 	public function shouldNotify(Notifier $notifier, bool $status): bool {
 		if ($status) {
-			$this->everythingOk($notifier);
+			$this->stopNotify($notifier);
 
 			return false;
 		} else {
@@ -39,7 +39,7 @@ class NotifierRepository extends ServiceEntityRepository {
 		}
 	}
 
-	private function canClear(Notifier $notifier): bool {
+	public function canClear(Notifier $notifier): bool {
 		switch ($notifier->getClearAt()) {
 			case NotifyRepeat::None:
 				return true;
@@ -66,7 +66,7 @@ class NotifierRepository extends ServiceEntityRepository {
 		}
 	}
 
-	private function checkRepeat(Notifier $notifier): bool {
+	public function checkRepeat(Notifier $notifier): bool {
 		switch ($notifier->getRepeat()) {
 			case NotifyRepeat::None:
 				if ($notifier->getLastNotified()) {
@@ -102,7 +102,7 @@ class NotifierRepository extends ServiceEntityRepository {
 		}
 	}
 
-	private function checkDelay(Notifier $notifier): bool {
+	public function checkDelay(Notifier $notifier): bool {
 		switch ($notifier->getDelay()) {
 			case NotifyRepeat::None:
 				return true;
