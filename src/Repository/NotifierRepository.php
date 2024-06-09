@@ -69,11 +69,10 @@ class NotifierRepository extends ServiceEntityRepository {
 	public function checkRepeat(Notifier $notifier): bool {
 		switch ($notifier->getRepeat()) {
 			case NotifyRepeat::None:
-				if ($notifier->getLastNotified()) {
+				if ($notifier->getLastNotified()==null) {
+					$notifier->setLastNotified(new \DateTimeImmutable());
 					return true;
 				}
-				$notifier->setLastNotified(new \DateTimeImmutable());
-
 				return false;
 			case NotifyRepeat::PeriodTime:
 				if ($notifier->getLastNotified() == null) {
@@ -81,7 +80,7 @@ class NotifierRepository extends ServiceEntityRepository {
 
 					return true;
 				}
-				if ($notifier->getLastNotified()->getTimestamp() < time() - $notifier->getRepeatInterval()) {
+				if ($notifier->getLastNotified()->getTimestamp() <= time() - $notifier->getRepeatInterval()) {
 					$notifier->setLastNotified(new \DateTimeImmutable());
 
 					return true;
@@ -89,8 +88,8 @@ class NotifierRepository extends ServiceEntityRepository {
 
 				return false;
 			case NotifyRepeat::FrequencyRecords:
-				if ($notifier->getRepeatAtSkipped() > $notifier->getRepeatInterval()) {
-					$notifier->setRepeatAtSkipped(0);
+				if ($notifier->getRepeatAtSkipped()==0 || $notifier->getRepeatAtSkipped() >= $notifier->getRepeatInterval()) {
+					$notifier->setRepeatAtSkipped(1);
 
 					return true;
 				}
@@ -107,14 +106,14 @@ class NotifierRepository extends ServiceEntityRepository {
 			case NotifyRepeat::None:
 				return true;
 			case NotifyRepeat::FrequencyRecords:
-				if ($notifier->getFailedStatusCount() >= $notifier->getDelayInterval() - 1) {
+				if ($notifier->getFailedStatusCount() >= $notifier->getDelayInterval()) {
 					return true;
 				}
 				$notifier->setFailedStatusCount($notifier->getFailedStatusCount() + 1);
 
 				return false;
 			case NotifyRepeat::PeriodTime:
-				if ($notifier->getLastFailedStatus()?->getTimestamp() > time() - $notifier->getDelayInterval()) {
+				if ($notifier->getLastFailedStatus()?->getTimestamp() <= (new \DateTime())->getTimestamp() - $notifier->getDelayInterval()) {
 					return true;
 				}
 				if ($notifier->getLastFailedStatus() === null) {
