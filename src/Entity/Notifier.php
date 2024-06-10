@@ -45,7 +45,7 @@ abstract class Notifier {
 	#[ORM\Column(nullable: true)]
 	protected ?int $delayInterval = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $lastFailedStatus = null;
 	#[ORM\Column()]
 	protected int $failedStatusCount = 0;
@@ -64,10 +64,10 @@ abstract class Notifier {
 	#[ORM\Column(nullable: true)]
 	protected ?int $clearInterval = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $lastNotified = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $firstOkStatus = null;
 
 	#[ORM\Column()]
