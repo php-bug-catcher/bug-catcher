@@ -2,46 +2,51 @@
 
 
 [data-bs-theme="green"] {
-$min-contrast-ratio: 3;
+  //https://huemint.com/bootstrap-basic/#palette=dae0f7-ffffff-006838-283775-c4f255-46763d
+  $min-contrast-ratio: 3;
+  $white: #ffffff;
   $theme-colors: (
-          "light": #e3e8eb,
-          "dark": #030619,
-          "primary": #204e7a,
-          "secondary": #64b9e3,
-          "info": #6c6b59,
-          "success": #23a761,
-          "warning": #e4cb22,
-          "danger": #f41611,
+          "light": #dae0f7,
+          "dark": #006838,
+          "primary": #283775,
+          "secondary": #c4f255,
+          "info": #46763d,
+          "success": #22ad68,
+          "warning": #e4ce20,
+          "danger": #f42110,
   );
 
   @import "bootstrap/scss/bootstrap";
 }
 [data-bs-theme="blue"] {
+  //https://huemint.com/bootstrap-basic/#palette=e3e8eb-ffffff-030619-204e7a-64b9e3-6c6b59
   $min-contrast-ratio: 3;
+  $white: #ffffff;
   $theme-colors: (
-          "light": #e3e8eb,
-          "dark": #030619,
-          "primary": #204e7a,
-          "secondary": #64b9e3,
-          "info": #6c6b59,
-          "success": #23a761,
-          "warning": #e4cb22,
-          "danger": #f41611,
+          "light": #d1dbe1,
+          "dark": #2b3990,
+          "primary": #1706ec,
+          "secondary": #4c54a4,
+          "info": #e9a548,
+          "success": #03a460,
+          "warning": #e1cb03,
+          "danger": #f01f01,
   );
 
   @import "bootstrap/scss/bootstrap";
 }
 [data-bs-theme="red"] {
+  //https://huemint.com/bootstrap-basic/#palette=fdf7d7-ffffff-414042-8e1208-0e87fb-5655fa
   $min-contrast-ratio: 3;
   $theme-colors: (
-          "light": #e3e8eb,
-          "dark": #030619,
-          "primary": #204e7a,
-          "secondary": #64b9e3,
-          "info": #6c6b59,
-          "success": #23a761,
-          "warning": #e4cb22,
-          "danger": #f41611,
+          "light": #fdf7d7,
+          "dark": #414042,
+          "primary": #8e1208,
+          "secondary": #0e87fb,
+          "info": #5655fa,
+          "success": #579b03,
+          "warning": #ffbc5a,
+          "danger": #ed0264,
   );
 
   @import "bootstrap/scss/bootstrap";
