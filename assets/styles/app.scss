@@ -12,9 +12,7 @@ $theme-colors: (
         "warning": #e4cb22,
         "danger": #f41611,
 );
-
 @import "bootstrap/scss/bootstrap";
-
 body {
     background-color: lightgray;
 }

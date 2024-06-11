@@ -1,8 +1,13 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 517 141" width="517" height="141">
     <title>Bug Catcher-ai</title>
     <style>
-        .s0 { fill: #64b9e3 }
-        .s1 { fill: #204e7a }
+        .s0 {
+            fill: #64b9e3
+        }
+
+        .s1 {
+            fill: #204e7a
+        }
     </style>
     <g id="_Artboards_">
     </g>

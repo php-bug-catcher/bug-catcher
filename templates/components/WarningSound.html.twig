@@ -1,7 +1,6 @@
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
 		let sound = {{ this.sound|json_encode|raw }}
-			{{ dump(this.sound) }}
 		if (sound) {
 			var promise = (new Audio(sound)).play();
 

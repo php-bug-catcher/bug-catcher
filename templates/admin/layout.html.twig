@@ -1,8 +1,10 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 
+{% block body_attr %}{{ parent() }} data-bs-theme="{{ theme }}"{% endblock %}
+
 {% block head_favicon %}
-    <link rel="icon" type="image/svg+xml" href="{{ asset('/assets/logo/icon.svg','bug_catcher') }}">
-    <link rel="icon" type="image/png" href="{{ asset('/assets/logo/icon.png','bug_catcher') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('/assets/logo/'~theme~'/icon.svg','bug_catcher') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/assets/logo/'~theme~'/icon.png','bug_catcher') }}">
 {% endblock %}
 
 {% block head_stylesheets %}

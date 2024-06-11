@@ -46,12 +46,19 @@ return [
 ```
 ## Configuration
 **setup packages**
+
+```yaml
+#config/services.yaml
+parameters:
+    theme: default #can be : blue, green or red
+```
 ```yaml
 #config/packages/twig.yaml
 twig:
     ...
     form_themes: [ '@EasyAdmin/symfony-form-themes/bootstrap_5_layout.html.twig' ]
     globals:
+        theme: '%theme%'
         app_name: '%env(APP_NAME)%'
 ```
 ```yaml

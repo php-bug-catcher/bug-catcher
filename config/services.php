@@ -16,6 +16,7 @@ namespace {
 	return static function (ContainerConfigurator $container): void {
 		$container
 			->parameters()
+			->set("theme", "default")
 			->set("dashboard_components", [
 				"StatusList",
 				"LogList",
