@@ -28,6 +28,7 @@ namespace {
 				"ProjectStatus",
 				"LogCount",
 				"LogSparkLine",
+				"WarningSound",
 			])
 			->set("detail_components", [
 				RecordLogTrace::class => [

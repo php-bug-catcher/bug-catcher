@@ -1,9 +1,18 @@
 <script>
-	let link = document.querySelector("link[rel~='icon'][type='image/svg+xml']");
-	if (!link) {
-		link = document.createElement('link');
-		link.rel = 'icon';
-		document.head.appendChild(link);
-	}
-	link.href = '{{ this.icon }}';
+	document.addEventListener("DOMContentLoaded", function () {
+		let sound = {{ this.sound|json_encode|raw }}
+			{{ dump(this.sound) }}
+		if (sound) {
+			var promise = (new Audio(sound)).play();
+
+			if (promise !== undefined) {
+				promise.then(_ => {
+					// Autoplay started!
+				}).catch(error => {
+					// Autoplay was prevented.
+					// Show a "Play" button so that user can start playback.
+				});
+			}
+		}
+	});
 </script>

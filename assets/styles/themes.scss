@@ -1,0 +1,48 @@
+//https://stackoverflow.com/questions/76780787/bootstrap-5-3-create-basic-color-mode
+
+
+[data-bs-theme="green"] {
+$min-contrast-ratio: 3;
+  $theme-colors: (
+          "light": #e3e8eb,
+          "dark": #030619,
+          "primary": #204e7a,
+          "secondary": #64b9e3,
+          "info": #6c6b59,
+          "success": #23a761,
+          "warning": #e4cb22,
+          "danger": #f41611,
+  );
+
+  @import "bootstrap/scss/bootstrap";
+}
+[data-bs-theme="blue"] {
+  $min-contrast-ratio: 3;
+  $theme-colors: (
+          "light": #e3e8eb,
+          "dark": #030619,
+          "primary": #204e7a,
+          "secondary": #64b9e3,
+          "info": #6c6b59,
+          "success": #23a761,
+          "warning": #e4cb22,
+          "danger": #f41611,
+  );
+
+  @import "bootstrap/scss/bootstrap";
+}
+[data-bs-theme="red"] {
+  $min-contrast-ratio: 3;
+  $theme-colors: (
+          "light": #e3e8eb,
+          "dark": #030619,
+          "primary": #204e7a,
+          "secondary": #64b9e3,
+          "info": #6c6b59,
+          "success": #23a761,
+          "warning": #e4cb22,
+          "danger": #f41611,
+  );
+
+  @import "bootstrap/scss/bootstrap";
+}
