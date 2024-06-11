@@ -19,20 +19,9 @@ composer create-project symfony/skeleton:"7.1.*" bug-catcher
 
 **Add depenedencies**
 
-```
-//cmposer.json
-...
-    "repositories": [
-        {
-            "url": "https://github.com/tito10047/php-sparkline",
-            "type": "vcs"
-        }
-    ]
-```
 
 ```bash
 composer require php-sentinel/bug-catcher:dev-main
-composer require brendt/php-sparkline:dev-period2
 ````
 
 **Enable bundle if not already enabled**
