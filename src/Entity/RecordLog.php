@@ -81,7 +81,7 @@ class RecordLog extends Record {
 	}
 
 	function getComponentName(): string {
-		return "LogListRecordLog";
+		return "LogList:RecordLog";
 	}
 
 
