@@ -15,15 +15,20 @@ use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
 use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
 class WarningSound extends AbsComponent  {
 
+	public string $id;
+
 	public function __construct(
 		private readonly RecordPingRepository $recordRepo,
 		private readonly NotifierRepository $notifierRepo
-	) {}
+	) {
+		$this->id = Uuid::v6()->toRfc4122();
+	}
 
 
 	public function getSound(): ?string {

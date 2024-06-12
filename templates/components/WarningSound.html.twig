@@ -1,17 +1,5 @@
-<script>
-	document.addEventListener("DOMContentLoaded", function () {
-		let sound = {{ this.sound|json_encode|raw }}
-		if (sound) {
-			var promise = (new Audio(sound)).play();
-
-			if (promise !== undefined) {
-				promise.then(_ => {
-					// Autoplay started!
-				}).catch(error => {
-					// Autoplay was prevented.
-					// Show a "Play" button so that user can start playback.
-				});
-			}
-		}
-	});
-</script>
+<div {{ stimulus_controller('warning-sound',{
+    soundUrl:this.sound,
+    id:this.id
+}) }}>
+</div>
