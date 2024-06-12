@@ -18,10 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SecurityController extends AbstractController {
 
 	public function __construct(
-		#[Autowire(param: 'theme')]
-		private readonly string $theme,
+		#[Autowire(param: 'logo')]
+		private readonly string $logo,
 		#[Autowire("%env(APP_NAME)%")]
-		private string $appName
+		private string          $appName
 	) {}
 
 	public function login(AuthenticationUtils $authenticationUtils, Packages $assetManager): Response {
@@ -30,7 +30,7 @@ class SecurityController extends AbstractController {
 
 		// last username entered by the user
 		$lastUsername = $authenticationUtils->getLastUsername();
-		$logoUrl = $assetManager->getUrl("/assets/logo/{$this->theme}/vertical.svg", 'bug_catcher');
+		$logoUrl = $assetManager->getUrl("/assets/logo/{$this->logo}/vertical.svg", 'bug_catcher');
 		return $this->render('@BugCatcher/security/login.html.twig', [
 			'error'                   => $error,
 			'last_username'           => $lastUsername,

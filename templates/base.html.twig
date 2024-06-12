@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{{ app_name|default('Bug Catcher') }}{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('/images/logo/icon.svg','bug_catcher') }}">
-    <link rel="icon" type="image/png" href="{{ asset('/images/logo/icon.png','bug_catcher') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('/assets/logo/'~logo~'/icon.svg','bug_catcher') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/assets/logo/'~logo~'/icon.png','bug_catcher') }}">
     {% block stylesheets %}
         {{ encore_entry_link_tags('bug_catcher',null,'bug_catcher') }}
     {% endblock %}
@@ -14,7 +14,7 @@
     {% endblock %}
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 </head>
-<body class="bg-light" data-bs-theme="{{ theme }}">
+<body class="bg-light">
 {% set flashes = app.session.flashbag.all() %}
 {% if flashes|length > 0 %}
 <div class="block w-full">

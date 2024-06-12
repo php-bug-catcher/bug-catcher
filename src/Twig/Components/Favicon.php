@@ -19,14 +19,14 @@ class Favicon {
 	public function __construct(
 		private readonly Packages      $assetManager,
 		private readonly DashboardStatus $status,
-		#[Autowire(param: 'theme')]
-		private readonly string          $theme
+		#[Autowire(param: 'logo')]
+		private readonly string $logo
 	) {}
 
 
 	public function getIcon(): string {
 		$color = $this->status->getImportance()->getColor()->value;
 
-		return $this->assetManager->getUrl("/assets/logo/{$this->theme}/icon-{$color}.svg", 'bug_catcher');
+		return $this->assetManager->getUrl("/assets/logo/{$this->logo}/icon-{$color}.svg", 'bug_catcher');
 	}
 }
