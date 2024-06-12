@@ -8,7 +8,7 @@ export default class extends MyController {
 		id: String
 	};
 
-	connect() {
+	initialize() {
 		if (asked) {
 			return;
 		}
