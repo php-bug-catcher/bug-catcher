@@ -14,7 +14,7 @@
     {% endblock %}
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 </head>
-<body {{ stimulus_controller('toast') }}
+<body class="bg-light" {{ stimulus_controller('toast') }}
         {{ stimulus_action('toast',"show","toast:show") }}
 >
 <div {{ stimulus_target('toast','container') }} class="toast-container"></div>

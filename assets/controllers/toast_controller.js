@@ -14,16 +14,20 @@ export default class extends Controller {
 					<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 				</div>
 				<div class="toast-body">
-					${text}
 				</div>
 			</div>
 `
 		let div = htmlCreator(html);
 		this.containerTarget.appendChild(div);
+		if (typeof text === 'string') {
+			div.querySelector('.toast-body').innerText = text;
+		} else {
+			div.querySelector('.toast-body').append(text);
+		}
 		let toast = new Toast(div);
 		toast.show();
 		div.addEventListener('hidden.bs.toast', function () {
-			confirm();
+			confirm(div);
 			div.remove();
 		})
 	}

@@ -45,10 +45,12 @@ class WarningSound extends AbsComponent  {
 		/** @var NotifierSound|false $soundNotifiers */
 		$soundNotifiers = $this->project->findNotifiers(NotifierSound::class, Importance::Low)->first();
 		if ($soundNotifiers) {
-			if (!$state && $this->notifierRepo->shouldNotify($soundNotifiers, false)) {
-				return '/uploads/sound/'.$soundNotifiers->getFile();
+			if (!$state) {
+				if ($this->notifierRepo->shouldNotify($soundNotifiers, false)) {
+					return '/uploads/sound/' . $soundNotifiers->getFile();
+				}
 			} else {
-				$this->notifierRepo->stopNotify($soundNotifiers);
+//				$this->notifierRepo->stopNotify($soundNotifiers);
 			}
 		}
 		return null;

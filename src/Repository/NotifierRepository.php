@@ -23,6 +23,7 @@ class NotifierRepository extends ServiceEntityRepository {
 			$notifier->setFirstOkStatus(null);
 			$notifier->setLastOkStatusCount(0);
 		}
+		$this->getEntityManager()->flush();
 	}
 
 	/**
@@ -32,11 +33,14 @@ class NotifierRepository extends ServiceEntityRepository {
 	public function shouldNotify(Notifier $notifier, bool $status): bool {
 		if ($status) {
 			$this->stopNotify($notifier);
-
-			return false;
+			$this->getEntityManager()->flush();
+			$response = false;
 		} else {
-			return $this->checkDelay($notifier) && $this->checkRepeat($notifier);
+			$response = $this->checkDelay($notifier) && $this->checkRepeat($notifier);
 		}
+		$this->getEntityManager()->flush();
+
+		return $response;
 	}
 
 	public function canClear(Notifier $notifier): bool {
