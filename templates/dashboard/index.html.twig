@@ -7,7 +7,10 @@
     <div class="min-h-screen p-2 h-100">
         <main class="">
             {% for dashboardComponent in components %}
-                {{ component(dashboardComponent,{status:status}) }}
+                {{ component(dashboardComponent,{
+                    status:status,
+                    'data-poll':"delay("~refreshInterval~"000)|$render"
+                }) }}
             {% endfor %}
         </main>
     </div>

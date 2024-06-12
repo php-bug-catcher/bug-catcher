@@ -17,6 +17,7 @@ namespace {
 		$container
 			->parameters()
 			->set("logo", "default")
+			->set("refresh_interval", "15")
 			->set("dashboard_components", [
 				"StatusList",
 				"LogList",

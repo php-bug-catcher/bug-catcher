@@ -13,11 +13,14 @@ class DashboardController extends AbstractController {
 	public function index(
 		#[Autowire(param: 'dashboard_components')]
 		array  $components,
+		#[Autowire(param: 'refresh_interval')]
+		int $refreshInterval,
 		string $status = 'new'
 	): Response {
 		return $this->render('@BugCatcher/dashboard/index.html.twig', [
 			"status" => $status,
 			"components" => $components,
+			"refreshInterval" => $refreshInterval,
 		]);
 	}
 
