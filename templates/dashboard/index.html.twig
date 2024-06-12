@@ -17,17 +17,3 @@
 
 
 {% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-
-        {% if app.environment == 'prod' %}
-		document.addEventListener("DOMContentLoaded", function () {
-			setInterval(function () {
-				window.location.reload();
-			}, 15000);
-		});
-        {% endif %}
-    </script>
-{% endblock %}
