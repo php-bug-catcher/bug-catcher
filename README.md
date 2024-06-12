@@ -1,7 +1,7 @@
 # Catch every bug in all your PHP applications in one place
 
 <p align="center">
-<img src="docs/logo/horizontal.svg" width="600"><br>
+<img src="docs/logo/default/horizontal.svg" width="600"><br>
 </p>
 <img src="docs/bug_catcher_01.png" width="800" >
 <img src="docs/stacktrace.png" width="800" >
