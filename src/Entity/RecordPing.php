@@ -16,10 +16,9 @@ class RecordPing extends Record {
 	 */
 	public function __construct(Project $project, ?string $statusCode, DateTimeImmutable $date = new DateTimeImmutable()) {
 		$this->project    = $project;
-		$this->date = $date;
 		$this->status = "resolved";
 		$this->statusCode = $statusCode;
-		parent::__construct();
+		parent::__construct($date);
 	}
 
 

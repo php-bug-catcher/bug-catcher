@@ -35,20 +35,23 @@ class PingRecordOptimizerCommand extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$io = new SymfonyStyle($input, $output);
 
-		$past      = $input->getOption('past');
-		$precision = $input->getOption('precision');
+		$past      = (int)$input->getOption('past');
+		$precision = (int)$input->getOption('precision');
 
 		$sql       = <<<SQL
 select
     project_id, status_code,
     count(*) as cnt ,
-    concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$precision})*{$precision})*60),'%i'),':00') as period
-from ping_record
-where date < DATE_SUB(NOW(), INTERVAL {$past} DAY)
-group by `period`, status_code
+    concat(DATE_FORMAT(`date`,'%Y-%m-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$precision})*{$precision})*60),'%i'),':00') as period
+from record_ping
+join record on record_ping.id = record.id
+where date < DATE_SUB(NOW(), INTERVAL {$past}  DAY)
+group by `period`, status_code, project_id
 SQL;
 		$deleteSql = <<<SQL
-delete from ping_record where date < DATE_SUB(NOW(), INTERVAL {$past} DAY)
+delete record_ping, record from record_ping
+join record on record_ping.id = record.id
+where date < DATE_SUB(NOW(), INTERVAL {$past} DAY)
 SQL;
 
 		$this->em->beginTransaction();
@@ -56,12 +59,13 @@ SQL;
 		try {
 			$rows = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
 			$this->em->getConnection()->executeQuery($deleteSql);
-			foreach ($rows as $row) {
-				$this->em->persist(new RecordPing(
+			foreach ($rows as $pos => $row) {
+				$ping = new RecordPing(
 					$this->em->getReference(Project::class, Uuid::fromString($row["project_id"])),
 					$row["status_code"],
 					new DateTimeImmutable($row["period"]),
-				));
+				);
+				$this->em->persist($ping);
 				$total += $row["cnt"];
 			}
 			$this->em->flush();

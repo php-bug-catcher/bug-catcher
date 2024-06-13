@@ -52,8 +52,12 @@ abstract class Record {
 	#[Assert\Length(min: 1, max: 50, groups: ['api'])]
 	protected ?string $projectCode = null;
 
-	public function __construct() {
-		$this->date = new DateTimeImmutable();
+	public function __construct(DateTimeInterface $date = null) {
+		if ($date) {
+			$this->date = $date;
+		} else {
+			$this->date = new DateTimeImmutable();
+		}
 	}
 
 	private int $count = 1;
