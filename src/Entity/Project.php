@@ -17,50 +17,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 	denormalizationContext: ['groups' => ['record:write']],
 	validationContext: ['groups' => ['api']],
 )]
-#[ORM\MappedSuperclass()]
-#[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project {
-	#[ORM\Id]
-	#[ORM\Column(type: UuidType::NAME, unique: true)]
-	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
-	#[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
 	private ?Uuid $id = null;
 
-	#[ORM\Column(length: 255)]
 	#[Assert\NotBlank()]
 	#[Assert\Length(min: 3, max: 255)]
 	private ?string $code = null;
 
-	#[ORM\Column(length: 255)]
 	#[Assert\NotBlank()]
 	#[Assert\Length(min: 3, max: 255)]
 	private ?string $name = null;
 
-	#[ORM\Column]
 	private bool $enabled = true;
 
-	#[ORM\Column(length: 255, nullable: true)]
 	#[Assert\Length(min: 3, max: 255)]
 	private ?string $url = null;
 
-	#[ORM\Column(length: 255, nullable: true)]
 	#[Assert\Length(min: 3, max: 255)]
 	private ?string $dbConnection = null;
 
-	#[ORM\Column(length: 255, nullable: true)]
 	private ?string $pingCollector = null;
 
 	/**
 	 * @var Collection<int, User>
 	 */
-	#[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'projects')]
 	private Collection $users;
 
 
 	/**
 	 * @var Collection<int, Notifier>
 	 */
-	#[ORM\ManyToMany(targetEntity: Notifier::class, mappedBy: 'projects')]
 	private Collection $notifiers;
 
 

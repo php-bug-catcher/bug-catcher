@@ -14,27 +14,6 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 class BugCatcherBundle extends AbstractBundle {
 	public function build(ContainerBuilder $container) {
 		parent::build($container);
-		$ormCompilerClass = DoctrineOrmMappingsPass::class;
-		if (class_exists($ormCompilerClass)) {
-
-			$namespaces        = ['PhpSentinel\BugCatcher',];
-			$directories       = [
-				realpath(__DIR__ . '/Entity'),
-			];
-			$managerParameters = [];
-			$enabledParameter  = false;
-			$aliasMap          = [];
-			$container->addCompilerPass(
-				DoctrineOrmMappingsPass::createAttributeMappingDriver(
-					$namespaces,
-					$directories,
-					$managerParameters,
-					$enabledParameter,
-					$aliasMap,
-					true
-				)
-			);
-		}
 	}
 
 

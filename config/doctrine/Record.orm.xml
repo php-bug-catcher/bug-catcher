@@ -1,0 +1,32 @@
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity name="PhpSentinel\BugCatcher\Entity\Record"
+            table="record" inheritance-type="JOINED"
+            repository-class="PhpSentinel\BugCatcher\Repository\RecordRepository"
+    >
+        <indexes>
+            <index name="full_idx" columns="discr,project_id,date,status"/>
+            <index name="date_idx" columns="discr,status,date"/>
+            <index name="done_idx" columns="project_id,status"/>
+        </indexes>
+        <discriminator-column name="discr" type="string"/>
+        <discriminator-map>
+            <discriminator-mapping value="log" class="PhpSentinel\BugCatcher\Entity\RecordLog"/>
+            <discriminator-mapping value="trace-log" class="PhpSentinel\BugCatcher\Entity\RecordLogTrace"/>
+            <discriminator-mapping value="ping" class="PhpSentinel\BugCatcher\Entity\RecordPing"/>
+            <discriminator-mapping value="cron" class="App\Entity\CronRecord"/>
+        </discriminator-map>
+        <id name="id" type="uuid" column="id">
+            <generator strategy="CUSTOM"/>
+            <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
+        </id>
+
+        <field name="date" type="datetime" nullable="false"/>
+        <field name="status" type="string" length="25"/>
+        <many-to-one field="project" target-entity="PhpSentinel\BugCatcher\Entity\Project">
+            <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

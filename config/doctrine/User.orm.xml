@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+
+    <entity name="PhpSentinel\BugCatcher\Entity\User" repository-class="PhpSentinel\BugCatcher\Repository\UserRepository">
+        <unique-constraints>
+            <unique-constraint name="UNIQ_IDENTIFIER_EMAIL" columns="email"/>
+        </unique-constraints>
+        <id name="id" type="uuid" column="id">
+            <generator strategy="CUSTOM"/>
+            <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
+        </id>
+
+        <field name="email" type="string" length="180" unique="true"/>
+
+        <field name="roles" type="simple_array" nullable="true">
+        </field>
+
+        <field name="password" type="string" nullable="false"/>
+
+        <field name="enabled" type="boolean" nullable="false"/>
+
+        <field name="fullname" type="string" length="255" nullable="false"/>
+
+        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="users">
+            <join-table name="user_project">
+                <join-columns>
+                    <join-column name="user_id" referenced-column-name="id" on-delete="CASCADE"/>
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE"/>
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
+    </entity>
+</doctrine-mapping>

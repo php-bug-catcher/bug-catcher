@@ -34,24 +34,6 @@ parameters:
         - YourStatusComponentName
 ```
 
-## Custom Record Item
-
-You can create your own Log item. You need create Entity extending ```PhpSentinel\BugCatcher\Entity\Record``` .
-After that, you need to crete configuration for modify Record entity to register
-[discriminator map](https://www.doctrine-project.org/projects/doctrine-orm/en/3.2/reference/inheritance-mapping.html#line-number-e541161234d47fae4bc4a6f94cf602c400e585ab-29).
-You need also create Repository for this entity extending ```PhpSentinel\BugCatcher\Repository\RecordRepositoryInterface```.
-
-Now is only need to add to configuration
-
-```yaml
-# config/services.yaml
-parameters:
-    dashboard_list_items:
-        - RecordLog::class
-        - RecordLogTrace::class
-        - YourRecord::class
-```
-
 ## Detail page components
 
 When you have cusoim record item, you can create your own detail page components.
@@ -97,14 +79,14 @@ Add it to configurations:
 ```yaml
 #config/services.yaml
 parameters:
-    ...
+    #...
     collectors:
         Http: http
         Messenger: messenger
         Always Ok: always_ok
         None: none
 services:
-    ...
+    #...
     PhpSentinel\BugCatcher\Command\PingCollectorCommand:
         arguments:
             $collectors:

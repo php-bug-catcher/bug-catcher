@@ -24,7 +24,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 	denormalizationContext: ['groups' => ['record:write']],
 	validationContext: ['groups' => ['api']],
 )]
-#[ORM\Entity(repositoryClass: RecordLogTraceRepository::class)]
 class RecordLogTrace extends RecordLog {
 
 	#[Groups(['record:write'])]

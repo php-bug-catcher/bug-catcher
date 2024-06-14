@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+
+    <entity name="PhpSentinel\BugCatcher\Entity\NotifierFavicon" repository-class="PhpSentinel\BugCatcher\Repository\NotifierRepository">
+        <field name="threshold" type="integer" nullable="false">
+        </field>
+
+        <field name="component" type="string" length="255" nullable="true">
+        </field>
+    </entity>
+</doctrine-mapping>

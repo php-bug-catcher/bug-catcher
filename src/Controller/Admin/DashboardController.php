@@ -18,7 +18,6 @@ use PhpSentinel\BugCatcher\Entity\Client\Product\Category;
 use PhpSentinel\BugCatcher\Entity\Client\Product\Product;
 use PhpSentinel\BugCatcher\Entity\Notifier;
 use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;

@@ -4,74 +4,47 @@ namespace PhpSentinel\BugCatcher\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
-use PhpSentinel\BugCatcher\Repository\NotifierRepository;
-use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\InheritanceType('SINGLE_TABLE')]
-#[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
-#[ORM\DiscriminatorMap([
-	'favicon' => NotifierFavicon::class,
-	'sound'   => NotifierSound::class,
-	'email'   => NotifierEmail::class,
-])]
-#[ORM\MappedSuperclass()]
-#[ORM\Entity(repositoryClass: NotifierRepository::class)]
 abstract class Notifier {
-	#[ORM\Id]
-	#[ORM\Column(type: UuidType::NAME, unique: true)]
-	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
-	#[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
 	protected ?Uuid $id = null;
 
 
-	#[ORM\Column(length: 255, nullable: false)]
 	#[Assert\NotBlank()]
 	#[Assert\Length(min: 3, max: 255)]
 	protected ?string $name = null;
 
-	#[ORM\Column(length: 255, enumType: Importance::class)]
 	protected Importance $minimalImportance = Importance::Medium;
 
 
-	#[ORM\Column(length: 255, enumType: NotifyRepeat::class)]
 	protected NotifyRepeat $delay = NotifyRepeat::None;
 
-	#[ORM\Column(nullable: true)]
 	protected ?int $delayInterval = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $lastFailedStatus = null;
-	#[ORM\Column()]
 	protected int $failedStatusCount = 0;
 
-	#[ORM\Column(name: '`repeat`', length: 255, enumType: NotifyRepeat::class)]
 	protected NotifyRepeat $repeat = NotifyRepeat::FrequencyRecords;
 
-	#[ORM\Column(nullable: true)]
 	protected ?int $repeatInterval = null;
-	#[ORM\Column(length: 255, enumType: NotifyRepeat::class)]
 	protected NotifyRepeat $clearAt = NotifyRepeat::FrequencyRecords;
 
-	#[ORM\Column(nullable: true)]
 	protected int $repeatAtSkipped = 0;
 
-	#[ORM\Column(nullable: true)]
 	protected ?int $clearInterval = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $lastNotified = null;
 
-	#[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
 	protected ?\DateTimeInterface $firstOkStatus = null;
 
-	#[ORM\Column()]
 	protected int $lastOkStatusCount = 0;
+
+	protected Collection $projects;
+
 
 
 	public function getRepeat(): NotifyRepeat {
@@ -133,13 +106,6 @@ abstract class Notifier {
 
 		return $this;
 	}
-
-	/**
-	 * @var Collection<int, Project>
-	 */
-	#[ORM\ManyToMany(targetEntity: Project::class, inversedBy: 'users')]
-	protected Collection $projects;
-
 
 	public function __construct() {
 		$this->projects = new ArrayCollection();

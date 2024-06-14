@@ -45,7 +45,7 @@ parameters:
 ```yaml
 #config/packages/twig.yaml
 twig:
-    ...
+    #...
     form_themes: [ '@EasyAdmin/symfony-form-themes/bootstrap_5_layout.html.twig' ]
     globals:
         logo: '%logo%'
@@ -54,19 +54,19 @@ twig:
 ```yaml
 #config/packages/twig_component.yaml
 twig_component:
-    ...
+    #...
     defaults:
-        ...
+        #...
         PhpSentinel\BugCatcher\Twig\Components\: '@BugCatcher/components/'
 ```
 ```yaml
 #config/packages/webpack_encore.yaml
 webpack_encore:
-    ...
+    #...
     builds:
         bug_catcher: '%kernel.project_dir%/public/bundles/bugcatcher/'
 framework:
-    ...
+    #...
     assets:
         packages:
             app:
@@ -82,19 +82,19 @@ Modify these:
 ```yaml
 #config/packages/security.yaml
 security:
-    ...
+    #...
     providers:
         app_user_provider:
             entity:
                 class: PhpSentinel\BugCatcher\Entity\User
                 property: email
     firewalls:
-        ...
+        #...
         api:
             pattern: ^/api/
             stateless: true
         main:
-            ...
+            #...
             provider: app_user_provider
             form_login:
                 login_path: bug_catcher.security.login
@@ -119,7 +119,7 @@ security:
 #config/packages/doctrine.yaml
 doctrine:
     orm:
-        ...
+        #...
         dql:
             string_functions:
                 TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction
@@ -127,9 +127,9 @@ doctrine:
 ```yaml
 #config/packages/api_platform.yaml
 api_platform:
-    ...
-    formats
-        ...
+    #...
+    formats:
+        #...
         json: [ 'application/json' ]
 ```
 **Routes**
@@ -197,14 +197,15 @@ See package [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-se
 
 See package [php-sentinel/bug-catcher-curl-reporter](https://github.com/php-sentinel/bug-catcher-curl-reporter)
 
-Have fun!
-
 ## Modifications
 
-See [docs/extending.md](docs/extending.md) for more information on how to extend the
+See [docs/extending.md](docs/extending.md) for more information on how to extend the dashboard.
+
+See [docs/custom_record.md](docs/custom_record.md) for more information on how to create custom record items.
 
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to
 open an issue on this repository.
 
+Have fun!

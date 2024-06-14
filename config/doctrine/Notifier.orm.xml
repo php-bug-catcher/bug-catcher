@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+
+    <entity name="PhpSentinel\BugCatcher\Entity\Notifier"
+            inheritance-type="SINGLE_TABLE"
+            table="notifier"
+            repository-class="PhpSentinel\BugCatcher\Repository\NotifierRepository">
+        <discriminator-column name="discr" type="string"/>
+        <discriminator-map>
+            <discriminator-mapping value="favicon" class="PhpSentinel\BugCatcher\Entity\NotifierFavicon"/>
+            <discriminator-mapping value="sound" class="PhpSentinel\BugCatcher\Entity\NotifierSound"/>
+            <discriminator-mapping value="email" class="PhpSentinel\BugCatcher\Entity\NotifierEmail"/>
+        </discriminator-map>
+
+        <id name="id" type="uuid" column="id">
+            <generator strategy="CUSTOM"/>
+            <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
+        </id>
+
+
+        <field name="name" type="string" length="255" nullable="false">
+        </field>
+
+        <field name="minimalImportance" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\Importance">
+        </field>
+
+        <field name="delay" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        </field>
+
+        <field name="delayInterval" type="integer" nullable="true"/>
+
+        <field name="lastFailedStatus" type="datetime_immutable" nullable="true"/>
+
+        <field name="failedStatusCount" type="integer" nullable="false"/>
+
+        <field name="repeat" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        </field>
+
+        <field name="repeatInterval" type="integer" nullable="true"/>
+
+        <field name="clearAt" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        </field>
+
+        <field name="repeatAtSkipped" type="integer" nullable="true"/>
+
+        <field name="clearInterval" type="integer" nullable="true"/>
+
+        <field name="lastNotified" type="datetime_immutable" nullable="true"/>
+
+        <field name="firstOkStatus" type="datetime_immutable" nullable="true"/>
+
+        <field name="lastOkStatusCount" type="integer" nullable="false"/>
+
+
+        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="project">
+            <join-table name="notifier_project">
+                <join-columns>
+                    <join-column name="notifier_id" referenced-column-name="id" on-delete="CASCADE"/>
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE"/>
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
+    </entity>
+</doctrine-mapping>

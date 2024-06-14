@@ -15,39 +15,25 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-#[ORM\MappedSuperclass()]
 class User implements UserInterface, PasswordAuthenticatedUserInterface {
-	#[ORM\Id]
-	#[ORM\Column(type: UuidType::NAME, unique: true)]
-	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
-	#[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
 	private ?Uuid $id = null;
 
-	#[ORM\Column(length: 180)]
 	private ?string $email = null;
 
 	/**
 	 * @var string[] The user roles
 	 */
-	#[ORM\Column(type: 'simple_array', nullable: true)]
 	private array $roles = [];
 
-	#[ORM\Column]
 	private ?string $password = null;
 
-	#[ORM\Column(type: 'boolean')]
 	private bool $enabled = false;
 
-	#[ORM\Column(length: 255)]
 	private ?string $fullname = null;
 
 	/**
 	 * @var Collection<int, Project>
 	 */
-	#[ORM\ManyToMany(targetEntity: Project::class, inversedBy: 'users')]
 	private Collection $projects;
 
 
