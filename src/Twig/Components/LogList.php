@@ -50,6 +50,7 @@ final class LogList extends AbstractController {
 			->setParameter("status", $this->status)
 			->setParameter("class", $keys)
 			->orderBy("record.date", "DESC")
+			->setMaxResults(100)
 			->getQuery()->getResult();
 		$grouped = [];
 		foreach ($logs as $log) {
