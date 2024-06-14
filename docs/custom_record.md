@@ -77,3 +77,26 @@ parameters:
         - RecordLogTrace::class
         - MyRecord::class
 ```
+
+### Send log to BugCatcher
+
+If you have installed [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle) in your project,
+you can now send your custom log record
+
+```php
+class TestCommand extends Command {
+	public function __construct(private readonly BugCatcherInterface $bugCatcher) {
+		parent::__construct();
+	}
+	protected function execute(InputInterface $input, OutputInterface $output): int {
+
+		$this->bugCatcher->log([
+			"api_uri"=>"/api/record_cron",
+			"command"=>"foo",
+			"lastStart"=>(new \DateTime("-10minutes"))->format(\DateTime::RFC3339_EXTENDED),
+			"estimated"=>60,
+		]);
+		return Command::SUCCESS;
+	}
+}
+```
