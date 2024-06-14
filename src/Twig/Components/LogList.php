@@ -44,6 +44,7 @@ final class LogList extends AbstractController {
 		$discriminatorMap = array_flip($discriminatorMap);
 		$keys          = array_map(fn($class) => $discriminatorMap[$class]??null, $this->classes);
 
+		/** @var Record[] $logs */
 		$logs = $this->recordRepo->createQueryBuilder("record")
 			->where("record.status = :status")
 			->andWhere("record INSTANCE OF :class")
@@ -54,7 +55,7 @@ final class LogList extends AbstractController {
 			->getQuery()->getResult();
 		$grouped = [];
 		foreach ($logs as $log) {
-			$key = md5($log->getMessage());
+			$key = md5($log->getGroup());
 			if (!array_key_exists($key, $grouped)) {
 				$grouped[$key] = $log;
 			} else {

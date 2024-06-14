@@ -79,9 +79,9 @@ Now you can create twig component ```MyRecord``` for rendering log row in dashbo
 # config/services.yaml
 parameters:
     dashboard_list_items:
-        - RecordLog::class
-        - RecordLogTrace::class
-        - MyRecord::class
+        - PhpSentinel\BugCatcher\Entity\RecordLog
+        - PhpSentinel\BugCatcher\Entity\RecordLogTrace
+        - App\Entity\MyRecord
 ```
 
 ### Send log to BugCatcher
