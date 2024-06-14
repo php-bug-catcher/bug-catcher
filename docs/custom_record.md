@@ -15,7 +15,7 @@ Be careful when tou update bug-catcher package, you need copy all this files aga
 Remember, some files can be added or edited in new version.
 
 ```
-mkdir config/doctrine/BugCatcherBudnle
+mkdir config/doctrine/BugCatcherBundle
 cp vendor/php-sentinel/bug-catcher/config/doctrine/* config/doctrine/BugCatcherBudnle
 ```
 
@@ -27,7 +27,7 @@ So you can update bug-catcher package without any changes in your project except
 But you need copy simlinks again sometimes after composer update because some files can be added in new version.
 
 ```
-mkdir config/doctrine/BugCatcherBudnle
+mkdir config/doctrine/BugCatcherBundle
 find ./vendor/php-sentinel/bug-catcher/config/doctrine/ -name '*.xml' -exec bash -c 'ln -rs "$0" ./config/doctrine/BugCatcherBundle/' {} \;
 rm config/doctrine/BugCatcherBundle/Record.orm.xml
 cp vendor/php-sentinel/bug-catcher/config/doctrine/Record.orm.xml config/doctrine/BugCatcherBundle/Record.orm.xml
@@ -59,11 +59,17 @@ doctrine:
                 alias: PhpSentinelBundle
 ```
 
-**Enable Api**
+### Enable Api
 
 You need enable api plaform for your custom entity. See [Api Platform documentation](https://api-platform.com/docs/core/getting-started/) for more
 details.
 You can inspire in entity [PhpSentinel\BugCatcher\Entity\RecordLog](../src/Entity/RecordLog.php) for more details.
+
+### Run migrations
+```
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate
+```
 
 ### Register Record Item
 
