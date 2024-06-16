@@ -25,7 +25,7 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 		parent::__construct($registry, $class);
 	}
 
-	public function setStatusOlderThan(DateTimeInterface $lastDate, $newStatus, $previousStatus = 'new'): void {
+	public function setStatusOlderThan(DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		$qb

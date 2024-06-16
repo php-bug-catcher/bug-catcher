@@ -11,7 +11,7 @@ use DateTimeInterface;
 use PhpSentinel\BugCatcher\Entity\Record;
 
 interface RecordRepositoryInterface {
-	public function setStatusOlderThan(DateTimeInterface $lastDate, $newStatus, $previousStatus = 'new'): void;
+	public function setStatusOlderThan(DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void;
 
 	public function setStatus(Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void;
 }
