@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @method RecordLogTrace[] findAll()
  * @method RecordLogTrace[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogTraceRepository extends RecordRepository implements RecordRepositoryInterface {
+class RecordLogTraceRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
 		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]

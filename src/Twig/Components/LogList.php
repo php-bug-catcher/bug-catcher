@@ -6,10 +6,7 @@ use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
-use PhpSentinel\BugCatcher\Entity\Role;
 use PhpSentinel\BugCatcher\Repository\RecordRepository;
-use PhpSentinel\BugCatcher\Repository\RecordRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
@@ -85,9 +82,6 @@ final class LogList extends AbstractController {
 		foreach ($rows as $row) {
 			$class = $row['0']::class;
 			$repo  = $this->registry->getRepository($class);
-			if (!($repo instanceof RecordRepositoryInterface)) {
-				throw new Exception("Repository for Entity '{$class}' does not implement RecordRepositoryInterface");
-			}
 			$repo->setStatusOlderThan($date, 'resolved', $this->status);
 
 		}
@@ -102,9 +96,6 @@ final class LogList extends AbstractController {
 	) {
 		$class = $log::class;
 		$repo  = $this->registry->getRepository($class);
-		if (!($repo instanceof RecordRepositoryInterface)) {
-			throw new Exception("Repository for Entity '{$class}' does not implement RecordRepositoryInterface");
-		}
 		$repo->setStatus($log, $date, $status, $this->status);
 
 	}
