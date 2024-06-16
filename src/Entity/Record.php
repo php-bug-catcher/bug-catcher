@@ -21,6 +21,8 @@ abstract class Record {
 
 	protected string $status = 'new';
 
+	protected ?string $hash = null;
+
 
 	#[Groups(['record:write'])]
 	#[Assert\NotBlank(groups: ['api'])]
@@ -93,7 +95,17 @@ abstract class Record {
 		return $this;
 	}
 
-	abstract function getGroup(): ?string;
+	public function getHash(): ?string {
+		return $this->hash;
+	}
+
+	public function setHash(?string $hash): self {
+		$this->hash = $hash;
+
+		return $this;
+	}
+
+	abstract function calculateHash(): ?string;
 
 	abstract function getComponentName(): string;
 

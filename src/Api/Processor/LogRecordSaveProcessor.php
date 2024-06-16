@@ -27,6 +27,7 @@ class LogRecordSaveProcessor implements ProcessorInterface {
 		if (false === $data instanceof Record) {
 			return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
 		}
+		$data->setHash($data->calculateHash());
 
 		$project = $this->projectRepo->findOneBy(["code" => $data->getProjectCode()]);
 		$data->setProject($project);

@@ -20,7 +20,7 @@ use PhpSentinel\BugCatcher\Entity\RecordStatus;
  * @method Record[] findAll()
  * @method Record[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordRepository extends ServiceEntityRepository implements RecordRepositoryInterface {
+class RecordRepository extends ServiceEntityRepository {
 	public function __construct(ManagerRegistry $registry, $class = Record::class) {
 		parent::__construct($registry, $class);
 	}
@@ -36,8 +36,8 @@ class RecordRepository extends ServiceEntityRepository implements RecordReposito
 	public function setStatus(Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 		$qb
-			->andWhere('l.message = :message')
-			->setParameter('message', $log->getMessage())
+			->andWhere('l.hash = :hash')
+			->setParameter('hash', $log->getHash())
 			->getQuery()
 			->execute();
 	}

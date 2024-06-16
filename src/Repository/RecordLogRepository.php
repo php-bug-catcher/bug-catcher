@@ -17,7 +17,7 @@ use PhpSentinel\BugCatcher\Entity\RecordStatus;
  * @method Record[]    findAll()
  * @method Record[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogRepository extends RecordRepository implements RecordRepositoryInterface {
+class RecordLogRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
 	) {

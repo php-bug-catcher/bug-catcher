@@ -32,7 +32,7 @@ class RecordPing extends Record {
 		return $this;
 	}
 
-	function getGroup(): ?string {
+	function calculateHash(): ?string {
 		return null;
 	}
 

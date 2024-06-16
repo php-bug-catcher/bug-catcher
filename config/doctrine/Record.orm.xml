@@ -10,6 +10,7 @@
             <index name="full_idx" columns="discr,project_id,date,status"/>
             <index name="date_idx" columns="discr,status,date"/>
             <index name="done_idx" columns="project_id,status"/>
+            <index name="hash_idx" columns="hash,status,date"/>
         </indexes>
         <discriminator-column name="discr" type="string"/>
         <discriminator-map>
@@ -24,6 +25,7 @@
 
         <field name="date" type="datetime" nullable="false"/>
         <field name="status" type="string" length="25"/>
+        <field name="hash" type="string" length="32" nullable="true"/>
         <many-to-one field="project" target-entity="PhpSentinel\BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
         </many-to-one>

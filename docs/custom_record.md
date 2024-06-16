@@ -2,7 +2,6 @@
 
 You are free to create your own record item.
 Just create class ```App\Entity\MyRecord``` extends ```PhpSentinel\BugCatcher\Entity\Record``` class.
-You need also create repository for this entity exending ```PhpSentinel\BugCatcher\Repository\RecordRepositoryInterface``` class.
 
 When you have custom class you need registered it to discriminator map.
 This is little bit tricky, because you need override all ORM mappings.

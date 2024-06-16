@@ -70,7 +70,7 @@ class RecordLog extends Record {
 		return $this;
 	}
 
-	function getGroup(): ?string {
+	function calculateHash(): ?string {
 		return md5($this->project->getId()->toHex() . $this->message);
 	}
 

@@ -49,26 +49,24 @@ final class LogList extends AbstractController {
 		$discriminatorMap = array_flip($discriminatorMap);
 		$keys          = array_map(fn($class) => $discriminatorMap[$class]??null, $this->classes);
 
-		/** @var Record[] $logs */
-		$logs = $this->recordRepo->createQueryBuilder("record")
+		$rows = $this->recordRepo->createQueryBuilder("record")
+			->addSelect('COUNT(record.id) as count')
 			->where("record.status = :status")
 			->andWhere("record INSTANCE OF :class")
 			->setParameter("status", $this->status)
 			->setParameter("class", $keys)
 			->orderBy("record.date", "DESC")
+			->groupBy("record.hash")
 			->setMaxResults(100)
 			->getQuery()->getResult();
-		$grouped = [];
-		foreach ($logs as $log) {
-			$key = md5($log->getGroup());
-			if (!array_key_exists($key, $grouped)) {
-				$grouped[$key] = $log;
-			} else {
-				$grouped[$key]->setCount($grouped[$key]->getCount() + 1);
-			}
+		$logs = [];
+		foreach ($rows as $row) {
+			/** @var Record $log */
+			$logs[] = $log = $row[0];
+			$log->setCount($row['count']);
 		}
 
-		return array_values($grouped);
+		return $logs;
 	}
 
 

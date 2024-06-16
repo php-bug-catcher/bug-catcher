@@ -8,27 +8,8 @@
             table="record_log"
             repository-class="PhpSentinel\BugCatcher\Repository\RecordLogRepository"
     >
-        <indexes>
-            <!-- This is a index for message column with index length 255 -->
-            <index name="message_idx" columns="message"/>
-        </indexes>
-
-        <field name="level" type="integer">
-            <options>
-                <option name="not_blank">true</option>
-            </options>
-        </field>
-
-        <field name="message" type="string" length="750">
-            <options>
-                <option name="not_blank">true</option>
-            </options>
-        </field>
-
-        <field name="requestUri" type="string" length="1500">
-            <options>
-                <option name="length_max">1500</option>
-            </options>
-        </field>
+        <field name="level" type="integer"/>
+        <field name="message" type="text"/>
+        <field name="requestUri" type="string" length="1500"/>
     </entity>
 </doctrine-mapping>
