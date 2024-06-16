@@ -17,9 +17,23 @@ class HistoryList {
 
 	public function __construct(private readonly RecordRepository $recordRepo) {}
 
+	/**
+	 * @return array<Record>
+	 */
 	public function getHistory(): array {
-		return $this->recordRepo->findBy([
-			"",
-		]);
+		/** @var Record[] $items */
+		$items  = $this->recordRepo->findBy([
+			"hash"   => $this->record->getHash(),
+			"status" => $this->record->getStatus(),
+		], ["date" => "DESC"], 50);
+		$return = [];
+		foreach ($items as $item) {
+			$key          = $item->getDate()->getTimestamp();
+			$item         = $return[$key]??$item;
+			$return[$key] = $item;
+			$item->setCount($item->getCount() + 1);
+		}
+
+		return array_values($return);
 	}
 }

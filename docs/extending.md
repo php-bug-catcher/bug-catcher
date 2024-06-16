@@ -46,14 +46,17 @@ parameters:
         PhpSentinel\BugCatcher\Entity\YourRecord:
             - Detail:Header
             - Detail:Title
+            - Detail:HistoryList
             - YourComponentName
         PhpSentinel\BugCatcher\Entity\RecordLogTrace:
             - Detail:Header
             - Detail:Title
+            - Detail:HistoryList
             - Detail:StackTrace
         PhpSentinel\BugCatcher\Entity\RecordLog:
             - Detail:Header
             - Detail:Title
+            - Detail:HistoryList
 ```
 
 ## Custom Ping collector

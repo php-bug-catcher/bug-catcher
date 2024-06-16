@@ -41,3 +41,28 @@ div.code code::before {
     width: 4em; /* now works */
     text-align: right; /* now works */
 }
+
+.timeline {
+    border-left: 1px solid #204e7a;
+    position: relative;
+    list-style: none;
+}
+
+.timeline .timeline-item {
+    position: relative;
+}
+
+.timeline .timeline-item:after {
+    position: absolute;
+    display: block;
+    top: 0;
+}
+
+.timeline .timeline-item:after {
+    background-color: #204e7a;
+    left: -38px;
+    border-radius: 50%;
+    height: 11px;
+    width: 11px;
+    content: "";
+}

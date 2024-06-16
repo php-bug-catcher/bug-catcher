@@ -1,4 +1,33 @@
 <div{{ attributes.defaults({
-    class:''
+    class:'container-fluid py-2'
 }) }}>
+    {% set items = this.history %}
+    {% if items|length>1 %}
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne">
+                        {{ items[0].date|date('d.m.Y H:i:s') }} - {{ items[items|length-1].date|date('d.m.Y H:i:s') }} <small> ({{ items|length }}
+                            x)</small>
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+
+                        <ul class="timeline">
+                            {% for item in this.history %}
+                                <li class="timeline-item">
+                                    <p class="text-muted mb-2 fw-bold">{{ item.date|date('d.m.Y H:i:s') }}
+                                        <small>{% if item.count>0 %}({{ item.count }}x){% endif %}</small></p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h3>{{ log.date|date("d.m.Y H:i:s") }}</h3>
+    {% endif %}
 </div>

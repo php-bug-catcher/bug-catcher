@@ -36,11 +36,13 @@ namespace {
 				RecordLogTrace::class => [
 					'Detail:Header',
 					'Detail:Title',
+					'Detail:HistoryList',
 					'Detail:StackTrace',
 				],
 				RecordLog::class      => [
 					'Detail:Header',
 					'Detail:Title',
+					'Detail:HistoryList',
 				],
 			])
 			->set("collectors", [
