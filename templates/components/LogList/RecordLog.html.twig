@@ -5,7 +5,7 @@
         <span class="badge text-bg-danger rounded-pill">{{ log.date|date('d.m.Y H:i:s') }}</span>
         <span class="badge text-bg-info rounded-pill">{{ log.project.code|capitalize }}</span>
         <span class="badge text-bg-danger rounded-pill">{{ log.count }}</span>
-        {{ log.message }}
+        <div class="d-inline text-break">{{ log.message }}</div>
     </div>
     {% if is_granted('ROLE_DEVELOPER') %}
         <div class="text-nowrap">
