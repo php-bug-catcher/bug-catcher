@@ -1,8 +1,8 @@
 <header{{ attributes.defaults({
-    class:'pb-3 mb-4 border-bottom'
+    class:'pb-1 mb-4 border-bottom'
 }) }}>
     <a href="{{ record.requestUri }}" target="_blank" class="d-flex align-items-center text-dark text-decoration-none">
-        <twig:ux:icon name="fontisto:bug" width="40" height="32" class="me-2" style="min-width:30px"/>
+        <img class="p-1" src="{{ asset('/assets/logo/'~logo~'/icon.svg', 'bug_catcher') }}" alt="bug" style="width: 43px;height:43px;"/>
         <span class="fs-4">{{ record.requestUri|u.truncate(150, '...') }} </span>
     </a>
 </header>
