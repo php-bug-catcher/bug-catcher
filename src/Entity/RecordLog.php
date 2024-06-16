@@ -31,6 +31,7 @@ class RecordLog extends Record {
 
 	#[Groups(['record:write'])]
 	#[Assert\NotBlank(groups: ['api'])]
+	#[Assert\Length(max: 750, groups: ['api'])]
 	protected ?string $message = null;
 
 	#[Groups(['record:write'])]
@@ -43,7 +44,7 @@ class RecordLog extends Record {
 	}
 
 	public function setMessage(string $message): static {
-		$this->message = $message;
+		$this->message = substr($message, 0, 750);
 
 		return $this;
 	}

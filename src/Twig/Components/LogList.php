@@ -26,12 +26,17 @@ final class LogList extends AbstractController {
 	#[LiveProp]
 	public string $status;
 
+	#[LiveProp]
+	public string $id;
+
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
 		private ManagerRegistry $registry,
 		#[Autowire(param: 'dashboard_list_items')]
 		private array           $classes
-	) {}
+	) {
+		$this->id = uniqid();
+	}
 
 	/**
 	 * @return Record[]
@@ -89,7 +94,6 @@ final class LogList extends AbstractController {
 
 		}
 
-		return $this->redirectToRoute('bug_catcher.dashboard.index');
 	}
 
 	#[LiveAction]
@@ -105,6 +109,5 @@ final class LogList extends AbstractController {
 		}
 		$repo->setStatus($log, $date, $status, $this->status);
 
-		return $this->redirectToRoute('bug_catcher.dashboard.status', ['status' => $this->status]);
 	}
 }

@@ -8,7 +8,10 @@
             table="record_log"
             repository-class="PhpSentinel\BugCatcher\Repository\RecordLogRepository"
     >
-
+        <indexes>
+            <!-- This is a index for message column with index length 255 -->
+            <index name="message_idx" columns="message"/>
+        </indexes>
 
         <field name="level" type="integer">
             <options>
@@ -16,7 +19,7 @@
             </options>
         </field>
 
-        <field name="message" type="text">
+        <field name="message" type="string" length="750">
             <options>
                 <option name="not_blank">true</option>
             </options>
