@@ -71,7 +71,7 @@ class RecordLog extends Record {
 	}
 
 	function calculateHash(): ?string {
-		return md5($this->project->getId()->toHex() . $this->message);
+		return md5($this->project?->getId()?->toHex() . $this->message);
 	}
 
 	function getComponentName(): string {
