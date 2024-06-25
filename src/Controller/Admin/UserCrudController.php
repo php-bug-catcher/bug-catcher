@@ -13,6 +13,7 @@ use PhpSentinel\BugCatcher\Controller\AbstractCrudController;
 use PhpSentinel\BugCatcher\Entity\Client\Client;
 use PhpSentinel\BugCatcher\Entity\Role;
 use PhpSentinel\BugCatcher\Entity\User;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -38,6 +39,7 @@ class UserCrudController extends AbstractCrudController {
 
 
 	public function configureFields(string $pageName): iterable {
+		$parameterBag = $this->container->get(ParameterBagInterface::class);
 		$password = TextField::new('plainPassword')
 			->setFormType(PasswordType::class)
 			->setFormTypeOptions([
@@ -48,12 +50,7 @@ class UserCrudController extends AbstractCrudController {
 			->setRequired($pageName === Crud::PAGE_NEW)
 			->onlyOnForms();
 
-		$roles = [
-			"Admin"     => 'ROLE_ADMIN',
-			"Developer" => 'ROLE_DEVELOPER',
-			"User"     => 'ROLE_USER',
-			"Customer" => 'ROLE_CUSTOMER',
-		];
+		$roles = $parameterBag->get('roles');
 
 		return [
 			TextField::new('email')->setColumns(8),
@@ -69,6 +66,14 @@ class UserCrudController extends AbstractCrudController {
 		];
 
 
+	}
+
+
+	public static function getSubscribedServices(): array {
+		$services                               = parent::getSubscribedServices();
+		$services[ParameterBagInterface::class] = ParameterBagInterface::class;
+
+		return $services;
 	}
 
 

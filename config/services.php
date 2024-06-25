@@ -49,6 +49,12 @@ namespace {
 				'http',
 				'messenger',
 			])
+			->set('roles', [
+				"Admin"     => 'ROLE_ADMIN',
+				"Developer" => 'ROLE_DEVELOPER',
+				"User"      => 'ROLE_USER',
+				"Customer"  => 'ROLE_CUSTOMER',
+			])
 		;
 		$services = $container->services()
 			->defaults()
