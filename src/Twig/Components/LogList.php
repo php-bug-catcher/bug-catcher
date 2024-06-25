@@ -46,24 +46,22 @@ final class LogList extends AbstractController {
 		$discriminatorMap = array_flip($discriminatorMap);
 		$keys          = array_map(fn($class) => $discriminatorMap[$class]??null, $this->classes);
 
-		$rows = $this->recordRepo->createQueryBuilder("record")
-			->addSelect('COUNT(record.id) as count')
+		/** @var Record[] $records */
+		$records = $this->recordRepo->createQueryBuilder("record")
 			->where("record.status = :status")
 			->andWhere("record INSTANCE OF :class")
 			->setParameter("status", $this->status)
 			->setParameter("class", $keys)
 			->orderBy("record.date", "DESC")
-			->groupBy("record.hash")
 			->setMaxResults(100)
 			->getQuery()->getResult();
 		$logs = [];
-		foreach ($rows as $row) {
-			/** @var Record $log */
-			$logs[] = $log = $row[0];
-			$log->setCount($row['count']);
+		foreach ($records as $row) {
+			$record = $logs[$row->getHash()] = $logs[$row->getHash()]??$row->setCount(0);
+			$record->setCount($record->getCount() + 1);
 		}
 
-		return $logs;
+		return array_values($logs);
 	}
 
 
@@ -91,12 +89,11 @@ final class LogList extends AbstractController {
 	#[LiveAction]
 	public function clearOne(
 		#[LiveArg] Record                                                  $log,
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
 		#[LiveArg] string $status
 	) {
 		$class = $log::class;
 		$repo  = $this->registry->getRepository($class);
-		$repo->setStatus($log, $date, $status, $this->status);
+		$repo->setStatus($log, $log->getDate(), $status, $this->status);
 
 	}
 }
