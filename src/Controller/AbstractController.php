@@ -15,11 +15,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AbstractController extends SymfonyAbstractController {
 
-
-	public function __construct(
-		protected readonly RequestStack $requestStack
-	) {}
-
 	protected function getUser(): ?User {
 		$user = parent::getUser();
 		if ($user === null) {
@@ -32,12 +27,5 @@ class AbstractController extends SymfonyAbstractController {
 		return $user;
 	}
 
-	protected function getClient(): Client {
-		$request = $this->requestStack->getMainRequest();
-		$client  = $request->attributes->get("client");
-		assert($client instanceof Client);
-
-		return $client;
-	}
 
 }

@@ -1,9 +1,5 @@
-<script>
-	let link = document.querySelector("link[rel~='icon'][type='image/svg+xml']");
-	if (!link) {
-		link = document.createElement('link');
-		link.rel = 'icon';
-		document.head.appendChild(link);
-	}
-	link.href = '{{ this.icon }}';
-</script>
+<div {{ stimulus_controller('favicon',{
+    icon:this.icon
+}) }}>
+
+</div>

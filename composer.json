@@ -37,7 +37,10 @@
     "twig/twig": "^2.12|^3.0"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "symfony/runtime": true
+    }
   },
   "autoload": {
     "psr-4": {
@@ -53,6 +56,7 @@
     "phpunit/phpunit": "^9.5",
     "symfony/dotenv": "^7.1",
     "symfony/phpunit-bridge": "^7.1",
+    "symfony/runtime": "^7.1",
     "symfony/yaml": "^7.1"
   }
 }

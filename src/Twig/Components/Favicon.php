@@ -16,12 +16,16 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 #[AsTwigComponent]
 class Favicon {
 
+	public string $id = "";
+
 	public function __construct(
 		private readonly Packages      $assetManager,
 		private readonly DashboardStatus $status,
 		#[Autowire(param: 'logo')]
 		private readonly string $logo
-	) {}
+	) {
+		$this->id = uniqid();
+	}
 
 
 	public function getIcon(): string {
@@ -29,4 +33,5 @@ class Favicon {
 
 		return $this->assetManager->getUrl("/assets/logo/{$this->logo}/icon-{$color}.svg", 'bug_catcher');
 	}
+
 }

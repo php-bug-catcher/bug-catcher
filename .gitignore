@@ -28,3 +28,4 @@ yarn-error.log
 .php-version
 composer.lock
 yarn.lock
+/bin

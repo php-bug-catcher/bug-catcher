@@ -1,6 +1,6 @@
 <div{{ attributes.defaults({
     class:'my-3 p-3 bg-body rounded shadow-s'
-}) }}>
+}) }} >
     <div class="row">
         {% for project in this.projects %}
             <div class="col-md-6 col-lg-6 col-xl-4  align-items-start pb-1">
@@ -12,4 +12,5 @@
             </div>
         {% endfor %}
     </div>
+    <twig:Favicon/>
 </div>
