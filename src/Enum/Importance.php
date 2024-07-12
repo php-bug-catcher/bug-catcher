@@ -52,10 +52,10 @@ enum Importance: string {
 
 	public function getColor(): BootstrapColor {
 		return match ($this) {
-			self::Low => BootstrapColor::Info,
-			self::Medium => BootstrapColor::Secondary,
+			self::Low => BootstrapColor::Secondary,
+			self::Medium => BootstrapColor::Warning,
 			self::High => BootstrapColor::Primary,
-			self::Critical => BootstrapColor::Warning,
+			self::Critical => BootstrapColor::Info,
 			self::MamaMia => BootstrapColor::Danger,
 			default => BootstrapColor::Default,
 		};

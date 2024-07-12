@@ -9,7 +9,6 @@
     "api-platform/core": "^3.3",
     "easycorp/easyadmin-bundle": "^4.10",
     "kregel/exception-probe": "^1.0",
-    "tito10047/php-sparkline": "^1.0",
     "symfony/asset": "7.1.*",
     "symfony/console": "7.1.*",
     "symfony/form": "7.1.*",
@@ -32,6 +31,8 @@
     "symfony/validator": "7.1.*",
     "symfony/web-link": "7.1.*",
     "symfony/webpack-encore-bundle": "^2.1",
+    "tito10047/migration-backup": "^0.0.2",
+    "tito10047/php-sparkline": "^1.0",
     "twig/extra-bundle": "^2.12|^3.0",
     "twig/string-extra": "^3.10",
     "twig/twig": "^2.12|^3.0"
