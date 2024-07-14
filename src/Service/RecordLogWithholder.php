@@ -36,14 +36,12 @@ readonly class RecordLogWithholder {
 			], ["date" => "DESC"]);
 			array_unshift($withholderLogs, $log);
 			$log->setStatus($status);
-			dump($log);
-			$this->logRepo->save($log, true);
 			$start = $log->getDate()->getTimestamp();
 			$count = 0;
 			for ($i = 0; $i < count($withholderLogs); $i++) {
 				$log  = $withholderLogs[$i];
 				$end  = $log->getDate()->getTimestamp();
-				$diff = $end - $start;
+				$diff = $start - $end;
 				if ($diff <= $withholder->getThresholdInterval()) {
 					$count++;
 					if ($count > $withholder->getThreshold() && $status !== "new") {
@@ -54,7 +52,6 @@ readonly class RecordLogWithholder {
 					$log->setStatus($status);
 				} else {
 					$log->setStatus($status == "new" ? "new" : "resolved-{$withholder->getId()}");
-					$this->logRepo->save($log);
 				}
 			}
 		}
