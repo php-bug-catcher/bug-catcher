@@ -9,6 +9,18 @@
 > [!CAUTION]
 > **Work in progress, use at your own risk**
 
+## Features
+
+- **Ping collector**. Ping Your projects in defined intervals to see if they are up and running.
+- **Log viewer** with stack trace, code preview and history of all errors.
+- **Custom records**. Create custom records to track any data you want.
+- **Configurable Notification**. Get notified with favicon, sound email or sms if error count reaches configured threshold.
+- **Access controll** Create users with acces to specific projects and its logs. You can add access to your client to see only specific part og logs.
+- **Customizable**. You can add your own components to the dashboard.
+- **Easy to use**. Just add a few lines of code to your project and you are ready to go.
+- **Withholding**. You can hide errors until they reach a configured threshold.
+- **Automatic cleanup**. Stack trace is optional and is cleaned up after the error is fixed.
+
 ## Installation
 
 **Create blank symfony project**
