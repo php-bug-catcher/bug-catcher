@@ -18,6 +18,7 @@ use PhpSentinel\BugCatcher\Entity\Client\Product\Category;
 use PhpSentinel\BugCatcher\Entity\Client\Product\Product;
 use PhpSentinel\BugCatcher\Entity\Notifier;
 use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
 use PhpSentinel\BugCatcher\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,6 +73,7 @@ class DashboardController extends AbstractDashboardController {
 		yield MenuItem::linkToRoute('Dashboard', 'fa fa-home', 'bug_catcher.dashboard.index');
 		yield MenuItem::linkToCrud('Users', 'fa-solid fa-user-tie', User::class);
 		yield MenuItem::linkToCrud('Projects', 'fa-solid fa-shield-dog', Project::class);
+		yield MenuItem::linkToCrud('Withholder', 'fa-solid fa-eye-slash', RecordLogWithholder::class);
 		yield MenuItem::subMenu('Notifiers', 'fa-regular fa-bell')->setSubItems($notifiers);
 	}
 

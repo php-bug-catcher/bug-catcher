@@ -7,16 +7,19 @@
  */
 namespace PhpSentinel\BugCatcher\Entity;
 
+use PhpSentinel\BugCatcher\Validator\IsRegex;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
 class RecordLogWithholder {
 
-	protected ?int $id;
+	protected ?Uuid $id = null;
 
 	#[Assert\NotBlank()]
 	#[Assert\Length(max: 750)]
+	#[IsRegex()]
 	protected ?string $regex = null;
 
 	#[Assert\Length(max: 250)]
@@ -31,7 +34,7 @@ class RecordLogWithholder {
 	#[Assert\NotBlank()]
 	protected ?Project $project = null;
 
-	public function getId(): ?int {
+	public function getId(): ?Uuid {
 		return $this->id;
 	}
 
