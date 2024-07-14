@@ -24,7 +24,7 @@
         </id>
 
         <field name="date" type="datetime" nullable="false"/>
-        <field name="status" type="string" length="25"/>
+        <field name="status" type="string" length="50"/>
         <field name="hash" type="string" length="32" nullable="true"/>
         <many-to-one field="project" target-entity="PhpSentinel\BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>

@@ -73,7 +73,7 @@ class DashboardController extends AbstractDashboardController {
 		yield MenuItem::linkToRoute('Dashboard', 'fa fa-home', 'bug_catcher.dashboard.index');
 		yield MenuItem::linkToCrud('Users', 'fa-solid fa-user-tie', User::class);
 		yield MenuItem::linkToCrud('Projects', 'fa-solid fa-shield-dog', Project::class);
-		yield MenuItem::linkToCrud('Withholder', 'fa-solid fa-eye-slash', RecordLogWithholder::class);
+		yield MenuItem::linkToCrud('Withholders', 'fa-solid fa-eye-slash', RecordLogWithholder::class);
 		yield MenuItem::subMenu('Notifiers', 'fa-regular fa-bell')->setSubItems($notifiers);
 	}
 
