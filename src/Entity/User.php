@@ -4,6 +4,7 @@ namespace PhpSentinel\BugCatcher\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Entity\Client\Center\Center;
 use PhpSentinel\BugCatcher\Entity\Client\Client;
@@ -126,6 +127,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 	 */
 	public function getProjects(): Collection {
 		return $this->projects;
+	}
+
+	/**
+	 * @return Collection<int, Project>
+	 */
+	public function getActiveProjects(): Collection {
+		return $this->projects->matching(
+			Criteria::create()->where(Criteria::expr()->eq('enabled', true))
+		);
 	}
 
 	public function addProject(Project $project): static {

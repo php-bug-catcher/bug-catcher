@@ -24,6 +24,6 @@ final class StatusList extends AbstractController {
 
 	public function getProjects(): array {
 
-		return $this->projectRepo->findByAdmin($this->getUser());
+		return $this->getUser()->getActiveProjects()->toArray();
 	}
 }

@@ -55,7 +55,7 @@ final class LogList extends AbstractController {
 			->setParameter("status", $this->status)
 			->setParameter("class", $keys)
 			->setParameter('projects',
-				array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getProjects()->toArray())
+				array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getActiveProjects()->toArray())
 			)
 			->orderBy("record.date", "DESC")
 			->setMaxResults(100)

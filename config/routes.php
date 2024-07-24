@@ -34,7 +34,7 @@ namespace {
 		$routes
 			->add('bug_catcher.admin', '/admin')
 			->controller(AdminDashboardController::class . "::index")
-			->methods(['GET','POST','PUT','DELETE']);
+			->methods(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
 	};
 
 }

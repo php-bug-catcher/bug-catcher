@@ -30,7 +30,7 @@ class PingCollectorCommand extends Command implements ServiceSubscriberInterface
 
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$projects = $this->projectRepo->findAll();
+		$projects = $this->projectRepo->findBy(["enabled" => true]);
 		foreach ($projects as $project) {
 			/** @var PingCollectorInterface $collector */
 			$collector = $this->collectors[$project->getPingCollector()]??null;
