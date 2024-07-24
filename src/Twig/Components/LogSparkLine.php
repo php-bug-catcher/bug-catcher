@@ -20,16 +20,22 @@ final class LogSparkLine extends AbsComponent {
 	) {}
 
 	public function getSparkLine() {
+		$maxDate = new DateTimeImmutable("-{$this->graphHours} hours");
 		$sql     = <<<SQL
 select
     count(*) as cnt ,
     concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$this->minutes})*{$this->minutes})*60),'%i'),':00') as period
 from record_log
 join record r on r.id = record_log.id
-where project_id={$this->project->getId()->toHex()}
+where project_id=? and `date` > ?
 group by period
 SQL;
-		$rows    = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
+		$rows    = $this->em->getConnection()
+			->executeQuery($sql, [
+				$this->project->getId()->toHex(),
+				$maxDate->format("Y-m-d H:i:s"),
+			])
+			->fetchAllAssociative();
 		$indexed = array_map(fn(array $row) => new SparkLineInterval($row["cnt"], new DateTimeImmutable($row["period"])), $rows);
 //		array_unshift($indexed, new SparkLineInterval(self::TRESHOLD, new \DateTimeImmutable("-" . (self::GRAPH_HOURS + 1) . "hour")));
 		$sparkLine = SparkLine::new(collect($indexed), Period::MINUTE, $this->minutes)
