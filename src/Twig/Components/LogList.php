@@ -49,10 +49,10 @@ final class LogList extends AbstractController {
 
 		/** @var Record[] $records */
 		$records = $this->recordRepo->createQueryBuilder("record")
-			->where("record.status = :status")
+			->where("record.status like :status")
 			->andWhere("record INSTANCE OF :class")
 			->andWhere("record.project IN (:projects)")
-			->setParameter("status", $this->status)
+			->setParameter("status", $this->status . '%')
 			->setParameter("class", $keys)
 			->setParameter('projects',
 				array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getActiveProjects()->toArray())

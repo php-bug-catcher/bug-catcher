@@ -58,6 +58,7 @@
                 {% endif %}
                 <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.status',{status:'archived'}) }}">Archived logs</a>
+                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.status',{status:'withheld'}) }}">Withheld logs</a>
                 <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index') }}">New logs</a>
                 <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('bug_catcher.security.change-password') }}">Change password</a>
