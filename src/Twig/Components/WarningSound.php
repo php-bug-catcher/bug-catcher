@@ -35,11 +35,7 @@ class WarningSound extends AbsComponent  {
 		if ($this->project->getPingCollector() == 'none') {
 			return null;
 		}
-		$ping = $this->recordRepo->findOneBy([
-			"project" => $this->project,
-		], [
-			"date" => "DESC",
-		]);
+		$ping = $this->recordRepo->getLastRecord($this->project);
 
 		$state = $ping?->getStatusCode() == Response::HTTP_OK;
 		/** @var NotifierSound|false $soundNotifiers */

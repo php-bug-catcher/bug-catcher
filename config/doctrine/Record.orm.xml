@@ -7,8 +7,8 @@
             repository-class="PhpSentinel\BugCatcher\Repository\RecordRepository"
     >
         <indexes>
-            <index name="full_idx" columns="discr,project_id,date,status"/>
-            <index name="date_idx" columns="discr,status,date"/>
+            <index name="full_idx" columns="project_id,date,status"/>
+            <index name="date_idx" columns="status,date"/>
             <index name="done_idx" columns="project_id,status"/>
             <index name="hash_idx" columns="hash,status,date"/>
         </indexes>

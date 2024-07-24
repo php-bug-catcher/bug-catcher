@@ -23,11 +23,7 @@ final class ProjectStatus extends AbsComponent {
 		if ($this->project->getPingCollector() == 'none') {
 			return true;
 		}
-		$ping = $this->recordRepo->findOneBy([
-			"project" => $this->project,
-		], [
-			"date" => "DESC",
-		]);
+		$ping = $this->recordRepo->getLastRecord($this->project);
 
 		$state = $ping?->getStatusCode() == Response::HTTP_OK;
 		$favIconNotifiers = $this->project->findNotifiers(NotifierFavicon::class, Importance::Low);

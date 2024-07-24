@@ -5,7 +5,9 @@ namespace PhpSentinel\BugCatcher\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpSentinel\BugCatcher\Entity\Project;
 use PhpSentinel\BugCatcher\Entity\RecordPing;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**
  * @extends ServiceEntityRepository<RecordPing>
@@ -44,10 +46,23 @@ class RecordPingRepository extends RecordRepository {
 		return $entity;
 	}
 
-	public function getQBWith(): QueryBuilder {
-		$qb = $this->createQueryBuilder('p');
+	public function getQBWith(Project $project): QueryBuilder {
+		$qb = $this->createQueryBuilder('r');
+
+		$qb->andWhere('r.project = :project')
+			->setParameter('project', $project->getId(), UuidType::NAME);
 
 		return $qb;
+	}
+
+	public function getLastRecord(Project $project, string $maxLife = '-1 hour'): ?RecordPing {
+		return $this->getQBWith(project: $project)
+			->andWhere("r.date >= :date")
+			->orderBy('r.date', 'DESC')
+			->setParameter('date', new \DateTime($maxLife))
+			->setMaxResults(1)
+			->getQuery()
+			->getOneOrNullResult();
 	}
 
 	public function getQBBlank(): QueryBuilder {
