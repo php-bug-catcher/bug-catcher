@@ -55,7 +55,7 @@
         <field name="lastOkStatusCount" type="integer" nullable="false"/>
 
 
-        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="project">
+        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="notifiers">
             <join-table name="notifier_project">
                 <join-columns>
                     <join-column name="notifier_id" referenced-column-name="id" on-delete="CASCADE"/>
