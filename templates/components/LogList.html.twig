@@ -3,16 +3,16 @@
 }) }}>
     {% set logs = this.logs %}
     {% if logs|length %}
-        <ul class="nav justify-content-end">
-            <li class="nav-item">
-                <button class="nav-link active " aria-current="page"
+            <div class="nav justify-content-end pb-1">
+                    <button class="btn btn-outline-secondary btn-sm" aria-current="page"
                         data-action="live#action"
                         data-live-action-param="clearAll"
                         data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
-                >Fix all
+                    >
+                            <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
+                            Fix all
                 </button>
-            </li>
-        </ul>
+            </div>
         <ul class="list-group">
             {% for log in logs %}
                 {{ component(log.componentName, {log: log}) }}

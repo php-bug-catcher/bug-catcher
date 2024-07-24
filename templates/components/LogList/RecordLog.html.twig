@@ -1,10 +1,21 @@
 <li{{ attributes.defaults({
     class:'list-group-item d-flex justify-content-between align-items-center p-1'
 }) }}>
+    {% if log.count==1 %}
+        {% set status = 'info' %}
+    {% elseif log.count<5 %}
+        {% set status = 'warning' %}
+    {% elseif log.count<10 %}
+        {% set status = 'secondary' %}
+    {% elseif log.count<20 %}
+        {% set status = 'dark' %}
+    {% else %}
+        {% set status = 'danger' %}
+    {% endif %}
     <div>
-        <span class="badge text-bg-danger rounded-pill">{{ log.date|date('d.m.Y H:i:s') }}</span>
-        <span class="badge text-bg-info rounded-pill">{{ log.project.name }}</span>
-        <span class="badge text-bg-danger rounded-pill">{{ log.count }}</span>
+        <span class="badge text-bg-secondary ">{{ log.date|date('d.m.Y H:i:s') }}</span>
+        <span class="badge text-bg-primary ">{{ log.project.name }}</span>
+        <span class="badge text-bg-{{ status }} ">{{ log.count }}</span>
         <div class="d-inline text-break">{{ log.message }}</div>
     </div>
     {% if is_granted('ROLE_DEVELOPER') %}
@@ -19,6 +30,13 @@
             >
                 <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
             </button>
+            <a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
+               class="btn btn-outline-success btn-sm"
+               target="_blank"
+               title="Detail"
+            >
+                <twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="20px" height="20px"/>
+            </a>
             <button type="button" class="btn btn-outline-info btn-sm"
                     data-action="live#action"
                     data-live-action-param="clearOne"
@@ -28,13 +46,6 @@
             >
                 <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
             </button>
-            <a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
-               class="btn btn-outline-success btn-sm"
-               target="_blank"
-               title="Detail"
-            >
-                <twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="20px" height="20px"/>
-            </a>
         </div>
     {% endif %}
 </li>
