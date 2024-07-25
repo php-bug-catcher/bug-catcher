@@ -89,6 +89,10 @@ class LogListTest extends KernelTestCase {
 			"date"   => new DateTime("2022-01-01 00:00:00"),
 			"status" => "new",
 		]);
+		RecordLogFactory::createMany(5, [
+			"date"   => new DateTime("2022-01-01 00:00:00"),
+			"status" => "status-to-not-to-be-deleted",
+		]);
 		RecordLogTraceFactory::createMany(15, [
 			"date"   => new DateTime("2022-01-01 00:10:00"),
 			"status" => "new",
@@ -97,13 +101,14 @@ class LogListTest extends KernelTestCase {
 			"date"   => new DateTime("2022-02-01 00:00:00"),
 			"status" => "new",
 		]);
-		$this->assertSame(40, RecordLogFactory::count());
+		$this->assertSame(45, RecordLogFactory::count());
 
 		$rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
 		$this->assertInstanceOf(LogList::class, $rendered);
 		$rendered->clearAll(new DateTimeImmutable("2022-01-01 01:00:00"));
 
 		$this->assertSame(10, RecordLogFactory::count(["status" => "new"]));
+		$this->assertSame(5, RecordLogFactory::count(["status" => "status-to-not-to-be-deleted"]));
 		$this->assertSame(30, RecordLogFactory::count(["status" => "resolved"]));
 		$this->assertSame(15, RecordLogTraceFactory::count(["status" => "resolved"]));
 	}
