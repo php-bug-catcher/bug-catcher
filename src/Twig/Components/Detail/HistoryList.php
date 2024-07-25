@@ -28,6 +28,9 @@ class HistoryList {
 		], ["date" => "DESC"], 50);
 		$return = [];
 		foreach ($items as $item) {
+			$item->setCount(0);
+		}
+		foreach ($items as $item) {
 			$key          = $item->getDate()->getTimestamp();
 			$item         = $return[$key]??$item;
 			$return[$key] = $item;
