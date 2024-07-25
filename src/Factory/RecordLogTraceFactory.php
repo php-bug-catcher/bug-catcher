@@ -2,13 +2,13 @@
 
 namespace PhpSentinel\BugCatcher\Factory;
 
-use PhpSentinel\BugCatcher\Entity\Project;
+use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Project>
+ * @extends PersistentProxyObjectFactory<RecordLogTrace>
  */
-final class ProjectFactory extends PersistentProxyObjectFactory {
+final class RecordLogTraceFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -17,7 +17,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return Project::class;
+		return RecordLogTrace::class;
 	}
 
 	/**
@@ -27,9 +27,12 @@ final class ProjectFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'code'    => self::faker()->text(255),
-			'enabled' => self::faker()->boolean(),
-			'name'    => self::faker()->text(255),
+			'date'       => self::faker()->dateTime(),
+			'level'      => self::faker()->randomNumber(),
+			'message'    => self::faker()->text(),
+			'project'    => ProjectFactory::new(),
+			'requestUri' => self::faker()->text(1500),
+			'status'     => self::faker()->text(50),
 		];
 	}
 
@@ -37,7 +40,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(Project $project): void {})
+		return $this// ->afterInstantiate(function(RecordLogTrace $recordLogTrace): void {})
 			;
 	}
 }

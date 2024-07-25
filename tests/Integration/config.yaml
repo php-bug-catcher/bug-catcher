@@ -1,4 +1,5 @@
 parameters:
+    logo: default
 services:
 doctrine:
     dbal:
@@ -38,8 +39,17 @@ security:
             stateless: true
 framework:
     test: true
+    secret: '%env(APP_SECRET)%'
+    assets:
+        packages:
+            bug_catcher:
+                json_manifest_path: '%kernel.project_dir%/public/manifest.json'
 when@test:
     doctrine:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+twig:
+    globals:
+        app_name: 'Bug Catcher'
+        logo: '%logo%'
