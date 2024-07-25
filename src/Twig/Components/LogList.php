@@ -90,15 +90,4 @@ final class LogList extends AbstractController {
 		}
 
 	}
-
-	#[LiveAction]
-	public function clearOne(
-		#[LiveArg] Record                                                  $log,
-		#[LiveArg] string $status
-	) {
-		$class = $log::class;
-		$repo  = $this->registry->getRepository($class);
-		$repo->setStatus($log, $log->getDate(), $status, $this->status);
-
-	}
 }
