@@ -9,6 +9,7 @@ namespace PhpSentinel\BugCatcher\Twig\Components\LogList;
 
 use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\Record;
+use PhpSentinel\BugCatcher\Repository\RecordRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -43,6 +44,7 @@ class RecordLog {
 		}
 		$class = $this->log::class;
 		$repo  = $this->registry->getRepository($class);
+		assert($repo instanceof RecordRepository);
 		$repo->setStatus($this->log, $this->log->getDate(), $status, $this->status);
 		$this->log = null;
 	}

@@ -2,7 +2,9 @@
 
 namespace PhpSentinel\BugCatcher\Factory;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSentinel\BugCatcher\Entity\User;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

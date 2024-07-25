@@ -2,6 +2,7 @@
 
 namespace PhpSentinel\BugCatcher\Factory;
 
+use DateTimeImmutable;
 use PhpSentinel\BugCatcher\Entity\RecordPing;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -27,7 +28,7 @@ final class RecordPingFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'date'       => self::faker()->dateTime(),
+			'date' => new DateTimeImmutable(self::faker()->dateTime()->format("Y-m-d H:i:s")),
 			'project'    => ProjectFactory::new(),
 			'status'     => self::faker()->text(50),
 			'statusCode' => self::faker()->text(255),
