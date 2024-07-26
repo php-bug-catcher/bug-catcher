@@ -9,6 +9,7 @@ namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
 
 
 use Exception;
+use Kregel\ExceptionProbe\Codeframe;
 use PhpSentinel\BugCatcher\Factory\RecordLogTraceFactory;
 use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\Detail\StackTrace;
@@ -49,7 +50,7 @@ class StackTraceTest extends KernelTestCase {
 				}
 				continue;
 			}
-			$this->assertSame(false, $item);
+			$this->assertSame(false, array_map(fn(Codeframe $item) => $item->getFile(), $rendered->trace));
 		}
 		$this->assertSame($first, $rendered->opened);
 	}
