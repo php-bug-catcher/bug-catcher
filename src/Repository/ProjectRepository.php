@@ -46,8 +46,12 @@ class ProjectRepository extends ServiceEntityRepository {
 		return $entity;
 	}
 
-	public function getQBWith(): QueryBuilder {
+	public function getQBWith(?bool $enabled = null): QueryBuilder {
 		$qb = $this->createQueryBuilder('p');
+
+		if ($enabled !== null) {
+			$qb->andWhere('p.enabled = :enabled')->setParameter('enabled', $enabled);
+		}
 
 		return $qb;
 	}

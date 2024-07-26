@@ -2,11 +2,9 @@
 
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Enum\Importance;
+use PhpSentinel\BugCatcher\DTO\NotifierStatus;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
 use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
-use PhpSentinel\BugCatcher\Service\DashboardStatus;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
@@ -15,8 +13,6 @@ final class LogCount extends AbsComponent {
 
 	public function __construct(
 		private readonly RecordLogRepository $recordRepo,
-		private readonly DashboardStatus    $status,
-		private readonly NotifierRepository $notifierRepo
 	) {}
 
 	public function getCount(): int {
@@ -24,17 +20,6 @@ final class LogCount extends AbsComponent {
 			"project" => $this->project,
 			"status"  => 'new',
 		]);
-		$favIconNotifiers = $this->project->findNotifiers(NotifierFavicon::class, Importance::Low);
-		$favIconNotifier = $favIconNotifiers->findFirst(function (int $i, NotifierFavicon $notifier) {
-			return $notifier->getComponent() === 'LogCount';
-		});
-		if ($favIconNotifier) {
-			if ($count && $this->notifierRepo->shouldNotify($favIconNotifier, false)) {
-				$this->status->incrementImportance(Importance::Medium, $count, $favIconNotifier->getThreshold());
-			} else {
-				$this->notifierRepo->stopNotify($favIconNotifier);
-			}
-		}
 
 		return $count;
 	}

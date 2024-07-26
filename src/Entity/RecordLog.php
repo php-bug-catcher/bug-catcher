@@ -79,4 +79,7 @@ class RecordLog extends Record {
 	}
 
 
+	function isError(): bool {
+		return true;
+	}
 }

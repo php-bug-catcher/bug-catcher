@@ -5,10 +5,7 @@
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
     <entity name="PhpSentinel\BugCatcher\Entity\NotifierFavicon" repository-class="PhpSentinel\BugCatcher\Repository\NotifierRepository">
-        <field name="threshold" type="integer" nullable="false">
-        </field>
 
-        <field name="component" type="string" length="255" nullable="true">
-        </field>
+
     </entity>
 </doctrine-mapping>

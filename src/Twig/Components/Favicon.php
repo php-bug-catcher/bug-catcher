@@ -7,8 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Enum\BootstrapColor;
-use PhpSentinel\BugCatcher\Service\DashboardStatus;
+use PhpSentinel\BugCatcher\DTO\NotifierStatus;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -19,10 +18,9 @@ class Favicon {
 	public string $id = "";
 
 	public function __construct(
-		private readonly Packages      $assetManager,
-		private readonly DashboardStatus $status,
+		private readonly Packages $assetManager,
 		#[Autowire(param: 'logo')]
-		private readonly string $logo
+		private readonly string   $logo
 	) {
 		$this->id = uniqid();
 	}

@@ -7,13 +7,10 @@
  */
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
 use PhpSentinel\BugCatcher\Entity\NotifierSound;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
 use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
-use PhpSentinel\BugCatcher\Service\DashboardStatus;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;

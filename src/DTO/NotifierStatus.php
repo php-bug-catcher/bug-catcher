@@ -5,12 +5,12 @@
  * Date: 7. 6. 2024
  * Time: 18:07
  */
-namespace PhpSentinel\BugCatcher\Service;
+namespace PhpSentinel\BugCatcher\DTO;
 
 use PhpSentinel\BugCatcher\Enum\BootstrapColor;
 use PhpSentinel\BugCatcher\Enum\Importance;
 
-class DashboardStatus {
+class NotifierStatus {
 
 	/** @var array<Importance, Importance> */
 	private array $importances = [];

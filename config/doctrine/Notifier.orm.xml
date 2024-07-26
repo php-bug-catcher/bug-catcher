@@ -53,6 +53,8 @@
         <field name="firstOkStatus" type="datetime_immutable" nullable="true"/>
 
         <field name="lastOkStatusCount" type="integer" nullable="false"/>
+        <field name="component" type="string" length="255" nullable="true"/>
+        <field name="threshold" type="integer" nullable="false"/>
 
 
         <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="notifiers">

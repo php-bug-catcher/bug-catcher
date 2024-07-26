@@ -5,6 +5,7 @@ namespace PhpSentinel\BugCatcher\Entity;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
+use Symfony\Component\HttpFoundation\Response;
 
 #[ORM\Entity(repositoryClass: RecordPingRepository::class)]
 class RecordPing extends Record {
@@ -38,5 +39,9 @@ class RecordPing extends Record {
 
 	function getComponentName(): string {
 		return "RecordLog";
+	}
+
+	function isError(): bool {
+		return $this->getStatus() == Response::HTTP_OK;
 	}
 }

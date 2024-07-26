@@ -2,6 +2,7 @@
 
 namespace PhpSentinel\BugCatcher\Entity;
 
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,7 +26,7 @@ abstract class Notifier {
 
 	protected ?int $delayInterval = null;
 
-	protected ?\DateTimeInterface $lastFailedStatus = null;
+	protected ?DateTimeInterface $lastFailedStatus = null;
 	protected int $failedStatusCount = 0;
 
 	protected NotifyRepeat $repeat = NotifyRepeat::FrequencyRecords;
@@ -37,15 +38,32 @@ abstract class Notifier {
 
 	protected ?int $clearInterval = null;
 
-	protected ?\DateTimeInterface $lastNotified = null;
+	protected ?DateTimeInterface $lastNotified = null;
 
-	protected ?\DateTimeInterface $firstOkStatus = null;
+	protected ?DateTimeInterface $firstOkStatus = null;
 
 	protected int $lastOkStatusCount = 0;
 
 	protected Collection $projects;
 
 
+	#[Assert\NotNull()]
+	private ?string $component = null;
+
+
+	#[Assert\NotBlank()]
+	#[Assert\Length(min: 1, max: 99999)]
+	private ?int $threshold = 0;
+
+	public function getThreshold(): int {
+		return $this->threshold;
+	}
+
+	public function setThreshold(int $threshold): self {
+		$this->threshold = $threshold;
+
+		return $this;
+	}
 
 	public function getRepeat(): NotifyRepeat {
 		return $this->repeat;
@@ -87,21 +105,21 @@ abstract class Notifier {
 		return $this;
 	}
 
-	public function getLastNotified(): ?\DateTimeInterface {
+	public function getLastNotified(): ?DateTimeInterface {
 		return $this->lastNotified;
 	}
 
-	public function setLastNotified(?\DateTimeInterface $lastNotified): self {
+	public function setLastNotified(?DateTimeInterface $lastNotified): self {
 		$this->lastNotified = $lastNotified;
 
 		return $this;
 	}
 
-	public function getFirstOkStatus(): ?\DateTimeInterface {
+	public function getFirstOkStatus(): ?DateTimeInterface {
 		return $this->firstOkStatus;
 	}
 
-	public function setFirstOkStatus(?\DateTimeInterface $firstOkStatus): self {
+	public function setFirstOkStatus(?DateTimeInterface $firstOkStatus): self {
 		$this->firstOkStatus = $firstOkStatus;
 
 		return $this;
@@ -156,11 +174,11 @@ abstract class Notifier {
 		return $this;
 	}
 
-	public function getLastFailedStatus(): ?\DateTimeInterface {
+	public function getLastFailedStatus(): ?DateTimeInterface {
 		return $this->lastFailedStatus;
 	}
 
-	public function setLastFailedStatus(?\DateTimeInterface $lastFailedStatus): self {
+	public function setLastFailedStatus(?DateTimeInterface $lastFailedStatus): self {
 		$this->lastFailedStatus = $lastFailedStatus;
 
 		return $this;
@@ -218,6 +236,16 @@ abstract class Notifier {
 
 	public function setLastOkStatusCount(int $lastOkStatusCount): self {
 		$this->lastOkStatusCount = $lastOkStatusCount;
+
+		return $this;
+	}
+
+	public function getComponent(): ?string {
+		return $this->component;
+	}
+
+	public function setComponent(?string $component): self {
+		$this->component = $component;
 
 		return $this;
 	}

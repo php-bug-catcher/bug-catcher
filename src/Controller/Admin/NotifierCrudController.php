@@ -9,14 +9,22 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use PhpSentinel\BugCatcher\Entity\NotifierEmail;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class NotifierCrudController extends AbstractCrudController {
 
 	public function configureFields(string $pageName): iterable {
+		$parameterBag = $this->container->get(ParameterBagInterface::class);
+		$components   = $parameterBag->get('notifier_components');
+		if (array_is_list($components)) {
+			$components = array_combine($components, $components);
+		}
 		return [
 			FormField::addFieldset('Basic settings'),
 			TextField::new('name')->setColumns(3),
 			ChoiceField::new('minimalImportance')->setColumns(3),
+			NumberField::new('threshold')->setColumns(3),
+			ChoiceField::new("component")->setChoices($components)->setColumns(3)->setRequired(true),
 			AssociationField::new('projects')->setColumns(12)->onlyOnForms(),
 			FormField::addFieldset('Timing settings'),
 			ChoiceField::new('delay')->setColumns(3),
@@ -27,5 +35,13 @@ abstract class NotifierCrudController extends AbstractCrudController {
 			NumberField::new('clearInterval')->setColumns(3),
 		];
 	}
+
+	public static function getSubscribedServices(): array {
+		$services                               = parent::getSubscribedServices();
+		$services[ParameterBagInterface::class] = ParameterBagInterface::class;
+
+		return $services;
+	}
+
 
 }

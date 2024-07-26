@@ -109,4 +109,6 @@ abstract class Record {
 
 	abstract function getComponentName(): string;
 
+	abstract function isError(): bool;
+
 }
