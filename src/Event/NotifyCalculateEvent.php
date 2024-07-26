@@ -14,8 +14,21 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class NotifyCalculateEvent extends Event {
 
+	/**
+	 * @var NotifierStatus[]
+	 */
+	private array $statuses = [];
+
 	public function __construct(
-		public readonly Notifier            $notifier,
-		public readonly NotifierStatus      $status,
+		public readonly Notifier $notifier,
 	) {}
+
+	public function addStatus(NotifierStatus $status): void {
+		$this->statuses[] = $status;
+	}
+
+	public function getStatuses(): array {
+		return $this->statuses;
+	}
+
 }

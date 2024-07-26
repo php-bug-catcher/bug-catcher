@@ -7,7 +7,8 @@
  */
 namespace PhpSentinel\BugCatcher\EventSubscriber;
 
-use PhpSentinel\BugCatcher\DTO\NotifierStatus;
+use PhpSentinel\BugCatcher\Event\NotifyAfterEvent;
+use PhpSentinel\BugCatcher\Event\NotifyBeforeEvent;
 use PhpSentinel\BugCatcher\Event\NotifyCalculateEvent;
 use PhpSentinel\BugCatcher\Event\NotifyEvent;
 use PhpSentinel\BugCatcher\Event\RecordEvent;
@@ -24,23 +25,32 @@ class RecordListener {
 
 	public function __invoke(RecordEvent $event): void {
 
-		$status    = new NotifierStatus();
 		$notifiers = $this->notifierRepo->findAll();
+		/** @var NotifyCalculateEvent[] $events */
+		$events = [];
 		foreach ($notifiers as $notifier) {
-			$this->dispatcher->dispatch(new NotifyCalculateEvent(
-				$notifier,
-				$status,
-			));
+			$event    = new NotifyCalculateEvent($notifier);
+			$events[] = $event;
+			$this->dispatcher->dispatch($event);
 		}
-		$importance = $status->getImportance();
-		foreach ($notifiers as $notifier) {
+		foreach ($events as $event) {
+			$this->dispatcher->dispatch(new NotifyBeforeEvent($event->notifier));
+		}
+		foreach ($events as $event) {
+			$notifier = $event->notifier;
 			if ($this->notifierRepo->shouldNotify($notifier, false)) {
-				if ($notifier->getMinimalImportance()->isHigherOrEqual($importance)) {
-					$this->dispatcher->dispatch(new NotifyEvent($notifier, $importance));
+				foreach ($event->getStatuses() as $status) {
+					$importance = $status->getImportance();
+					if ($notifier->getMinimalImportance()->isHigherOrEqual($importance)) {
+						$this->dispatcher->dispatch(new NotifyEvent($notifier, $importance));
+					}
 				}
 			} else {
 				$this->notifierRepo->stopNotify($notifier);
 			}
+		}
+		foreach ($events as $event) {
+			$this->dispatcher->dispatch(new NotifyAfterEvent($event->notifier));
 		}
 	}
 

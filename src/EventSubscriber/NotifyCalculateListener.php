@@ -7,6 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\EventSubscriber;
 
+use PhpSentinel\BugCatcher\DTO\NotifierStatus;
 use PhpSentinel\BugCatcher\Entity\Project;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Event\NotifyCalculateEvent;
@@ -39,6 +40,8 @@ class NotifyCalculateListener {
 
 	private function calculateProjectErrors(NotifyCalculateEvent $event, array $projects): void {
 
+		$status = new NotifierStatus();
+		$event->addStatus($status);
 
 		$records = $this->recordRepo->createQueryBuilder("record")
 //				->from(Record::class, "record")
@@ -51,11 +54,14 @@ class NotifyCalculateListener {
 			->groupBy("record.project")
 			->getQuery()->enableResultCache(10)->getResult();
 		foreach ($records as $record) {
-			$event->status->incrementImportance(Importance::Normal, $record['count'], $event->notifier->getThreshold());
+			$status->incrementImportance(Importance::Normal, $record['count'], $event->notifier->getThreshold());
 		}
 	}
 
 	private function calculateSameErrors(NotifyCalculateEvent $event, array $projects): void {
+		$status = new NotifierStatus();
+		$event->addStatus($status);
+
 		$records = $this->recordRepo->createQueryBuilder("record")
 //			->from(Record::class, "record")
 			->select("COUNT(record) as count")
@@ -67,7 +73,7 @@ class NotifyCalculateListener {
 			->getQuery()->enableResultCache(10)->getResult();
 
 		foreach ($records as $record) {
-			$event->status->incrementImportance(Importance::High, $record['count'], $event->notifier->getThreshold());
+			$status->incrementImportance(Importance::High, $record['count'], $event->notifier->getThreshold());
 		}
 	}
 

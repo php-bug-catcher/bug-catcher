@@ -8,15 +8,12 @@
 namespace PhpSentinel\BugCatcher\Event;
 
 use PhpSentinel\BugCatcher\Entity\Notifier;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Enum\Importance;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NotifyEvent extends Event {
+class NotifyAfterEvent extends Event {
 
 
 	public function __construct(
-		public readonly Notifier   $notifier,
-		public readonly Importance $importance
+		public readonly Notifier $notifier,
 	) {}
 }
