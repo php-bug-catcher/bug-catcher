@@ -42,7 +42,7 @@ class RecordListener {
 				foreach ($event->getStatuses() as $status) {
 					$importance = $status->getImportance();
 					if ($notifier->getMinimalImportance()->isHigherOrEqual($importance)) {
-						$this->dispatcher->dispatch(new NotifyEvent($notifier, $importance));
+						$this->dispatcher->dispatch(new NotifyEvent($notifier, $importance, $status->project));
 					}
 				}
 			} else {

@@ -7,6 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\DTO;
 
+use PhpSentinel\BugCatcher\Entity\Project;
 use PhpSentinel\BugCatcher\Enum\BootstrapColor;
 use PhpSentinel\BugCatcher\Enum\Importance;
 
@@ -15,6 +16,14 @@ class NotifierStatus {
 	/** @var array<Importance, Importance> */
 	private array $importances = [];
 	private array $increments = [];
+
+	/**
+	 * @param Importance[] $importances
+	 */
+	public function __construct(
+		public readonly Project $project
+	) {}
+
 
 	public function levelUp(Importance $group): void {
 		if (!array_key_exists($group->value, $this->importances)) {

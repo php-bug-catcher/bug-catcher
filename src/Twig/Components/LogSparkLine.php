@@ -47,6 +47,7 @@ from record_log
 join record r on r.id = record_log.id
 where project_id=:project and `date` > :date
 group by period
+order by period
 SQL;
 		$stm     = $this->em->getConnection()
 			->prepare($sql);

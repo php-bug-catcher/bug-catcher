@@ -85,21 +85,33 @@ class LogListTest extends KernelTestCase {
 	}
 
 	public function testClearAll() {
+		$user = UserFactory::createOne([
+		]);
+		ProjectFactory::createMany(3, [
+			"users"   => new ArrayCollection([$user->_real()]),
+			"enabled" => true,
+		]);
+		$user->_refresh();
+		$this->loginUser($user->_real());
 		RecordLogFactory::createMany(15, [
 			"date"   => new DateTime("2022-01-01 00:00:00"),
 			"status" => "new",
+			"project" => ProjectFactory::random(),
 		]);
 		RecordLogFactory::createMany(5, [
 			"date"   => new DateTime("2022-01-01 00:00:00"),
 			"status" => "status-to-not-to-be-deleted",
+			"project" => ProjectFactory::random(),
 		]);
 		RecordLogTraceFactory::createMany(15, [
 			"date"   => new DateTime("2022-01-01 00:10:00"),
 			"status" => "new",
+			"project" => ProjectFactory::random(),
 		]);
 		RecordLogFactory::createMany(10, [
 			"date"   => new DateTime("2022-02-01 00:00:00"),
 			"status" => "new",
+			"project" => ProjectFactory::random(),
 		]);
 		$this->assertSame(45, RecordLogFactory::count());
 

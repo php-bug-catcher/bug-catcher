@@ -17,6 +17,7 @@ class NotifyEvent extends Event {
 
 	public function __construct(
 		public readonly Notifier   $notifier,
-		public readonly Importance $importance
+		public readonly Importance $importance,
+		public readonly Project    $project
 	) {}
 }

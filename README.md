@@ -217,6 +217,8 @@ See [docs/extending.md](docs/extending.md) for more information on how to extend
 
 See [docs/custom_record.md](docs/custom_record.md) for more information on how to create custom record items.
 
+See [docs/notifiers.md](docs/notifiers.md) for more information on how to create custom notifiers.
+
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to
