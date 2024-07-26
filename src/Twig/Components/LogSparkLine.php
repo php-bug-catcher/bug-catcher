@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
@@ -49,7 +50,7 @@ group by period
 SQL;
 		$stm     = $this->em->getConnection()
 			->prepare($sql);
-		$stm->bindValue("project", $this->project->getId()->toHex(), ParameterType::INTEGER);
+		$stm->bindValue("project", $this->project->getId(), UuidType::NAME);
 		$stm->bindValue("date", $maxDate->format("Y-m-d H:i:s"));
 		$rows    = $stm->executeQuery()->fetchAllAssociative();
 		$indexed = array_map(fn(array $row) => new SparkLineInterval($row["cnt"], new DateTimeImmutable($row["period"])), $rows);
