@@ -1,3 +1,5 @@
+![Tests](https://github.com/php-sentinel/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+
 # Catch every bug in all your PHP applications in one place
 
 <p align="center">
