@@ -42,6 +42,6 @@ class RecordPing extends Record {
 	}
 
 	function isError(): bool {
-		return $this->getStatus() == Response::HTTP_OK;
+		return $this->getStatus() != Response::HTTP_OK;
 	}
 }
