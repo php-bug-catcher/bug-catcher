@@ -41,7 +41,7 @@ final class LogSparkLine extends AbsComponent {
 		$sql     = <<<SQL
 select
     count(*) as cnt ,
-    concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$this->minutes})*{$this->minutes})*60),'%i'),':00') as period
+    concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME((ROUND(DATE_FORMAT(`date`,'%i') / {$this->minutes},0)*{$this->minutes})*60),'%i'),':00') as period
 from record_log
 join record r on r.id = record_log.id
 where project_id=:project and `date` > :date
