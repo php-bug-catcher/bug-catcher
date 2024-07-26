@@ -56,7 +56,7 @@ jobs:
           run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       -   name: set sql mode
-          run: mysqld "SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+          run: mysql -uroot -psymfony -e "SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
 
       -   name: Install PHPUnit
           run: simple-phpunit install
