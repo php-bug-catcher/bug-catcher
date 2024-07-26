@@ -20,6 +20,6 @@ final class ProjectStatus extends AbsComponent {
 		}
 		$ping = $this->recordRepo->getLastRecord($this->project);
 
-		return $ping?->isError();
+		return $ping?->isError()??false;
 	}
 }

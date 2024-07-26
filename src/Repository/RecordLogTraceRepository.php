@@ -13,6 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
 use PhpSentinel\BugCatcher\Entity\RecordStatus;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @method RecordLogTrace|null find($id, $lockMode = null, $lockVersion = null)
@@ -23,9 +24,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class RecordLogTraceRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
+		EventDispatcherInterface $dispatcher,
 		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
 		protected bool $clearStackTrace) {
-		parent::__construct($registry, RecordLogTrace::class);
+		parent::__construct($registry, $dispatcher, RecordLogTrace::class);
 	}
 
 	protected function getUpdateStatusQB($newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {

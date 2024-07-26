@@ -2,12 +2,14 @@
 
 namespace PhpSentinel\BugCatcher\Repository;
 
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\Project;
 use PhpSentinel\BugCatcher\Entity\RecordPing;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @extends ServiceEntityRepository<RecordPing>
@@ -18,8 +20,8 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
  * @method RecordPing[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class RecordPingRepository extends RecordRepository {
-	public function __construct(ManagerRegistry $registry) {
-		parent::__construct($registry, RecordPing::class);
+	public function __construct(ManagerRegistry $registry, EventDispatcherInterface $dispatcher) {
+		parent::__construct($registry, $dispatcher, RecordPing::class);
 	}
 
 	public function save(RecordPing $entity, bool $flush = false): void {
@@ -59,7 +61,7 @@ class RecordPingRepository extends RecordRepository {
 		return $this->getQBWith(project: $project)
 			->andWhere("r.date >= :date")
 			->orderBy('r.date', 'DESC')
-			->setParameter('date', new \DateTime($maxLife))
+			->setParameter('date', new DateTime($maxLife))
 			->setMaxResults(1)
 			->getQuery()
 			->getOneOrNullResult();

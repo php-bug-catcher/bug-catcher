@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Entity\RecordLog;
 use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @extends ServiceEntityRepository<Record>
@@ -20,8 +21,9 @@ use PhpSentinel\BugCatcher\Entity\RecordStatus;
 class RecordLogRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
+		EventDispatcherInterface $dispatcher
 	) {
-		parent::__construct($registry, RecordLog::class);
+		parent::__construct($registry, $dispatcher, RecordLog::class);
 	}
 
 	public function save(Record $entity, bool $flush = false): void {

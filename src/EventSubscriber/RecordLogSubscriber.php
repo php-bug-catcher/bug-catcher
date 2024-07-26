@@ -13,6 +13,8 @@ use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Entity\RecordLog;
 use PhpSentinel\BugCatcher\Entity\RecordPing;
 use PhpSentinel\BugCatcher\Enum\Importance;
+use PhpSentinel\BugCatcher\Enum\RecordEventType;
+use PhpSentinel\BugCatcher\Event\RecordEvent;
 use PhpSentinel\BugCatcher\Event\RecordRecordedEvent;
 use PhpSentinel\BugCatcher\Repository\RecordRepository;
 use PhpSentinel\BugCatcher\Service\RecordLogWithholder;
@@ -29,7 +31,6 @@ class RecordLogSubscriber implements EventSubscriberInterface {
 
 
 	public function __construct(
-		private readonly RecordRepository         $recordRepo,
 		private readonly RecordLogWithholder      $withholder,
 		private readonly EventDispatcherInterface $dispatcher
 	) {}
@@ -48,25 +49,7 @@ class RecordLogSubscriber implements EventSubscriberInterface {
 			$this->withholder->process($record);
 		}
 		if ($record instanceof Record && Request::METHOD_POST == $method) {
-			if ($record->getStatus() == "resolved") {
-				$count            = 0;
-				$sameProjectCount = 0;
-			} else {
-				$count            = $this->recordRepo->count([
-					"hash"    => $record->getHash(),
-					"project" => $record->getProject(),
-					"status"  => $record->getStatus(),
-				]);
-				$sameProjectCount = $this->recordRepo->count([
-					"project" => $record->getProject(),
-					"status"  => $record->getStatus(),
-				]);
-			}
-			$this->dispatcher->dispatch(new RecordRecordedEvent(
-				$record,
-				$count,
-				$sameProjectCount
-			));
+			$this->dispatcher->dispatch(new RecordEvent($record, RecordEventType::CREATED));
 		}
 	}
 }

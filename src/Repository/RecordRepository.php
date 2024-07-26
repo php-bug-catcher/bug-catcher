@@ -11,8 +11,11 @@ use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpSentinel\BugCatcher\Entity\Project;
 use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use PhpSentinel\BugCatcher\Enum\RecordEventType;
+use PhpSentinel\BugCatcher\Event\RecordEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @method Record|null find($id, $lockMode = null, $lockVersion = null)
@@ -21,16 +24,26 @@ use PhpSentinel\BugCatcher\Entity\RecordStatus;
  * @method Record[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class RecordRepository extends ServiceEntityRepository {
-	public function __construct(ManagerRegistry $registry, $class = Record::class) {
+	public function __construct(
+		ManagerRegistry                    $registry,
+		protected EventDispatcherInterface $dispatcher,
+										   $class = Record::class
+	) {
 		parent::__construct($registry, $class);
 	}
 
-	public function setStatusOlderThan(DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
+	/**
+	 * @param Project[] $projects
+	 */
+	public function setStatusOlderThan(array $projects, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 
 		$qb
+			->andWhere("l.project IN (:projects)")
+			->setParameter('projects', array_map(fn(Project $s) => $s->getId()->toBinary(), $projects))
 			->getQuery()
 			->execute();
+		$this->dispatcher->dispatch(new RecordEvent(null, RecordEventType::BATCH_UPDATED, $projects));
 	}
 
 	public function setStatus(Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
@@ -40,6 +53,7 @@ class RecordRepository extends ServiceEntityRepository {
 			->setParameter('hash', $log->getHash())
 			->getQuery()
 			->execute();
+		$this->dispatcher->dispatch(new RecordEvent($log, RecordEventType::UPDATED, [$log->getProject()]));
 	}
 
 	protected function getUpdateStatusQB(string $newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {

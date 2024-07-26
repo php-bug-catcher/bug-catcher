@@ -9,6 +9,7 @@ use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Entity\RecordLog;
 use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
 use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @extends ServiceEntityRepository<RecordLogWithholder>
@@ -21,8 +22,9 @@ use PhpSentinel\BugCatcher\Entity\RecordStatus;
 class RecordLogWithholderRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
+		EventDispatcherInterface $dispatcher,
 	) {
-		parent::__construct($registry, RecordLogWithholder::class);
+		parent::__construct($registry, $dispatcher, RecordLogWithholder::class);
 	}
 
 }

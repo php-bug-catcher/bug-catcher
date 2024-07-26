@@ -10,12 +10,7 @@ namespace PhpSentinel\BugCatcher\Event;
 use PhpSentinel\BugCatcher\Entity\Record;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class RecordRecordedEvent extends Event {
+class RecordRecordedEvent extends AbsRecordEvent {
 
 
-	public function __construct(
-		public readonly Record $record,
-		public readonly int    $sameRecordCount,
-		public readonly int    $sameProjectCount,
-	) {}
 }

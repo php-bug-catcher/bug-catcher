@@ -8,6 +8,7 @@
 namespace PhpSentinel\BugCatcher\Twig\Components;
 
 use PhpSentinel\BugCatcher\DTO\NotifierStatus;
+use PhpSentinel\BugCatcher\Enum\Importance;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -27,7 +28,7 @@ class Favicon {
 
 
 	public function getIcon(): string {
-		$color = $this->status->getImportance()->getColor()->value;
+		$color = Importance::Normal->value;
 
 		return $this->assetManager->getUrl("/assets/logo/{$this->logo}/icon-{$color}.svg", 'bug_catcher');
 	}
