@@ -40,15 +40,17 @@ class DashboardImportance {
 		if ($importance === null) {
 			return;
 		}
-		file_put_contents($this->cacheDir . "/importance-$group.json", serialize($importance));
+		$group = substr(md5($group), 0, 8);
+		file_put_contents($this->cacheDir . "/importance-$group.txt", serialize($importance));
 	}
 
 	#[ArrayShape(['importance' => "PhpSentinel\BugCatcher\Enum\Importance", 'notifier' => "PhpSentinel\BugCatcher\Entity\Notifier"])]
 	public function load(string $group): ?array {
-		if (!file_exists($this->cacheDir . "/importance-$group.json")) {
+		$group = substr(md5($group), 0, 8);
+		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {
 			return null;
 		}
 
-		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.json"));
+		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.txt"));
 	}
 }

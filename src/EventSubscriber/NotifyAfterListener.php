@@ -21,7 +21,7 @@ class NotifyAfterListener {
 
 	public function __invoke(NotifyAfterEvent $event): void {
 		if ($event->notifier instanceof NotifierFavicon || $event->notifier instanceof NotifierSound) {
-			$this->importance->save($event::class);
+			$this->importance->save($event->notifier::class);
 		}
 	}
 

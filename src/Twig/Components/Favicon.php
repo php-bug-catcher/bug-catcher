@@ -32,10 +32,10 @@ class Favicon {
 
 	public function getIcon(): string {
 		/** @var NotifierFavicon $notifier */
-		[$importance, $notifier] = $this->importance->load(NotifierSound::class);
-		$color = Importance::min()->value;
+		[$importance, $notifier] = array_values($this->importance->load(NotifierFavicon::class));
+		$color = Importance::min()->getColor()->value;
 		if ($importance) {
-			$color = $importance->value;
+			$color = $importance->getColor()->value;
 		}
 
 		return $this->assetManager->getUrl("/assets/logo/{$this->logo}/icon-{$color}.svg", 'bug_catcher');
