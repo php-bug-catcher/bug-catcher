@@ -1,47 +1,64 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Tests
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
-
+# GitHub Action for Symfony with MySQL
+name: Testing Symfony with MySQL
+on: [ push, pull_request ]
 jobs:
-  symfony-tests:
+  symfony:
+    name: Symfony (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: symfony
+          MYSQL_DATABASE: symfony
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ '8.1',"8.2","8.3" ]
     steps:
-    #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
-    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
-    # uses: shivammathur/setup-php@v2
-    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
-      with:
-        php-version: '8.3'
-    - uses: actions/checkout@v4
-    - name: Copy .env.test.local
-      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    - name: Create Database
-      run: |
-        mkdir -p data
-        touch data/database.sqlite
-    - name: Execute tests (Unit and Feature tests) via PHPUnit
-      env:
-        DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-      run: vendor/bin/phpunit
+      -   name: Checkout
+          uses: actions/checkout@v4
+
+      # Docs: https://github.com/shivammathur/setup-php
+      -   name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+            php-version: ${{ matrix.php-versions }}
+            tools: phpunit-bridge
+            extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
+            coverage: xdebug
+
+      # Local MySQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start mysql service
+      #   run: sudo systemctl start mysql.service
+
+      -   name: Get composer cache directory
+          id: composer-cache
+          run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      -   name: Cache composer dependencies
+          uses: actions/cache@v3
+          with:
+            path: ${{ steps.composer-cache.outputs.dir }}
+            # Use composer.json for key, if composer.lock is not committed.
+            # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+            key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+            restore-keys: ${{ runner.os }}-composer-
+
+      -   name: Install Composer dependencies
+          run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      -   name: Install PHPUnit
+          run: simple-phpunit install
+
+      -   name: Run tests
+          env:
+            DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
+          run: simple-phpunit --coverage-text
