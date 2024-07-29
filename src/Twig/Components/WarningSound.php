@@ -26,7 +26,7 @@ class WarningSound extends AbsComponent  {
 
 	public function getSound(): ?string {
 		/** @var NotifierSound $notifier */
-		[$importance, $notifier] = $this->importance->load(NotifierSound::class);
+		[$importance, $notifier] = array_values($this->importance->load(NotifierSound::class));
 		if (!$importance) {
 			return null;
 		}

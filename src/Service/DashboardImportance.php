@@ -48,7 +48,7 @@ class DashboardImportance {
 	public function load(string $group): ?array {
 		$group = substr(md5($group), 0, 8);
 		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {
-			return null;
+			return ["importance" => null, "notifier" => null];
 		}
 
 		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.txt"));
