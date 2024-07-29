@@ -49,7 +49,7 @@ class RecordLogSubscriber implements EventSubscriberInterface {
 			$this->withholder->process($record);
 		}
 		if ($record instanceof Record && Request::METHOD_POST == $method) {
-			$this->dispatcher->dispatch(new RecordEvent($record, RecordEventType::CREATED));
+			$this->dispatcher->dispatch(new RecordEvent($record, RecordEventType::CREATED, [$record->getProject()]));
 		}
 	}
 }
