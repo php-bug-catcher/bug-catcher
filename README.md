@@ -23,6 +23,19 @@
 - **Withholding**. You can hide errors until they reach a configured threshold.
 - **Automatic cleanup**. Stack trace is optional and is cleaned up after the error is fixed.
 
+### Roadmap
+
+- [x] Make it work
+- [x] Create notification system
+- [x] Create basic tests
+- [ ] Make more tests
+- [ ] Autoconfiguration
+- [ ] Create Flex recipe
+- [ ] Release first version
+- [ ] Email notification component
+- [ ] Ping history graph component
+- [ ] Errors history graph component
+
 ## Installation
 
 **Create blank symfony project**
