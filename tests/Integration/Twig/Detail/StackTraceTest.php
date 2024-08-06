@@ -11,7 +11,7 @@ namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
 use Exception;
 use Kregel\ExceptionProbe\Codeframe;
 use PhpSentinel\BugCatcher\Factory\RecordLogTraceFactory;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\Detail\StackTrace;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;

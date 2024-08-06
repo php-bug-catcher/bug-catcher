@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PhpSentinel\BugCatcher\Factory\ProjectFactory;
 use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
 use PhpSentinel\BugCatcher\Twig\Components\LogSparkLine;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;

@@ -8,7 +8,7 @@
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
 
 use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\Detail\HistoryList;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;

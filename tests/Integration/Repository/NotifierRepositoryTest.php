@@ -10,7 +10,7 @@ namespace PhpSentinel\BugCatcher\Tests\Integration\Repository;
 use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 
 class NotifierRepositoryTest extends KernelTestCase {
 

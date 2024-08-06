@@ -16,7 +16,7 @@ use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
 use PhpSentinel\BugCatcher\Factory\RecordLogTraceFactory;
 use PhpSentinel\BugCatcher\Factory\RecordPingFactory;
 use PhpSentinel\BugCatcher\Factory\UserFactory;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\LogList;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
