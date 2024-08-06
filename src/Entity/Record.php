@@ -17,6 +17,7 @@ abstract class Record {
 	#[Assert\NotBlank()]
 	protected ?DateTimeInterface $date = null;
 
+	#[Assert\NotNull(groups: ['Default'])]
 	protected ?Project $project = null;
 
 	protected string $status = 'new';

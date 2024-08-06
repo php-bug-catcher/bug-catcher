@@ -73,4 +73,25 @@ class Kernel extends BaseKernel {
 		}
 	}
 
+	public function __destruct() {
+		//remove entire cache dir recursively
+		$this->removeDir($this->getCacheDir());
+	}
+
+	private function removeDir(string $dir): void {
+		$files = scandir($dir);
+		foreach ($files as $file) {
+			if ($file === '.' || $file === '..') {
+				continue;
+			}
+			if (is_dir($dir . '/' . $file)) {
+				$this->removeDir($dir . '/' . $file);
+			} else {
+				unlink($dir . '/' . $file);
+			}
+		}
+		rmdir($dir);
+	}
+
+
 }
