@@ -1,16 +1,16 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
+use PhpSentinel\BugCatcher\Entity\NotifierSound;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<NotifierFavicon>
+ * @extends PersistentProxyObjectFactory<NotifierSound>
  */
-final class NotifierFaviconFactory extends PersistentProxyObjectFactory {
+final class NotifierSoundFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -19,7 +19,7 @@ final class NotifierFaviconFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return NotifierFavicon::class;
+		return NotifierSound::class;
 	}
 
 	/**
@@ -32,11 +32,11 @@ final class NotifierFaviconFactory extends PersistentProxyObjectFactory {
 			'clearAt'           => self::faker()->randomElement(NotifyRepeat::cases()),
 			'delay'             => self::faker()->randomElement(NotifyRepeat::cases()),
 			'failedStatusCount' => self::faker()->randomNumber(),
+			'file'              => self::faker()->text(255),
 			'lastOkStatusCount' => self::faker()->randomNumber(),
 			'minimalImportance' => self::faker()->randomElement(Importance::cases()),
 			'name'              => self::faker()->text(255),
 			'repeat'            => self::faker()->randomElement(NotifyRepeat::cases()),
-			'threshold'         => self::faker()->randomNumber(),
 		];
 	}
 
@@ -44,7 +44,7 @@ final class NotifierFaviconFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(NotifierFavicon $notifierFavicon): void {})
+		return $this// ->afterInstantiate(function(NotifierSound $notifierSound): void {})
 			;
 	}
 }

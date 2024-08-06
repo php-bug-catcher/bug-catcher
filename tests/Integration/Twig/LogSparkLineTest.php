@@ -7,12 +7,11 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig;
 
+use App\Factory\ProjectFactory;
+use App\Factory\RecordLogFactory;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use PhpSentinel\BugCatcher\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
-use PhpSentinel\BugCatcher\Twig\Components\LogSparkLine;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
+use PhpSentinel\BugCatcher\Twig\Components\LogSparkLine;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;

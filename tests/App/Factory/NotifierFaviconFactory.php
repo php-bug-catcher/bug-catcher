@@ -1,16 +1,16 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
+use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<NotifierEmail>
+ * @extends PersistentProxyObjectFactory<NotifierFavicon>
  */
-final class NotifierEmailFactory extends PersistentProxyObjectFactory {
+final class NotifierFaviconFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -19,7 +19,7 @@ final class NotifierEmailFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return NotifierEmail::class;
+		return NotifierFavicon::class;
 	}
 
 	/**
@@ -31,12 +31,12 @@ final class NotifierEmailFactory extends PersistentProxyObjectFactory {
 		return [
 			'clearAt'           => self::faker()->randomElement(NotifyRepeat::cases()),
 			'delay'             => self::faker()->randomElement(NotifyRepeat::cases()),
-			'email'             => self::faker()->text(255),
 			'failedStatusCount' => self::faker()->randomNumber(),
 			'lastOkStatusCount' => self::faker()->randomNumber(),
 			'minimalImportance' => self::faker()->randomElement(Importance::cases()),
 			'name'              => self::faker()->text(255),
 			'repeat'            => self::faker()->randomElement(NotifyRepeat::cases()),
+			'threshold'         => self::faker()->randomNumber(),
 		];
 	}
 
@@ -44,7 +44,7 @@ final class NotifierEmailFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(NotifierEmail $notifierEmail): void {})
+		return $this// ->afterInstantiate(function(NotifierFavicon $notifierFavicon): void {})
 			;
 	}
 }

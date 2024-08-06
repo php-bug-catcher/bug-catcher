@@ -1,14 +1,14 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
+use PhpSentinel\BugCatcher\Entity\RecordLog;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<RecordLogWithholder>
+ * @extends PersistentProxyObjectFactory<RecordLog>
  */
-final class RecordLogWithholderFactory extends PersistentProxyObjectFactory {
+final class RecordLogFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -17,7 +17,7 @@ final class RecordLogWithholderFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return RecordLogWithholder::class;
+		return RecordLog::class;
 	}
 
 	/**
@@ -27,9 +27,12 @@ final class RecordLogWithholderFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'name'    => self::faker()->text(255),
-			'project' => ProjectFactory::new(),
-			'regex'   => self::faker()->text(755),
+			'date'       => self::faker()->dateTime(),
+			'level'      => self::faker()->randomNumber(),
+			'message'    => self::faker()->text(),
+			'project'    => ProjectFactory::new(),
+			'requestUri' => self::faker()->text(1500),
+			'status'     => self::faker()->text(50),
 		];
 	}
 
@@ -37,7 +40,7 @@ final class RecordLogWithholderFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(RecordLogWithholder $recordLogWithholder): void {})
+		return $this// ->afterInstantiate(function(RecordLog $recordLog): void {})
 			;
 	}
 }

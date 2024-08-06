@@ -1,16 +1,16 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\NotifierSound;
+use PhpSentinel\BugCatcher\Entity\NotifierEmail;
 use PhpSentinel\BugCatcher\Enum\Importance;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<NotifierSound>
+ * @extends PersistentProxyObjectFactory<NotifierEmail>
  */
-final class NotifierSoundFactory extends PersistentProxyObjectFactory {
+final class NotifierEmailFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -19,7 +19,7 @@ final class NotifierSoundFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return NotifierSound::class;
+		return NotifierEmail::class;
 	}
 
 	/**
@@ -31,8 +31,8 @@ final class NotifierSoundFactory extends PersistentProxyObjectFactory {
 		return [
 			'clearAt'           => self::faker()->randomElement(NotifyRepeat::cases()),
 			'delay'             => self::faker()->randomElement(NotifyRepeat::cases()),
+			'email'             => self::faker()->text(255),
 			'failedStatusCount' => self::faker()->randomNumber(),
-			'file'              => self::faker()->text(255),
 			'lastOkStatusCount' => self::faker()->randomNumber(),
 			'minimalImportance' => self::faker()->randomElement(Importance::cases()),
 			'name'              => self::faker()->text(255),
@@ -44,7 +44,7 @@ final class NotifierSoundFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(NotifierSound $notifierSound): void {})
+		return $this// ->afterInstantiate(function(NotifierEmail $notifierEmail): void {})
 			;
 	}
 }

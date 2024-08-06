@@ -1,15 +1,14 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace App\Factory;
 
-use DateTimeImmutable;
-use PhpSentinel\BugCatcher\Entity\RecordPing;
+use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<RecordPing>
+ * @extends PersistentProxyObjectFactory<RecordLogWithholder>
  */
-final class RecordPingFactory extends PersistentProxyObjectFactory {
+final class RecordLogWithholderFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -18,7 +17,7 @@ final class RecordPingFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return RecordPing::class;
+		return RecordLogWithholder::class;
 	}
 
 	/**
@@ -28,10 +27,9 @@ final class RecordPingFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'date' => new DateTimeImmutable(self::faker()->dateTime()->format("Y-m-d H:i:s")),
-			'project'    => ProjectFactory::new(),
-			'status'     => self::faker()->text(50),
-			'statusCode' => self::faker()->text(255),
+			'name'    => self::faker()->text(255),
+			'project' => ProjectFactory::new(),
+			'regex'   => self::faker()->text(755),
 		];
 	}
 
@@ -39,7 +37,7 @@ final class RecordPingFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(RecordPing $recordPing): void {})
+		return $this// ->afterInstantiate(function(RecordLogWithholder $recordLogWithholder): void {})
 			;
 	}
 }
