@@ -8,7 +8,7 @@
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
 
 
-use App\Factory\RecordLogTraceFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use Exception;
 use Kregel\ExceptionProbe\Codeframe;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;

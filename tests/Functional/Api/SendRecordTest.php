@@ -7,6 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Functional\Api;
 
+use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Tests\Functional\apiTestHelper;
 
@@ -15,6 +16,11 @@ class SendRecordTest extends KernelTestCase {
 
 	public function testSendPlainRecord(): void {
 		[$browser] = $this->browser([]);
+
+		ProjectFactory::createOne([
+			"code" => "testProject",
+		]);
+
 		$browser
 			->post("/api/record_logs", [
 				"headers" => [

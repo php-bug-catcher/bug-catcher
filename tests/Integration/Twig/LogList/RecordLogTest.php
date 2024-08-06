@@ -7,7 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\LogList;
 
-use App\Factory\RecordLogFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
 use DateTime;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\LogList\RecordLog;

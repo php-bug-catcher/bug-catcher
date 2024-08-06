@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Factory;
+namespace PhpSentinel\BugCatcher\Tests\App\Factory;
 
 use PhpSentinel\BugCatcher\Entity\NotifierEmail;
 use PhpSentinel\BugCatcher\Enum\Importance;

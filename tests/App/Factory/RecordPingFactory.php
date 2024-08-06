@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Factory;
+namespace PhpSentinel\BugCatcher\Tests\App\Factory;
 
 use DateTimeImmutable;
 use PhpSentinel\BugCatcher\Entity\RecordPing;

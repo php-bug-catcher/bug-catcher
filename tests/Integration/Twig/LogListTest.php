@@ -7,11 +7,11 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig;
 
-use App\Factory\ProjectFactory;
-use App\Factory\RecordLogFactory;
-use App\Factory\RecordLogTraceFactory;
-use App\Factory\RecordPingFactory;
-use App\Factory\UserFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordPingFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\UserFactory;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;

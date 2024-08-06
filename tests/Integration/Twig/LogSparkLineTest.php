@@ -7,8 +7,8 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig;
 
-use App\Factory\ProjectFactory;
-use App\Factory\RecordLogFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
 use DateTimeImmutable;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\LogSparkLine;
