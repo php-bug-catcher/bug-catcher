@@ -44,8 +44,7 @@ class NotifyCalculateListener {
 		$records = $this->recordRepo->createQueryBuilder("record")
 //				->from(Record::class, "record")
 			->join("record.project", "project")
-			->select("COUNT(record) as count")
-			->addSelect("project.id as project")
+			->addSelect("COUNT(record) as count")
 			->where("record.status like :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
@@ -53,7 +52,7 @@ class NotifyCalculateListener {
 			->groupBy("record.project")
 			->getQuery()->enableResultCache(10)->getResult();
 		foreach ($records as $record) {
-			$status = new NotifierStatus($record['project']);
+			$status = new NotifierStatus($record[0]->getProject());
 			$event->addStatus($status);
 			$status->incrementImportance(Importance::Normal, $record['count'], $event->notifier->getThreshold());
 		}
@@ -62,8 +61,7 @@ class NotifyCalculateListener {
 	private function calculateSameErrors(NotifyCalculateEvent $event, array $projects): void {
 		$records = $this->recordRepo->createQueryBuilder("record")
 //			->from(Record::class, "record")
-			->select("COUNT(record) as count")
-			->addSelect("record.project as project")
+			->addSelect("COUNT(record) as count")
 			->where("record.status like :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
@@ -75,7 +73,7 @@ class NotifyCalculateListener {
 		foreach ($records as $record) {
 			$status = $statuses[$record['project']->getId()]??null;
 			if (!$status) {
-				$status                                = new NotifierStatus($record['project']);
+				$status = new NotifierStatus($record[0]->getProject());
 				$statuses[$record['project']->getId()] = $status;
 				$event->addStatus($status);
 			}
