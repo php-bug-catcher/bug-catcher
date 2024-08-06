@@ -7,16 +7,15 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig;
 
+use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordPingFactory;
+use PhpSentinel\BugCatcher\Tests\App\Factory\UserFactory;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
-use PhpSentinel\BugCatcher\Factory\RecordLogTraceFactory;
-use PhpSentinel\BugCatcher\Factory\RecordPingFactory;
-use PhpSentinel\BugCatcher\Factory\UserFactory;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\LogList;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;

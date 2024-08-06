@@ -1,16 +1,15 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Factory;
+namespace PhpSentinel\BugCatcher\Tests\App\Factory;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use PhpSentinel\BugCatcher\Entity\User;
-use Zenstruck\Foundry\LazyValue;
+use DateTimeImmutable;
+use PhpSentinel\BugCatcher\Entity\RecordPing;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentProxyObjectFactory<RecordPing>
  */
-final class UserFactory extends PersistentProxyObjectFactory {
+final class RecordPingFactory extends PersistentProxyObjectFactory {
 	/**
 	 * @see  https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
 	 *
@@ -19,7 +18,7 @@ final class UserFactory extends PersistentProxyObjectFactory {
 	public function __construct() {}
 
 	public static function class(): string {
-		return User::class;
+		return RecordPing::class;
 	}
 
 	/**
@@ -29,10 +28,10 @@ final class UserFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'email'    => self::faker()->text(180),
-			'enabled'  => self::faker()->boolean(),
-			'fullname' => self::faker()->text(255),
-			'password' => self::faker()->text(),
+			'date' => new DateTimeImmutable(self::faker()->dateTime()->format("Y-m-d H:i:s")),
+			'project'    => ProjectFactory::new(),
+			'status'     => self::faker()->text(50),
+			'statusCode' => self::faker()->text(255),
 		];
 	}
 
@@ -40,7 +39,7 @@ final class UserFactory extends PersistentProxyObjectFactory {
 	 * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
 	 */
 	protected function initialize(): static {
-		return $this// ->afterInstantiate(function(User $user): void {})
+		return $this// ->afterInstantiate(function(RecordPing $recordPing): void {})
 			;
 	}
 }

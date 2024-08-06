@@ -11,4 +11,5 @@ return [
 	Symfony\Bundle\TwigBundle\TwigBundle::class           => ['all' => true],
 	Symfony\UX\Icons\UXIconsBundle::class                 => ['all' => true],
 	Twig\Extra\TwigExtraBundle\TwigExtraBundle::class     => ['all' => true],
+	ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class   => ['all' => true],
 ];

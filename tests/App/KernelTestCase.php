@@ -5,7 +5,7 @@
  * Date: 23. 5. 2024
  * Time: 20:53
  */
-namespace PhpSentinel\BugCatcher\Tests\Integration;
+namespace PhpSentinel\BugCatcher\Tests\App;
 
 use LogicException;
 use Symfony\Bundle\FrameworkBundle\Test\TestBrowserToken;

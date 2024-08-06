@@ -13,6 +13,7 @@ use ApiPlatform\Validator\ValidatorInterface;
 use PhpSentinel\BugCatcher\Entity\Record;
 use PhpSentinel\BugCatcher\Repository\ProjectRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LogRecordSaveProcessor implements ProcessorInterface {
 	public function __construct(
@@ -29,6 +30,9 @@ class LogRecordSaveProcessor implements ProcessorInterface {
 		}
 
 		$project = $this->projectRepo->findOneBy(["code" => $data->getProjectCode()]);
+		if ($project === null) {
+			throw new NotFoundHttpException("Project not found");
+		}
 		$data->setProject($project);
 		$data->setHash($data->calculateHash());
 

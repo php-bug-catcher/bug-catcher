@@ -7,10 +7,9 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\LogList;
 
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
 use DateTime;
-use PhpSentinel\BugCatcher\Factory\RecordLogFactory;
-use PhpSentinel\BugCatcher\Factory\RecordLogTraceFactory;
-use PhpSentinel\BugCatcher\Tests\Integration\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
 use PhpSentinel\BugCatcher\Twig\Components\LogList\RecordLog;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
