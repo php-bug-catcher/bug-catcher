@@ -68,13 +68,13 @@ class NotifyCalculateListener {
 			->setParameter('projects', $projects)
 			->groupBy("record.project", "record.hash")
 			->getQuery()->enableResultCache(10)->getResult();
-
 		$statuses = [];
 		foreach ($records as $record) {
-			$status = $statuses[$record['project']->getId()]??null;
+			$key                = $record[0]->getProject()->getId()->__toString();
+			$status             = $statuses[$key]??null;
 			if (!$status) {
 				$status = new NotifierStatus($record[0]->getProject());
-				$statuses[$record['project']->getId()] = $status;
+				$statuses[$key] = $status;
 				$event->addStatus($status);
 			}
 			$status->incrementImportance(Importance::High, $record['count'], $event->notifier->getThreshold());

@@ -36,7 +36,7 @@
 
         <field name="failedStatusCount" type="integer" nullable="false"/>
 
-        <field name="repeat" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        <field name="repeat" column="`repeat`" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
         </field>
 
         <field name="repeatInterval" type="integer" nullable="true"/>

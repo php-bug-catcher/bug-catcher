@@ -38,6 +38,12 @@ enum Importance: string {
 		}
 	}
 
+	/**
+	 * Determines if this importance is lover or equal to the given importance.
+	 *
+	 * @param Importance $importance
+	 * @return bool
+	 */
 	public function isHigherOrEqual(Importance $importance): bool {
 		return $this === $importance || $this->isHigher($importance);
 	}
