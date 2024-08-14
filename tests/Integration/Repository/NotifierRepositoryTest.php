@@ -87,12 +87,12 @@ class NotifierRepositoryTest extends KernelTestCase {
 	}
 
 	public function checkDelayProvider(): iterable {
-		yield [NotifyRepeat::None, 0, 0, 'now', true];
-		yield [NotifyRepeat::FrequencyRecords, 2, 2, 'now', true];
-		yield [NotifyRepeat::FrequencyRecords, 2, 1, 'now', false];
-		yield [NotifyRepeat::FrequencyRecords, 2, 0, 'now', false];
-		yield [NotifyRepeat::PeriodTime, 50, 0, '-1 minute', true];
-		yield [NotifyRepeat::PeriodTime, 60, 0, '-1 minute', true];
-		yield [NotifyRepeat::PeriodTime, 65, 0, '-1 minute', false];
+		yield [NotifyRepeat::None, 0, 0, 'now', false];
+		yield [NotifyRepeat::FrequencyRecords, 2, 2, 'now', false];
+		yield [NotifyRepeat::FrequencyRecords, 2, 1, 'now', true];
+		yield [NotifyRepeat::FrequencyRecords, 2, 0, 'now', true];
+		yield [NotifyRepeat::PeriodTime, 50, 0, '-1 minute', false];
+		yield [NotifyRepeat::PeriodTime, 60, 0, '-1 minute', false];
+		yield [NotifyRepeat::PeriodTime, 65, 0, '-1 minute', true];
 	}
 }
