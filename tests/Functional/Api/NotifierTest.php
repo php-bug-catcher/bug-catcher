@@ -126,7 +126,7 @@ class NotifierTest extends KernelTestCase {
 			"lastOkStatusCount" => 0,
 			"firstOkStatus"     => null,
 			"lastNotified"      => null,
-			"clearInterval"     => 1,
+			"clearInterval" => 4,
 			"repeatAtSkipped"   => 1,
 			"repeatInterval"    => 0,
 			"repeat"            => NotifyRepeat::FrequencyRecords,
@@ -159,6 +159,21 @@ class NotifierTest extends KernelTestCase {
 				self::assertFalse($listenerIsCalled->isCalled(EmailNotifyListener::class));
 			}
 		}
+		$browser
+			->post("/api/record_logs", [
+				"headers" => [
+					"Content-Type" => "application/json",
+				],
+				"body"    => json_encode([
+					"level"       => 500,
+					"message"     => "message 22",
+					"requestUri"  => "/",
+					"projectCode" => "testProject",
+				]),
+			])
+			->assertStatus(201);
+		$listenerIsCalled->clear(EmailNotifyListener::class);
+		self::assertFalse($listenerIsCalled->isCalled(EmailNotifyListener::class));
 	}
 
 	/**

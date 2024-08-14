@@ -38,9 +38,6 @@ class RecordListener {
 		}
 		foreach ($events as $event) {
 			$notifier = $event->notifier;
-			if ($this->notifierRepo->isDelayed($notifier)) {
-				continue;
-			}
 			if ($this->notifierRepo->shouldNotify($notifier, false)) {
 				foreach ($event->getStatuses() as $status) {
 					$importance = $status->getImportance();

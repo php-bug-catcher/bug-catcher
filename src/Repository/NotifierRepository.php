@@ -39,7 +39,7 @@ class NotifierRepository extends ServiceEntityRepository {
 			$this->getEntityManager()->flush();
 			$response = false;
 		} else {
-			$response = (!$this->isDelayed($notifier)) && $this->checkRepeat($notifier);
+			$response = (!$this->isDelayed($notifier, false)) && $this->checkRepeat($notifier);
 		}
 		$this->getEntityManager()->flush();
 
