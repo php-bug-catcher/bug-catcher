@@ -12,6 +12,7 @@ use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use Exception;
 use Kregel\ExceptionProbe\Codeframe;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\Integration\Trait\GetStackTrace;
 use PhpSentinel\BugCatcher\Twig\Components\Detail\StackTrace;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
@@ -21,6 +22,7 @@ class StackTraceTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
 	use ResetDatabase;
 	use Factories;
+	use GetStackTrace;
 
 	public function testFailedDeserialize() {
 		$record   = RecordLogTraceFactory::createOne([
@@ -55,12 +57,5 @@ class StackTraceTest extends KernelTestCase {
 		$this->assertSame($first, $rendered->opened);
 	}
 
-	private function getStackTrace(): string {
-		$stacktrace = new \Kregel\ExceptionProbe\Stacktrace();
-		try {
-			throw new Exception();
-		} catch (Exception $e) {
-			return serialize($stacktrace->parse($e->getTraceAsString()));
-		}
-	}
+
 }

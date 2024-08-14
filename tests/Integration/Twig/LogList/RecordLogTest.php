@@ -9,7 +9,9 @@ namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\LogList;
 
 use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
 use DateTime;
+use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
+use PhpSentinel\BugCatcher\Tests\Integration\Trait\GetStackTrace;
 use PhpSentinel\BugCatcher\Twig\Components\LogList\RecordLog;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
@@ -19,6 +21,7 @@ class RecordLogTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
 	use ResetDatabase;
 	use Factories;
+	use GetStackTrace;
 
 	public function testClearOne() {
 
@@ -50,6 +53,22 @@ class RecordLogTest extends KernelTestCase {
 			"status" => "new",
 		]);
 		$this->assertEquals(10, $count);
+
+	}
+
+	public function testClearStackTrace() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => $this->getStackTrace(),
+			"status"     => "new",
+			"hash"       => "hash",
+		]);
+
+		$rendered = $this->mountTwigComponent('RecordLog', ['log' => $record->_real(), "status" => "new"]);
+		$this->assertInstanceOf(RecordLog::class, $rendered);
+
+		$rendered->clearOne("resolved");
+		$record->_refresh();
+		$this->assertNull($record->getStackTrace());
 
 	}
 }

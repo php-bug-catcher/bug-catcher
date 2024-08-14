@@ -45,7 +45,7 @@ class RecordLog {
 		$class = $this->log::class;
 		$repo  = $this->registry->getRepository($class);
 		assert($repo instanceof RecordRepository);
-		$repo->setStatus($this->log, $this->log->getDate(), $status, $this->status);
+		$repo->setStatus($this->log, $this->log->getDate(), $status, $this->status, true);
 		$this->log = null;
 	}
 }

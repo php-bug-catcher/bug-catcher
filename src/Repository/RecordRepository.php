@@ -46,7 +46,8 @@ class RecordRepository extends ServiceEntityRepository {
 		$this->dispatcher->dispatch(new RecordEvent(null, RecordEventType::BATCH_UPDATED, $projects));
 	}
 
-	public function setStatus(Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
+	public function setStatus(
+		Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new', bool $flush = false): void {
 		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
 		$qb
 			->andWhere('l.hash = :hash')
@@ -54,6 +55,9 @@ class RecordRepository extends ServiceEntityRepository {
 			->getQuery()
 			->execute();
 		$this->dispatcher->dispatch(new RecordEvent($log, RecordEventType::UPDATED, [$log->getProject()]));
+		if ($flush) {
+			$this->getEntityManager()->flush();
+		}
 	}
 
 	protected function getUpdateStatusQB(string $newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {
