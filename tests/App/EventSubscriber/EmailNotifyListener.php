@@ -20,7 +20,6 @@ class EmailNotifyListener {
 
 	public function __invoke(NotifyEvent $event): void {
 		if ($event->notifier instanceof NotifierEmail) {
-			dump("EmailNotifyListener");
 			$this->listenerIsCalled->call(self::class);
 		}
 	}

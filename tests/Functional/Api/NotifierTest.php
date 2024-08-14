@@ -111,6 +111,56 @@ class NotifierTest extends KernelTestCase {
 		}
 	}
 
+	public function testNotifierWithDelay() {
+		$project  = ProjectFactory::createOne([
+			"code"    => "testProject",
+			"enabled" => true,
+		]);
+		$notifier = NotifierEmailFactory::createOne([
+			"projects"          => new ArrayCollection([$project->_real()]),
+			"minimalImportance" => Importance::Low,
+			"threshold"         => 1,
+			"delayInterval"     => 3,
+			"delay"             => NotifyRepeat::FrequencyRecords,
+			"component"         => "same-error-count",
+			"lastOkStatusCount" => 0,
+			"firstOkStatus"     => null,
+			"lastNotified"      => null,
+			"clearInterval"     => 1,
+			"repeatAtSkipped"   => 1,
+			"repeatInterval"    => 0,
+			"repeat"            => NotifyRepeat::FrequencyRecords,
+			"clearAt"           => NotifyRepeat::FrequencyRecords,
+			"failedStatusCount" => 0,
+			"lastFailedStatus"  => null,
+		]);
+
+		[$browser] = $this->browser([]);
+		for ($i = 0; $i < 5; $i++) {
+			$browser
+				->post("/api/record_logs", [
+					"headers" => [
+						"Content-Type" => "application/json",
+					],
+					"body"    => json_encode([
+						"level"       => 500,
+						"message"     => "message",
+						"requestUri"  => "/",
+						"projectCode" => "testProject",
+					]),
+				])
+				->assertStatus(201);
+			/** @var ListenerIsCalled $listenerIsCalled */
+			$listenerIsCalled = $this->getContainer()->get(ListenerIsCalled::class);
+			if ($i >= 3) {
+				self::assertTrue($listenerIsCalled->isCalled(EmailNotifyListener::class));
+				$listenerIsCalled->clear(EmailNotifyListener::class);
+			} else {
+				self::assertFalse($listenerIsCalled->isCalled(EmailNotifyListener::class));
+			}
+		}
+	}
+
 	/**
 	 * @after
 	 */

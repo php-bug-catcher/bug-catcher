@@ -7,6 +7,7 @@
  */
 namespace PhpSentinel\BugCatcher\Tests\Integration\Repository;
 
+use DateTimeImmutable;
 use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 use PhpSentinel\BugCatcher\Repository\NotifierRepository;
@@ -30,7 +31,7 @@ class NotifierRepositoryTest extends KernelTestCase {
 			->setClearAt($repeat)
 			->setClearInterval($interval)
 			->setLastOkStatusCount($okStatusCount)
-			->setFirstOkStatus(new \DateTimeImmutable($fistStatus));
+			->setFirstOkStatus(new DateTimeImmutable($fistStatus));
 		$result = $this->getService()->canClear($notifier);
 		$this->assertSame($expected, $result);
 	}
@@ -53,7 +54,7 @@ class NotifierRepositoryTest extends KernelTestCase {
 		$notifier
 			->setRepeat($repeat)
 			->setRepeatInterval($interval)
-			->setLastNotified($lastNotifies ? new \DateTimeImmutable($lastNotifies) : null)
+			->setLastNotified($lastNotifies ? new DateTimeImmutable($lastNotifies) : null)
 			->setRepeatAtSkipped($repeatAtSkipped);
 		$result = $this->getService()->checkRepeat($notifier);
 		$this->assertSame($expected, $result);
@@ -80,8 +81,8 @@ class NotifierRepositoryTest extends KernelTestCase {
 			->setDelay($repeat)
 			->setDelayInterval($interval)
 			->setFailedStatusCount($failedStatusCount)
-			->setLastFailedStatus($lastFailedStatus?new \DateTimeImmutable($lastFailedStatus):null);
-		$result = $this->getService()->checkDelay($notifier);
+			->setLastFailedStatus($lastFailedStatus?new DateTimeImmutable($lastFailedStatus):null);
+		$result = $this->getService()->isDelayed($notifier);
 		$this->assertSame($expected, $result);
 	}
 

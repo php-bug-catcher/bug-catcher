@@ -2,8 +2,11 @@
 
 namespace PhpSentinel\BugCatcher\Repository;
 
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 use PhpSentinel\BugCatcher\Entity\Notifier;
 use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
 
@@ -36,7 +39,7 @@ class NotifierRepository extends ServiceEntityRepository {
 			$this->getEntityManager()->flush();
 			$response = false;
 		} else {
-			$response = $this->checkDelay($notifier) && $this->checkRepeat($notifier);
+			$response = (!$this->isDelayed($notifier)) && $this->checkRepeat($notifier);
 		}
 		$this->getEntityManager()->flush();
 
@@ -61,12 +64,12 @@ class NotifierRepository extends ServiceEntityRepository {
 					return true;
 				}
 				if ($notifier->getFirstOkStatus() === null) {
-					$notifier->setFirstOkStatus(new \DateTimeImmutable());
+					$notifier->setFirstOkStatus(new DateTimeImmutable());
 				}
 
 				return false;
 			default:
-				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+				throw new InvalidArgumentException("Unknown NotifyRepeat type");
 		}
 	}
 
@@ -74,18 +77,18 @@ class NotifierRepository extends ServiceEntityRepository {
 		switch ($notifier->getRepeat()) {
 			case NotifyRepeat::None:
 				if ($notifier->getLastNotified()==null) {
-					$notifier->setLastNotified(new \DateTimeImmutable());
+					$notifier->setLastNotified(new DateTimeImmutable());
 					return true;
 				}
 				return false;
 			case NotifyRepeat::PeriodTime:
 				if ($notifier->getLastNotified() == null) {
-					$notifier->setLastNotified(new \DateTimeImmutable());
+					$notifier->setLastNotified(new DateTimeImmutable());
 
 					return true;
 				}
 				if ($notifier->getLastNotified()->getTimestamp() <= time() - $notifier->getRepeatInterval()) {
-					$notifier->setLastNotified(new \DateTimeImmutable());
+					$notifier->setLastNotified(new DateTimeImmutable());
 
 					return true;
 				}
@@ -101,32 +104,38 @@ class NotifierRepository extends ServiceEntityRepository {
 
 				return false;
 			default:
-				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+				throw new InvalidArgumentException("Unknown NotifyRepeat type");
 		}
 	}
 
-	public function checkDelay(Notifier $notifier): bool {
+	public function isDelayed(Notifier $notifier, $flush = true): bool {
 		switch ($notifier->getDelay()) {
 			case NotifyRepeat::None:
-				return true;
+				return false;
 			case NotifyRepeat::FrequencyRecords:
 				if ($notifier->getFailedStatusCount() >= $notifier->getDelayInterval()) {
-					return true;
+					return false;
 				}
 				$notifier->setFailedStatusCount($notifier->getFailedStatusCount() + 1);
+				if ($flush) {
+					$this->getEntityManager()->flush();
+				}
 
-				return false;
+				return true;
 			case NotifyRepeat::PeriodTime:
-				if ($notifier->getLastFailedStatus()?->getTimestamp() <= (new \DateTime())->getTimestamp() - $notifier->getDelayInterval()) {
-					return true;
+				if ($notifier->getLastFailedStatus()?->getTimestamp() <= (new DateTime())->getTimestamp() - $notifier->getDelayInterval()) {
+					return false;
 				}
 				if ($notifier->getLastFailedStatus() === null) {
-					$notifier->setLastFailedStatus(new \DateTimeImmutable());
+					$notifier->setLastFailedStatus(new DateTimeImmutable());
+				}
+				if ($flush) {
+					$this->getEntityManager()->flush();
 				}
 
-				return false;
+				return true;
 			default:
-				throw new \InvalidArgumentException("Unknown NotifyRepeat type");
+				throw new InvalidArgumentException("Unknown NotifyRepeat type");
 		}
 	}
 }
