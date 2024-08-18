@@ -31,7 +31,7 @@
 - [x] Make more tests
 - [x] Autoconfiguration
 - [ ] Create Flex recipe
-- [ ] Release first version
+- [x] Release first version
 - [ ] Email notification component
 - [ ] Ping history graph component
 - [ ] Errors history graph component
@@ -48,7 +48,7 @@ composer create-project symfony/skeleton:"7.1.*" bug-catcher
 
 
 ```bash
-composer require php-bug-catcher/bug-catcher:dev-main
+composer require php-bug-catcher/bug-catcher
 ````
 
 **Enable bundle if not already enabled**
