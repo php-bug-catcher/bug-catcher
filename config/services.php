@@ -21,7 +21,7 @@ namespace {
 			->autowire()
 			->autoconfigure();
 		$services
-			->load('PhpSentinel\\BugCatcher\\', '../src/')
+			->load('BugCatcher\\', '../src/')
 			->exclude('../src/{DependencyInjection,DataFixtures,Entity,DTO,Event,Factory,Extension,BugCatcherBundle.php}');
 
 		$services->set(PingCollectorCommand::class)->arg('$collectors',[
