@@ -28,7 +28,7 @@
 - [x] Make it work
 - [x] Create notification system
 - [x] Create basic tests
-- [ ] Make more tests
+- [x] Make more tests
 - [ ] Autoconfiguration
 - [ ] Create Flex recipe
 - [ ] Release first version
