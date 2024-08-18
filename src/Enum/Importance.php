@@ -66,4 +66,25 @@ enum Importance: string {
 			default => BootstrapColor::Default,
 		};
 	}
+
+	public function lower(): Importance {
+		return match ($this) {
+			self::Medium => self::Low,
+			self::High => self::Medium,
+			self::Critical => self::High,
+			self::MamaMia => self::Critical,
+			default => self::Normal,
+		};
+	}
+
+
+	public function higher(): Importance {
+		return match ($this) {
+			self::Low => self::Medium,
+			self::Medium => self::High,
+			self::High => self::Critical,
+			self::Critical => self::MamaMia,
+			default => self::Normal,
+		};
+	}
 }
