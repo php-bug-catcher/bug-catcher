@@ -19,7 +19,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserCrudController extends AbstractCrudController {
 	public function __construct(
-		public UserPasswordHasherInterface $userPasswordHasher
+		public UserPasswordHasherInterface $userPasswordHasher,
+		public array                       $roles
 	) {}
 
 	public static function getEntityFqcn(): string {
@@ -50,14 +51,13 @@ class UserCrudController extends AbstractCrudController {
 			->setRequired($pageName === Crud::PAGE_NEW)
 			->onlyOnForms();
 
-		$roles = $parameterBag->get('roles');
 
 		return [
 			TextField::new('email')->setColumns(8),
 			BooleanField::new("enabled")->setColumns(4),
 			TextField::new('fullname')->setColumns(4),
 			ChoiceField::new('roles')
-				->setChoices($roles)
+				->setChoices($this->roles)
 				->allowMultipleChoices()
 				->setRequired(true)
 				->onlyOnForms(),

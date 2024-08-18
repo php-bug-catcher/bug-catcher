@@ -31,7 +31,6 @@ class RecordLog {
 
 	public function __construct(
 		private ManagerRegistry $registry,
-		#[Autowire(param: 'dashboard_list_items')]
 		private array           $classes
 	) {}
 

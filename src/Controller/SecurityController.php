@@ -18,9 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SecurityController extends AbstractController {
 
 	public function __construct(
-		#[Autowire(param: 'logo')]
 		private readonly string $logo,
-		#[Autowire("%env(APP_NAME)%")]
 		private string          $appName
 	) {}
 

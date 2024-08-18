@@ -25,7 +25,6 @@ class RecordLogTraceRepository extends RecordRepository {
 	public function __construct(
 		ManagerRegistry $registry,
 		EventDispatcherInterface $dispatcher,
-		#[Autowire(env: 'CLEAR_STACKTRACE_ON_FIXED')]
 		protected bool $clearStackTrace) {
 		parent::__construct($registry, $dispatcher, RecordLogTrace::class);
 	}

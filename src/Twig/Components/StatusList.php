@@ -17,7 +17,6 @@ final class StatusList extends AbstractController {
 
 	public function __construct(
 		private readonly ProjectRepository $projectRepo,
-		#[Autowire(param: 'status_list_components')]
 		public readonly array              $components,
 
 	) {}

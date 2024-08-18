@@ -30,7 +30,6 @@ final class LogList extends AbstractController {
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
 		private ManagerRegistry $registry,
-		#[Autowire(param: 'dashboard_list_items')]
 		private array           $classes
 	) {
 		$this->id = uniqid();

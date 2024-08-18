@@ -1,5 +1,3 @@
-parameters:
-    logo: default
 services:
     _defaults:
         autowire: true
@@ -12,6 +10,8 @@ services:
             - '../Entity/'
             - '../src/Kernel.php'
             - '../src/KernelTestCase.php'
+bug_catcher:
+    logo: 'default'
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
@@ -63,7 +63,7 @@ when@test:
 twig:
     globals:
         app_name: 'Bug Catcher'
-        logo: '%logo%'
+        logo: 'default'
 api_platform:
     title: Hello API Platform
     version: 1.0.0

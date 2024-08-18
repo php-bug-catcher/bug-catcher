@@ -10,26 +10,26 @@ use Symfony\Component\HttpFoundation\Response;
 class DashboardController extends AbstractController {
 
 
+	public function __construct(
+		private readonly array $classesComponents,
+		private readonly array $components,
+		private readonly int   $refreshInterval,
+	) {}
+
 	public function index(
-		#[Autowire(param: 'dashboard_components')]
-		array  $components,
-		#[Autowire(param: 'refresh_interval')]
-		int $refreshInterval,
 		string $status = 'new'
 	): Response {
 		return $this->render('@BugCatcher/dashboard/index.html.twig', [
 			"status" => $status,
-			"components" => $components,
-			"refreshInterval" => $refreshInterval,
+			"components"      => $this->components,
+			"refreshInterval" => $this->refreshInterval,
 		]);
 	}
 
 	public function detail(
-		#[Autowire(param: 'detail_components')]
-		array  $classesComponents,
 		Record $record
 	): Response {
-		foreach ($classesComponents as $class => $components) {
+		foreach ($this->classesComponents as $class => $components) {
 			if ($record instanceof $class) {
 				return $this->render('@BugCatcher/dashboard/detail.html.twig', [
 					"record"     => $record,

@@ -20,7 +20,6 @@ use Throwable;
 )]
 class PingCollectorCommand extends Command implements ServiceSubscriberInterface {
 	public function __construct(
-		#[Autowire(param: 'ping_collectors')]
 		private readonly array                $collectors,
 		private readonly ProjectRepository    $projectRepo,
 		private readonly RecordPingRepository $pingRecordRepo

@@ -13,9 +13,14 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class NotifierCrudController extends AbstractCrudController {
 
+
+	public function __construct(
+		private readonly array $components
+	) {}
+
 	public function configureFields(string $pageName): iterable {
 		$parameterBag = $this->container->get(ParameterBagInterface::class);
-		$components   = $parameterBag->get('notifier_components');
+		$components = $this->components;
 		if (array_is_list($components)) {
 			$components = array_combine($components, $components);
 		}

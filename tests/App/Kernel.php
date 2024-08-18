@@ -59,13 +59,13 @@ class Kernel extends BaseKernel {
 	}
 
 	protected function configureRoutes(RoutingConfigurator $routes): void {
-		$paths[] = __DIR__ . '/../../config/routes.php';
-		foreach ($paths as $path) {
-			if (!file_exists($path)) {
-				throw new RuntimeException(sprintf('The file "%s" does not exist.', $path));
-			}
-			(require $path)($routes->withPath($path), $this);
-		}
+//		$paths[] = __DIR__ . '/../../config/routes.php';
+//		foreach ($paths as $path) {
+//			if (!file_exists($path)) {
+//				throw new RuntimeException(sprintf('The file "%s" does not exist.', $path));
+//			}
+//			(require $path)($routes->withPath($path), $this);
+//		}
 
 		$paths = [__DIR__ . '/config/routes.yaml'];
 		foreach ($paths as $path) {

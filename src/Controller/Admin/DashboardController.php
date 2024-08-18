@@ -28,7 +28,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class DashboardController extends AbstractDashboardController {
 
 	public function __construct(
-		#[Autowire("%env(APP_NAME)%")]
 		private readonly string $appName
 	) {}
 
@@ -67,7 +66,7 @@ class DashboardController extends AbstractDashboardController {
 
 		$notifiers = [];
 		foreach ($discriminatorMap as $name => $class) {
-			$notifiers[] = MenuItem::linkToCrud(ucfirst($name), 'fa-solid fa-satellite-dish', $class);;
+			$notifiers[] = MenuItem::linkToCrud(ucfirst($name), 'fa-solid fa-satellite-dish', $class);
 		}
 
 		yield MenuItem::linkToRoute('Dashboard', 'fa fa-home', 'bug_catcher.dashboard.index');
