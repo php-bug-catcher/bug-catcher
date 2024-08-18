@@ -32,6 +32,10 @@ class Kernel extends BaseKernel {
 		return __DIR__ . '/config/bundles.php';
 	}
 
+	public function configureContainer() {
+		return __DIR__ . '/config';
+	}
+
 
 	public function __construct(private array $options) {
 		parent::__construct('test', true);
