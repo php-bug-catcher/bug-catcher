@@ -36,7 +36,10 @@ class BugCatcherBundle extends AbstractBundle {
 		$container->import('../config/services.php');
 		$services = $container->services();
 
-		$services->set(RecordLogTraceRepository::class)->arg('$clearStackTrace', $config["clear_stacktrace_on_fixed"]);
+		$services->set(RecordLogTraceRepository::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$clearStackTrace', $config["clear_stacktrace_on_fixed"]);
 		$services->set(DashboardController::class)
 			->autowire()
 			->autoconfigure()
