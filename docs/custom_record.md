@@ -77,8 +77,8 @@ php bin/console doctrine:migrations:migrate
 Now you can create twig component ```MyRecord``` for rendering log row in dashboard. and configure it in services.yaml
 
 ```yaml
-# config/services.yaml
-parameters:
+# config/packages/bug_catcher.yaml
+bug_catcher:
     dashboard_list_items:
         - PhpSentinel\BugCatcher\Entity\RecordLog
         - PhpSentinel\BugCatcher\Entity\RecordLogTrace

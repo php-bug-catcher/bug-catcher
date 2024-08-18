@@ -13,8 +13,8 @@ You can create your own row component and use it in your dashboard.
 Only one parameter ```string status``` is passed to this component. Its determine which status should be displayed on dashboards.
 
 ```yaml
-# config/services.yaml
-parameters:
+# config/packages/bug_catcher.yaml
+bug_catcher:
     dashboard_components:
         - StatusList
         - LogList
@@ -25,8 +25,8 @@ parameters:
 Your compoment should exend PhpSentinel\BugCatcher\Twig\Components\AbsComponent.
 
 ```yaml
-# config/services.yaml
-parameters:
+# config/packages/bug_catcher.yaml
+bug_catcher:
     status_list_components:
         - ProjectStatus
         - LogCount
@@ -40,8 +40,8 @@ When you have cusoim record item, you can create your own detail page components
 First founded class in order by instance of record item is used as detail page component.
 
 ```yaml
-# config/services.yaml
-parameters:
+# config/packages/bug_catcher.yaml
+bug_catcher:
     detail_components:
         PhpSentinel\BugCatcher\Entity\YourRecord:
             - Detail:Header
@@ -80,8 +80,8 @@ class OkPingCollector implements PingCollectorInterface {
 
 Add it to configurations:
 ```yaml
-#config/services.yaml
-parameters:
+# config/packages/bug_catcher.yaml
+bug_catcher:
     #...
     collectors:
         Http: http

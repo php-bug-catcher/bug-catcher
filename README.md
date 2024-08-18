@@ -29,7 +29,7 @@
 - [x] Create notification system
 - [x] Create basic tests
 - [x] Make more tests
-- [ ] Autoconfiguration
+- [x] Autoconfiguration
 - [ ] Create Flex recipe
 - [ ] Release first version
 - [ ] Email notification component
@@ -63,12 +63,6 @@ return [
 ## Configuration
 **setup packages**
 
-```yaml
-#config/services.yaml
-parameters:
-    logo: default #can be also 'blue', 'green' or 'red'
-    refresh_interval: 60 # reload components every 60 seconds
-```
 ```yaml
 #config/packages/twig.yaml
 twig:
