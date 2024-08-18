@@ -38,7 +38,7 @@ class DashboardController extends AbstractController {
 			}
 		}
 		throw new Exception("No detail components definition found for record type. See " .
-			"'https://github.com/php-sentinel/bug-catcher/blob/main/docs/extending.md#detail-page-components'");
+			"'https://github.com/php-bug-catcher/bug-catcher/blob/main/docs/extending.md#detail-page-components'");
 	}
 
 }

@@ -17,7 +17,7 @@ Remember, some files can be added or edited in new version.
 
 ```
 mkdir config/doctrine/BugCatcherBundle
-cp vendor/php-sentinel/bug-catcher/config/doctrine/* config/doctrine/BugCatcherBudnle
+cp vendor/php-bug-catcher/bug-catcher/config/doctrine/* config/doctrine/BugCatcherBudnle
 ```
 
 **Linux**
@@ -29,9 +29,9 @@ But you need copy simlinks again sometimes after composer update because some fi
 
 ```
 mkdir config/doctrine/BugCatcherBundle
-find ./vendor/php-sentinel/bug-catcher/config/doctrine/ -name '*.xml' -exec bash -c 'ln -rs "$0" ./config/doctrine/BugCatcherBundle/' {} \;
+find ./vendor/php-bug-catcher/bug-catcher/config/doctrine/ -name '*.xml' -exec bash -c 'ln -rs "$0" ./config/doctrine/BugCatcherBundle/' {} \;
 rm config/doctrine/BugCatcherBundle/Record.orm.xml
-cp vendor/php-sentinel/bug-catcher/config/doctrine/Record.orm.xml config/doctrine/BugCatcherBundle/Record.orm.xml
+cp vendor/php-bug-catcher/bug-catcher/config/doctrine/Record.orm.xml config/doctrine/BugCatcherBundle/Record.orm.xml
 ```
 
 ### Configure ORM
@@ -57,7 +57,7 @@ doctrine:
                 type: xml
                 dir: '%kernel.project_dir%/config/doctrine/BugCatcherBundle/'
                 prefix: 'BugCatcher\Entity'
-                alias: PhpSentinelBundle
+                alias: PhpBugCatcherBundle
 ```
 
 ### Enable Api
@@ -87,7 +87,7 @@ bug_catcher:
 
 ### Send log to BugCatcher
 
-If you have installed [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle) in your project,
+If you have installed [php-bug-catcher/bug-catcher-reporter-bundle](https://github.com/php-bug-catcher/bug-catcher-reporter-bundle) in your project,
 you can now send your custom log record
 
 ```php

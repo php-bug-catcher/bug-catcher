@@ -1,4 +1,4 @@
-![Tests](https://github.com/php-sentinel/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+![Tests](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/symfony.yml/badge.svg)
 
 # Catch every bug in all your PHP applications in one place
 
@@ -48,7 +48,7 @@ composer create-project symfony/skeleton:"7.1.*" bug-catcher
 
 
 ```bash
-composer require php-sentinel/bug-catcher:dev-main
+composer require php-bug-catcher/bug-catcher:dev-main
 ````
 
 **Enable bundle if not already enabled**
@@ -174,8 +174,6 @@ php bin/console ux:icons:import pajamas:hamburger covid:virus-lab-research-magni
 ```dotenv
 # .env.local
 APP_ENV=dev
-APP_NAME=BugCatcher
-CLEAR_STACKTRACE_ON_FIXED=true
 DATABASE_URL=mysql://user:password@localhost:3306/bug_catcher
 ```
     
@@ -212,11 +210,11 @@ Now check out the site at `http://localhost:8000`
 
 **Setup your Symfony applications**
 
-See package [php-sentinel/bug-catcher-reporter-bundle](https://github.com/php-sentinel/bug-catcher-reporter-bundle)
+See package [php-bug-catcher/bug-catcher-reporter-bundle](https://github.com/php-bug-catcher/bug-catcher-reporter-bundle)
 
 **Setup plain PHP applications**
 
-See package [php-sentinel/bug-catcher-curl-reporter](https://github.com/php-sentinel/bug-catcher-curl-reporter)
+See package [php-bug-catcher/bug-catcher-curl-reporter](https://github.com/php-bug-catcher/bug-catcher-curl-reporter)
 
 ## Modifications
 

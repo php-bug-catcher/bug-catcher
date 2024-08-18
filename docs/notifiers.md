@@ -69,7 +69,7 @@ class NotifierSms extends Notifier {
 See [how to oweride entity](./custom_record.md#copy-orm-files) for more details.
 
 ```
-cp vendor/php-sentinel/bug-catcher/config/doctrine/Notifier.orm.xml config/doctrine/BugCatcherBundle/Notifier.orm.xml
+cp vendor/php-bug-catcher/bug-catcher/config/doctrine/Notifier.orm.xml config/doctrine/BugCatcherBundle/Notifier.orm.xml
 ```
 
 ```xml
