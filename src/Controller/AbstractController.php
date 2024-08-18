@@ -5,11 +5,11 @@
  * Date: 31. 8. 2023
  * Time: 20:33
  */
-namespace PhpSentinel\BugCatcher\Controller;
+namespace BugCatcher\Controller;
 
 use LogicException;
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\Client\Client;
+use BugCatcher\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as SymfonyAbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use PhpSentinel\BugCatcher\Controller\AbstractController;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Repository\RecordRepository;
+use BugCatcher\Controller\AbstractController;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\Record;
+use BugCatcher\Repository\RecordRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;

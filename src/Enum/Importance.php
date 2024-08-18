@@ -5,7 +5,7 @@
  * Date: 7. 6. 2024
  * Time: 18:55
  */
-namespace PhpSentinel\BugCatcher\Enum;
+namespace BugCatcher\Enum;
 
 enum Importance: string {
 	case Normal   = 'normal';

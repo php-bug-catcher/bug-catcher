@@ -5,12 +5,12 @@
  * Date: 7. 6. 2024
  * Time: 18:00
  */
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Entity\NotifierSound;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Service\DashboardImportance;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Entity\NotifierSound;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Service\DashboardImportance;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;

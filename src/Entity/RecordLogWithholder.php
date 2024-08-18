@@ -5,9 +5,9 @@
  * Date: 10. 7. 2024
  * Time: 16:49
  */
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
-use PhpSentinel\BugCatcher\Validator\IsRegex;
+use BugCatcher\Validator\IsRegex;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;

@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\User" repository-class="PhpSentinel\BugCatcher\Repository\UserRepository">
+    <entity name="BugCatcher\Entity\User" repository-class="BugCatcher\Repository\UserRepository">
         <unique-constraints>
             <unique-constraint name="UNIQ_IDENTIFIER_EMAIL" columns="email"/>
         </unique-constraints>
@@ -24,7 +24,7 @@
 
         <field name="fullname" type="string" length="255" nullable="false"/>
 
-        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="users">
+        <many-to-many field="projects" target-entity="BugCatcher\Entity\Project" inversed-by="users">
             <join-table name="user_project">
                 <join-columns>
                     <join-column name="user_id" referenced-column-name="id" on-delete="CASCADE"/>

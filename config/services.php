@@ -2,12 +2,12 @@
 
 namespace {
 
-	use PhpSentinel\BugCatcher\Command\PingCollectorCommand;
-	use PhpSentinel\BugCatcher\Entity\RecordLog;
-	use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
-	use PhpSentinel\BugCatcher\Repository\RecordLogTraceRepository;
-	use PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector;
-	use PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector;
+	use BugCatcher\Command\PingCollectorCommand;
+	use BugCatcher\Entity\RecordLog;
+	use BugCatcher\Entity\RecordLogTrace;
+	use BugCatcher\Repository\RecordLogTraceRepository;
+	use BugCatcher\Service\PingCollector\HttpPingCollector;
+	use BugCatcher\Service\PingCollector\MessengerCollector;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 	use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 

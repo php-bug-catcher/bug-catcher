@@ -5,13 +5,13 @@
  * Date: 26. 7. 2024
  * Time: 16:08
  */
-namespace PhpSentinel\BugCatcher\EventSubscriber;
+namespace BugCatcher\EventSubscriber;
 
-use PhpSentinel\BugCatcher\DTO\NotifierStatus;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Event\NotifyCalculateEvent;
-use PhpSentinel\BugCatcher\Repository\RecordRepository;
+use BugCatcher\DTO\NotifierStatus;
+use BugCatcher\Entity\Project;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Event\NotifyCalculateEvent;
+use BugCatcher\Repository\RecordRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]

@@ -5,13 +5,13 @@
  * Date: 9. 6. 2024
  * Time: 16:31
  */
-namespace PhpSentinel\BugCatcher\Tests\Integration\Repository;
+namespace BugCatcher\Tests\Integration\Repository;
 
 use DateTimeImmutable;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
-use PhpSentinel\BugCatcher\Repository\NotifierRepository;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Repository\NotifierRepository;
+use BugCatcher\Tests\App\KernelTestCase;
 
 class NotifierRepositoryTest extends KernelTestCase {
 

@@ -4,15 +4,15 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\Notifier"
+    <entity name="BugCatcher\Entity\Notifier"
             inheritance-type="SINGLE_TABLE"
             table="notifier"
-            repository-class="PhpSentinel\BugCatcher\Repository\NotifierRepository">
+            repository-class="BugCatcher\Repository\NotifierRepository">
         <discriminator-column name="discr" type="string"/>
         <discriminator-map>
-            <discriminator-mapping value="favicon" class="PhpSentinel\BugCatcher\Entity\NotifierFavicon"/>
-            <discriminator-mapping value="sound" class="PhpSentinel\BugCatcher\Entity\NotifierSound"/>
-            <discriminator-mapping value="email" class="PhpSentinel\BugCatcher\Entity\NotifierEmail"/>
+            <discriminator-mapping value="favicon" class="BugCatcher\Entity\NotifierFavicon"/>
+            <discriminator-mapping value="sound" class="BugCatcher\Entity\NotifierSound"/>
+            <discriminator-mapping value="email" class="BugCatcher\Entity\NotifierEmail"/>
         </discriminator-map>
 
         <id name="id" type="uuid" column="id">
@@ -24,10 +24,10 @@
         <field name="name" type="string" length="255" nullable="false">
         </field>
 
-        <field name="minimalImportance" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\Importance">
+        <field name="minimalImportance" type="string" length="255" enum-type="BugCatcher\Enum\Importance">
         </field>
 
-        <field name="delay" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        <field name="delay" type="string" length="255" enum-type="BugCatcher\Enum\NotifyRepeat">
         </field>
 
         <field name="delayInterval" type="integer" nullable="true"/>
@@ -36,12 +36,12 @@
 
         <field name="failedStatusCount" type="integer" nullable="false"/>
 
-        <field name="repeat" column="`repeat`" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        <field name="repeat" column="`repeat`" type="string" length="255" enum-type="BugCatcher\Enum\NotifyRepeat">
         </field>
 
         <field name="repeatInterval" type="integer" nullable="true"/>
 
-        <field name="clearAt" type="string" length="255" enum-type="PhpSentinel\BugCatcher\Enum\NotifyRepeat">
+        <field name="clearAt" type="string" length="255" enum-type="BugCatcher\Enum\NotifyRepeat">
         </field>
 
         <field name="repeatAtSkipped" type="integer" nullable="true"/>
@@ -57,7 +57,7 @@
         <field name="threshold" type="integer" nullable="false"/>
 
 
-        <many-to-many field="projects" target-entity="PhpSentinel\BugCatcher\Entity\Project" inversed-by="notifiers">
+        <many-to-many field="projects" target-entity="BugCatcher\Entity\Project" inversed-by="notifiers">
             <join-table name="notifier_project">
                 <join-columns>
                     <join-column name="notifier_id" referenced-column-name="id" on-delete="CASCADE"/>

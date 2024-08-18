@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Command;
+namespace BugCatcher\Command;
 
-use PhpSentinel\BugCatcher\Entity\RecordPing;
-use PhpSentinel\BugCatcher\Repository\ProjectRepository;
-use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
-use PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface;
+use BugCatcher\Entity\RecordPing;
+use BugCatcher\Repository\ProjectRepository;
+use BugCatcher\Repository\RecordPingRepository;
+use BugCatcher\Service\PingCollector\PingCollectorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

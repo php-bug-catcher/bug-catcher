@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\NotifyRepeat;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 

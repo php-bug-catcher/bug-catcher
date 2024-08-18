@@ -1,5 +1,5 @@
 {
-  "name": "php-sentinel/bug-catcher",
+  "name": "php-bug-catcher/bug-catcher",
   "type": "symfony-bundle",
   "license": "MIT",
   "description": "Catch all bugs from all your applications in one place",
@@ -45,12 +45,12 @@
   },
   "autoload": {
     "psr-4": {
-      "PhpSentinel\\BugCatcher\\": "src/"
+      "BugCatcher\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "PhpSentinel\\BugCatcher\\Tests\\": "tests/"
+      "BugCatcher\\Tests\\": "tests/"
     }
   },
   "require-dev": {

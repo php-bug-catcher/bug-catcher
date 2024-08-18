@@ -5,9 +5,9 @@
  * Date: 26. 7. 2024
  * Time: 16:17
  */
-namespace PhpSentinel\BugCatcher\Event;
+namespace BugCatcher\Event;
 
-use PhpSentinel\BugCatcher\Entity\Notifier;
+use BugCatcher\Entity\Notifier;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class NotifyAfterEvent extends Event {

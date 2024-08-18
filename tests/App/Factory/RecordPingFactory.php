@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Tests\App\Factory;
+namespace BugCatcher\Tests\App\Factory;
 
 use DateTimeImmutable;
-use PhpSentinel\BugCatcher\Entity\RecordPing;
+use BugCatcher\Entity\RecordPing;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

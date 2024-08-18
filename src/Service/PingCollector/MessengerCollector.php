@@ -5,11 +5,11 @@
  * Date: 24. 5. 2024
  * Time: 11:33
  */
-namespace PhpSentinel\BugCatcher\Service\PingCollector;
+namespace BugCatcher\Service\PingCollector;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\Project;
+use BugCatcher\Entity\Project;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessengerCollector implements PingCollectorInterface {

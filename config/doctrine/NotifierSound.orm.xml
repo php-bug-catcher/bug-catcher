@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\NotifierSound" repository-class="PhpSentinel\BugCatcher\Repository\NotifierRepository">
+    <entity name="BugCatcher\Entity\NotifierSound" repository-class="BugCatcher\Repository\NotifierRepository">
         <field name="file" type="string" length="255"/>
     </entity>
 </doctrine-mapping>

@@ -6,10 +6,10 @@
  * Time: 14:59
  */
 
-namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
+namespace BugCatcher\Tests\Integration\Twig\Detail;
 
-use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
+use BugCatcher\Tests\App\KernelTestCase;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;

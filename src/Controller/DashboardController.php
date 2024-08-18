@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller;
+namespace BugCatcher\Controller;
 
 use Exception;
-use PhpSentinel\BugCatcher\Entity\Record;
+use BugCatcher\Entity\Record;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 

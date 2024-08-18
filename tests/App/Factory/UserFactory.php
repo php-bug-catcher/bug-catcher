@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Tests\App\Factory;
+namespace BugCatcher\Tests\App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\User;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

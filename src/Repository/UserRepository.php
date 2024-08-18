@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\User;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;

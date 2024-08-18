@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Tests\App\Factory;
+namespace BugCatcher\Tests\App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
+use BugCatcher\Entity\RecordLogWithholder;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

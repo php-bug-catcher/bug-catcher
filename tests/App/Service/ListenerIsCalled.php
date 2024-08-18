@@ -5,7 +5,7 @@
  * Date: 7. 8. 2024
  * Time: 16:55
  */
-namespace PhpSentinel\BugCatcher\Tests\App\Service;
+namespace BugCatcher\Tests\App\Service;
 
 class ListenerIsCalled {
 	private array $cache = [];

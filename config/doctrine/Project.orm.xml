@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\Project" repository-class="PhpSentinel\BugCatcher\Repository\ProjectRepository">
+    <entity name="BugCatcher\Entity\Project" repository-class="BugCatcher\Repository\ProjectRepository">
         <id name="id" type="uuid" column="id">
             <generator strategy="CUSTOM"/>
             <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
@@ -26,7 +26,7 @@
 
         <field name="pingCollector" type="string" length="255" nullable="true"/>
 
-        <many-to-many field="users" target-entity="PhpSentinel\BugCatcher\Entity\User" mapped-by="projects">
+        <many-to-many field="users" target-entity="BugCatcher\Entity\User" mapped-by="projects">
             <join-table name="user_project">
                 <join-columns>
                     <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE"/>
@@ -37,7 +37,7 @@
             </join-table>
         </many-to-many>
 
-        <many-to-many field="notifiers" target-entity="PhpSentinel\BugCatcher\Entity\Notifier" mapped-by="projects">
+        <many-to-many field="notifiers" target-entity="BugCatcher\Entity\Notifier" mapped-by="projects">
             <join-table name="notifier_project">
                 <join-columns>
                     <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE"/>

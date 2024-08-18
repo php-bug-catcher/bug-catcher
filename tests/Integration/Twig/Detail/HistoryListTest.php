@@ -5,11 +5,12 @@
  * Date: 1. 6. 2024
  * Time: 7:11
  */
-namespace PhpSentinel\BugCatcher\Tests\Integration\Twig\Detail;
+namespace BugCatcher\Tests\Integration\Twig\Detail;
 
-use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
-use PhpSentinel\BugCatcher\Twig\Components\Detail\HistoryList;
+use BugCatcher\Tests\App\Factory\RecordLogFactory;
+use BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Twig\Components\Detail\HistoryList;
+use DateTime;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -40,7 +41,7 @@ class HistoryListTest extends KernelTestCase {
 	}
 
 	public function testRenderOne() {
-		$date     = new \DateTime("2024-06-01 07:11:00");
+		$date     = new DateTime("2024-06-01 07:11:00");
 		$record   = RecordLogFactory::createOne([
 			"hash"   => "hash",
 			"status" => "status",
@@ -51,7 +52,7 @@ class HistoryListTest extends KernelTestCase {
 	}
 
 	public function testRenderMulti() {
-		$date      = new \DateTime("2024-06-01 07:11:00");
+		$date      = new DateTime("2024-06-01 07:11:00");
 		$firstDate = clone $date;
 		for ($i = 0; $i < 5; $i++) {
 			$date->modify("+1 day");
@@ -79,12 +80,12 @@ class HistoryListTest extends KernelTestCase {
 		RecordLogFactory::createOne([
 			"hash"   => "hash",
 			"status" => "status",
-			'date'   => clone new \DateTime("2024-06-02 07:11:00"),
+			'date'   => clone new DateTime("2024-06-02 07:11:00"),
 		]);
 		$record   = RecordLogFactory::createMany(5, [
 			"hash"   => "hash",
 			"status" => "status",
-			'date'   => clone new \DateTime("2024-06-01 07:11:00"),
+			'date'   => clone new DateTime("2024-06-01 07:11:00"),
 		])[0];
 		$rendered = $this->renderTwigComponent('HistoryList', ['record' => $record]);
 		$this->assertCount(2, $rendered->crawler()->filter('.timeline>li'));

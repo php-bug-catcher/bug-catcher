@@ -5,13 +5,13 @@
  * Date: 23. 5. 2024
  * Time: 10:54
  */
-namespace PhpSentinel\BugCatcher\Api\Processor;
+namespace BugCatcher\Api\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Repository\ProjectRepository;
+use BugCatcher\Entity\Record;
+use BugCatcher\Repository\ProjectRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

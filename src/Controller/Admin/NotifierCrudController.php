@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -8,7 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
+use BugCatcher\Entity\NotifierEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class NotifierCrudController extends AbstractCrudController {

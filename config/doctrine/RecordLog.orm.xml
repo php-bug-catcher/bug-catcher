@@ -4,9 +4,9 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\RecordLog"
+    <entity name="BugCatcher\Entity\RecordLog"
             table="record_log"
-            repository-class="PhpSentinel\BugCatcher\Repository\RecordLogRepository"
+            repository-class="BugCatcher\Repository\RecordLogRepository"
     >
         <field name="level" type="integer"/>
         <field name="message" type="text"/>

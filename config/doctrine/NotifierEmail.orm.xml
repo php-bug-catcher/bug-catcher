@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\NotifierEmail" table="notifier">
+    <entity name="BugCatcher\Entity\NotifierEmail" table="notifier">
         <field name="email" type="string" length="255" nullable="false"/>
 
     </entity>

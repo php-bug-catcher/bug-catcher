@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Entity\NotifierFavicon;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class NotifierFaviconCrudController extends NotifierCrudController {

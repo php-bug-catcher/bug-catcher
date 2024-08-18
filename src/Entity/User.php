@@ -1,15 +1,15 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
-use PhpSentinel\BugCatcher\Entity\Client\Center\Center;
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Repository\UserRepository;
-use PhpSentinel\BugCatcher\Validator\NotAbandoned;
+use BugCatcher\Entity\Client\Center\Center;
+use BugCatcher\Entity\Client\Client;
+use BugCatcher\Repository\UserRepository;
+use BugCatcher\Validator\NotAbandoned;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;

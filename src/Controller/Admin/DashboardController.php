@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -10,16 +10,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use PhpSentinel\BugCatcher\Entity\Client\Center\Center;
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Entity\Client\Order\Order;
-use PhpSentinel\BugCatcher\Entity\Client\Order\Request;
-use PhpSentinel\BugCatcher\Entity\Client\Product\Category;
-use PhpSentinel\BugCatcher\Entity\Client\Product\Product;
-use PhpSentinel\BugCatcher\Entity\Notifier;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\Client\Center\Center;
+use BugCatcher\Entity\Client\Client;
+use BugCatcher\Entity\Client\Order\Order;
+use BugCatcher\Entity\Client\Order\Request;
+use BugCatcher\Entity\Client\Product\Category;
+use BugCatcher\Entity\Client\Product\Product;
+use BugCatcher\Entity\Notifier;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\RecordLogWithholder;
+use BugCatcher\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

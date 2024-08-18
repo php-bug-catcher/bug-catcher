@@ -4,9 +4,9 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\RecordLogWithholder"
+    <entity name="BugCatcher\Entity\RecordLogWithholder"
             table="record_log_withholder"
-            repository-class="PhpSentinel\BugCatcher\Repository\RecordLogWithholderRepository">
+            repository-class="BugCatcher\Repository\RecordLogWithholderRepository">
         <id name="id" type="uuid" column="id">
             <generator strategy="CUSTOM"/>
             <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
@@ -18,7 +18,7 @@
         <field name="threshold" type="integer" nullable="true"/>
         <field name="thresholdInterval" type="integer" nullable="true"/>
 
-        <many-to-one field="project" target-entity="PhpSentinel\BugCatcher\Entity\Project">
+        <many-to-one field="project" target-entity="BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" nullable="false"/>
         </many-to-one>
     </entity>

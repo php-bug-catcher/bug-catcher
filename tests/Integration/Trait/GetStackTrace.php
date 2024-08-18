@@ -5,7 +5,7 @@
  * Date: 14. 8. 2024
  * Time: 8:35
  */
-namespace PhpSentinel\BugCatcher\Tests\Integration\Trait;
+namespace BugCatcher\Tests\Integration\Trait;
 
 use Exception;
 use Kregel\ExceptionProbe\Stacktrace;

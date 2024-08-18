@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Tests\App\Factory;
+namespace BugCatcher\Tests\App\Factory;
 
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\NotifyRepeat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

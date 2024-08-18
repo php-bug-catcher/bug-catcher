@@ -1,5 +1,5 @@
 <?php
-namespace PhpSentinel\BugCatcher\Extension\DQL;
+namespace BugCatcher\Extension\DQL;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;

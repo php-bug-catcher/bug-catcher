@@ -5,7 +5,7 @@
  * Date: 23. 5. 2024
  * Time: 14:14
  */
-namespace PhpSentinel\BugCatcher\Tests\App;
+namespace BugCatcher\Tests\App;
 
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;

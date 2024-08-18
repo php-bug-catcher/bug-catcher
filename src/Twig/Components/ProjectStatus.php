@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\DTO\NotifierStatus;
-use PhpSentinel\BugCatcher\Repository\NotifierRepository;
-use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
+use BugCatcher\DTO\NotifierStatus;
+use BugCatcher\Repository\NotifierRepository;
+use BugCatcher\Repository\RecordPingRepository;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]

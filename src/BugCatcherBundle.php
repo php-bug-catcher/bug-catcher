@@ -1,18 +1,18 @@
 <?php
 
-namespace PhpSentinel\BugCatcher;
+namespace BugCatcher;
 
-use PhpSentinel\BugCatcher\Controller\Admin\NotifierCrudController;
-use PhpSentinel\BugCatcher\Controller\Admin\NotifierEmailCrudController;
-use PhpSentinel\BugCatcher\Controller\Admin\NotifierFaviconCrudController;
-use PhpSentinel\BugCatcher\Controller\Admin\NotifierSoundCrudController;
-use PhpSentinel\BugCatcher\Controller\Admin\UserCrudController;
-use PhpSentinel\BugCatcher\Controller\DashboardController;
-use PhpSentinel\BugCatcher\Controller\SecurityController;
-use PhpSentinel\BugCatcher\Repository\RecordLogTraceRepository;
-use PhpSentinel\BugCatcher\Twig\Components\Favicon;
-use PhpSentinel\BugCatcher\Twig\Components\LogList;
-use PhpSentinel\BugCatcher\Twig\Components\StatusList;
+use BugCatcher\Controller\Admin\NotifierCrudController;
+use BugCatcher\Controller\Admin\NotifierEmailCrudController;
+use BugCatcher\Controller\Admin\NotifierFaviconCrudController;
+use BugCatcher\Controller\Admin\NotifierSoundCrudController;
+use BugCatcher\Controller\Admin\UserCrudController;
+use BugCatcher\Controller\DashboardController;
+use BugCatcher\Controller\SecurityController;
+use BugCatcher\Repository\RecordLogTraceRepository;
+use BugCatcher\Twig\Components\Favicon;
+use BugCatcher\Twig\Components\LogList;
+use BugCatcher\Twig\Components\StatusList;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;

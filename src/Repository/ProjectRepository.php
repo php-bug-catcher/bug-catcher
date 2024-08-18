@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\User;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**

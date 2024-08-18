@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
 use DateTimeImmutable;
 use DateTimeInterface;

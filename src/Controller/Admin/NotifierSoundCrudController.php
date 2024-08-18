@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Entity\NotifierSound;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Entity\NotifierSound;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Image;
 

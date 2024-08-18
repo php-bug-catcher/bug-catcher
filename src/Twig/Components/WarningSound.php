@@ -5,10 +5,10 @@
  * Date: 7. 6. 2024
  * Time: 18:00
  */
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Entity\NotifierSound;
-use PhpSentinel\BugCatcher\Service\DashboardImportance;
+use BugCatcher\Entity\NotifierSound;
+use BugCatcher\Service\DashboardImportance;
 use Symfony\Component\Uid\Uuid;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 

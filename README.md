@@ -56,7 +56,7 @@ composer require php-sentinel/bug-catcher:dev-main
 //config/bundles.php
 return [
     ...
-    PhpSentinel\BugCatcher\BugCatcherBundle::class => ['all' => true],
+    BugCatcher\BugCatcherBundle::class => ['all' => true],
     ...
 ];
 ```
@@ -78,7 +78,7 @@ twig_component:
     #...
     defaults:
         #...
-        PhpSentinel\BugCatcher\Twig\Components\: '@BugCatcher/components/'
+        BugCatcher\Twig\Components\: '@BugCatcher/components/'
 ```
 ```yaml
 #config/packages/webpack_encore.yaml
@@ -107,7 +107,7 @@ security:
     providers:
         app_user_provider:
             entity:
-                class: PhpSentinel\BugCatcher\Entity\User
+                class: BugCatcher\Entity\User
                 property: email
     firewalls:
         #...
@@ -143,7 +143,7 @@ doctrine:
         #...
         dql:
             string_functions:
-                TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction
+                TYPE: BugCatcher\Extension\DQL\TypeFunction
 ```
 ```yaml
 #config/packages/api_platform.yaml

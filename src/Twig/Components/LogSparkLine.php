@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
 use Brendt\SparkLine\Period;
 use Brendt\SparkLine\SparkLine;

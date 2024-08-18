@@ -5,14 +5,14 @@
  * Date: 26. 7. 2024
  * Time: 16:08
  */
-namespace PhpSentinel\BugCatcher\EventSubscriber;
+namespace BugCatcher\EventSubscriber;
 
-use PhpSentinel\BugCatcher\Event\NotifyAfterEvent;
-use PhpSentinel\BugCatcher\Event\NotifyBeforeEvent;
-use PhpSentinel\BugCatcher\Event\NotifyCalculateEvent;
-use PhpSentinel\BugCatcher\Event\NotifyEvent;
-use PhpSentinel\BugCatcher\Event\RecordEvent;
-use PhpSentinel\BugCatcher\Repository\NotifierRepository;
+use BugCatcher\Event\NotifyAfterEvent;
+use BugCatcher\Event\NotifyBeforeEvent;
+use BugCatcher\Event\NotifyCalculateEvent;
+use BugCatcher\Event\NotifyEvent;
+use BugCatcher\Event\RecordEvent;
+use BugCatcher\Repository\NotifierRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

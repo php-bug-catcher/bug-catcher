@@ -5,7 +5,7 @@
  * Date: 7. 6. 2024
  * Time: 20:02
  */
-namespace PhpSentinel\BugCatcher\Enum;
+namespace BugCatcher\Enum;
 
 enum NotifyRepeat: string {
 	case None             = 'none';

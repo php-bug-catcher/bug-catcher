@@ -5,13 +5,13 @@
  * Date: 26. 7. 2024
  * Time: 8:09
  */
-namespace PhpSentinel\BugCatcher\Tests\Integration\Twig;
+namespace BugCatcher\Tests\Integration\Twig;
 
-use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Tests\App\Factory\RecordLogFactory;
+use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\Factory\RecordLogFactory;
 use DateTimeImmutable;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
-use PhpSentinel\BugCatcher\Twig\Components\LogSparkLine;
+use BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Twig\Components\LogSparkLine;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;

@@ -1,14 +1,14 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use InvalidArgumentException;
-use PhpSentinel\BugCatcher\Entity\Notifier;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Entity\Notifier;
+use BugCatcher\Enum\NotifyRepeat;
 
 /**
  * @extends ServiceEntityRepository<Notifier>

@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
+use BugCatcher\Entity\NotifierEmail;
 
 class NotifierEmailCrudController extends NotifierCrudController {
 	public static function getEntityFqcn(): string {

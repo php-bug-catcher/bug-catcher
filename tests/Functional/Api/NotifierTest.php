@@ -5,17 +5,17 @@
  * Date: 7. 8. 2024
  * Time: 14:33
  */
-namespace PhpSentinel\BugCatcher\Tests\Functional\Api;
+namespace BugCatcher\Tests\Functional\Api;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
-use PhpSentinel\BugCatcher\Tests\App\EventSubscriber\EmailNotifyListener;
-use PhpSentinel\BugCatcher\Tests\App\Factory\NotifierEmailFactory;
-use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
-use PhpSentinel\BugCatcher\Tests\App\Service\ListenerIsCalled;
-use PhpSentinel\BugCatcher\Tests\Functional\apiTestHelper;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Tests\App\EventSubscriber\EmailNotifyListener;
+use BugCatcher\Tests\App\Factory\NotifierEmailFactory;
+use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Tests\App\Service\ListenerIsCalled;
+use BugCatcher\Tests\Functional\apiTestHelper;
 
 class NotifierTest extends KernelTestCase {
 	use apiTestHelper;

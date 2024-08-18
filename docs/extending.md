@@ -22,7 +22,7 @@ bug_catcher:
 
 ## StatusList component
 
-Your compoment should exend PhpSentinel\BugCatcher\Twig\Components\AbsComponent.
+Your compoment should exend BugCatcher\Twig\Components\AbsComponent.
 
 ```yaml
 # config/packages/bug_catcher.yaml
@@ -43,17 +43,17 @@ First founded class in order by instance of record item is used as detail page c
 # config/packages/bug_catcher.yaml
 bug_catcher:
     detail_components:
-        PhpSentinel\BugCatcher\Entity\YourRecord:
+        BugCatcher\Entity\YourRecord:
             - Detail:Header
             - Detail:Title
             - Detail:HistoryList
             - YourComponentName
-        PhpSentinel\BugCatcher\Entity\RecordLogTrace:
+        BugCatcher\Entity\RecordLogTrace:
             - Detail:Header
             - Detail:Title
             - Detail:HistoryList
             - Detail:StackTrace
-        PhpSentinel\BugCatcher\Entity\RecordLog:
+        BugCatcher\Entity\RecordLog:
             - Detail:Header
             - Detail:Title
             - Detail:HistoryList
@@ -61,13 +61,13 @@ bug_catcher:
 
 ## Custom Ping collector
 
-Create  your class extending ```PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface```
+Create your class extending ```BugCatcher\Service\PingCollector\PingCollectorInterface```
 
 ```php
 namespace App\Service;
 
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Service\PingCollector\PingCollectorInterface;
+use BugCatcher\Entity\Project;
+use BugCatcher\Service\PingCollector\PingCollectorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class OkPingCollector implements PingCollectorInterface {
@@ -90,10 +90,10 @@ bug_catcher:
         None: none
 services:
     #...
-    PhpSentinel\BugCatcher\Command\PingCollectorCommand:
+    BugCatcher\Command\PingCollectorCommand:
         arguments:
             $collectors:
-                http: '@PhpSentinel\BugCatcher\Service\PingCollector\HttpPingCollector'
-                messenger: '@PhpSentinel\BugCatcher\Service\PingCollector\MessengerCollector'
+                http: '@BugCatcher\Service\PingCollector\HttpPingCollector'
+                messenger: '@BugCatcher\Service\PingCollector\MessengerCollector'
                 always_ok: '@App\Service\OkPingCollector'
 ```

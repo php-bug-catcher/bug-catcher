@@ -5,9 +5,9 @@
  * Date: 24. 5. 2024
  * Time: 11:18
  */
-namespace PhpSentinel\BugCatcher\Service\PingCollector;
+namespace BugCatcher\Service\PingCollector;
 
-use PhpSentinel\BugCatcher\Entity\Project;
+use BugCatcher\Entity\Project;
 use Symfony\Component\HttpFoundation\Response;
 
 class HttpPingCollector implements PingCollectorInterface {

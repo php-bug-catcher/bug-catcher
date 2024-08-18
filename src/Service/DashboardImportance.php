@@ -5,11 +5,11 @@
  * Date: 26. 7. 2024
  * Time: 22:28
  */
-namespace PhpSentinel\BugCatcher\Service;
+namespace BugCatcher\Service;
 
 use JetBrains\PhpStorm\ArrayShape;
-use PhpSentinel\BugCatcher\Entity\Notifier;
-use PhpSentinel\BugCatcher\Enum\Importance;
+use BugCatcher\Entity\Notifier;
+use BugCatcher\Enum\Importance;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class DashboardImportance {
@@ -44,7 +44,7 @@ class DashboardImportance {
 		file_put_contents($this->cacheDir . "/importance-$group.txt", serialize($importance));
 	}
 
-	#[ArrayShape(['importance' => "PhpSentinel\BugCatcher\Enum\Importance", 'notifier' => "PhpSentinel\BugCatcher\Entity\Notifier"])]
+	#[ArrayShape(['importance' => "BugCatcher\Enum\Importance", 'notifier' => "BugCatcher\Entity\Notifier"])]
 	public function load(string $group): ?array {
 		$group = substr(md5($group), 0, 8);
 		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {

@@ -5,11 +5,11 @@
  * Date: 7. 6. 2024
  * Time: 18:07
  */
-namespace PhpSentinel\BugCatcher\DTO;
+namespace BugCatcher\DTO;
 
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Enum\BootstrapColor;
-use PhpSentinel\BugCatcher\Enum\Importance;
+use BugCatcher\Entity\Project;
+use BugCatcher\Enum\BootstrapColor;
+use BugCatcher\Enum\Importance;
 
 class NotifierStatus {
 

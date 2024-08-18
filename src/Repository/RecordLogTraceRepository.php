@@ -5,13 +5,13 @@
  * Date: 31. 5. 2024
  * Time: 15:54
  */
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use DateTimeInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordStatus;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -5,11 +5,11 @@
  * Date: 31. 5. 2024
  * Time: 15:28
  */
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
-use PhpSentinel\BugCatcher\Api\Processor\LogRecordSaveProcessor;
+use BugCatcher\Api\Processor\LogRecordSaveProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 

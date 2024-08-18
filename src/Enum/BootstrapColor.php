@@ -5,7 +5,7 @@
  * Date: 7. 6. 2024
  * Time: 12:06
  */
-namespace PhpSentinel\BugCatcher\Enum;
+namespace BugCatcher\Enum;
 
 enum BootstrapColor: string {
 	case Primary   = "primary";

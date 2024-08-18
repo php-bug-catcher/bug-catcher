@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Twig\Components;
+namespace BugCatcher\Twig\Components;
 
-use PhpSentinel\BugCatcher\Controller\AbstractController;
-use PhpSentinel\BugCatcher\Entity\Role;
-use PhpSentinel\BugCatcher\Repository\ProjectRepository;
+use BugCatcher\Controller\AbstractController;
+use BugCatcher\Entity\Role;
+use BugCatcher\Repository\ProjectRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\DefaultActionTrait;

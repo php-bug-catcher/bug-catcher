@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller;
+namespace BugCatcher\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

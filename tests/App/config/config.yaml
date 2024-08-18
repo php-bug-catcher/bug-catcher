@@ -2,7 +2,7 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-    PhpSentinel\BugCatcher\Tests\App\:
+    BugCatcher\Tests\App\:
         resource: '../'
         exclude:
             - '../config/'
@@ -40,7 +40,7 @@ doctrine:
             auto_mapping: false
         dql:
             string_functions:
-                TYPE: PhpSentinel\BugCatcher\Extension\DQL\TypeFunction
+                TYPE: BugCatcher\Extension\DQL\TypeFunction
 security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'

@@ -5,17 +5,17 @@
  * Date: 25. 7. 2024
  * Time: 16:03
  */
-namespace PhpSentinel\BugCatcher\Tests\Functional\Twig;
+namespace BugCatcher\Tests\Functional\Twig;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Enum\NotifyRepeat;
-use PhpSentinel\BugCatcher\Service\DashboardImportance;
-use PhpSentinel\BugCatcher\Tests\App\Factory\NotifierFaviconFactory;
-use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
-use PhpSentinel\BugCatcher\Tests\Functional\apiTestHelper;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\NotifyRepeat;
+use BugCatcher\Service\DashboardImportance;
+use BugCatcher\Tests\App\Factory\NotifierFaviconFactory;
+use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Tests\Functional\apiTestHelper;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 

@@ -5,12 +5,12 @@
  * Date: 14. 7. 2024
  * Time: 21:06
  */
-namespace PhpSentinel\BugCatcher\Service;
+namespace BugCatcher\Service;
 
-use PhpSentinel\BugCatcher\Entity\RecordLog;
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder as RecordLogWithholderEntity;
-use PhpSentinel\BugCatcher\Repository\RecordLogRepository;
-use PhpSentinel\BugCatcher\Repository\RecordLogWithholderRepository;
+use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordLogWithholder as RecordLogWithholderEntity;
+use BugCatcher\Repository\RecordLogRepository;
+use BugCatcher\Repository\RecordLogWithholderRepository;
 
 readonly class RecordLogWithholder {
 

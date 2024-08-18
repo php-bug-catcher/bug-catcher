@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -12,8 +12,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Form\NotifierType;
+use BugCatcher\Entity\Project;
+use BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ProjectCrudController extends AbstractCrudController {

@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -9,10 +9,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use PhpSentinel\BugCatcher\Controller\AbstractCrudController;
-use PhpSentinel\BugCatcher\Entity\Client\Client;
-use PhpSentinel\BugCatcher\Entity\Role;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Controller\AbstractCrudController;
+use BugCatcher\Entity\Client\Client;
+use BugCatcher\Entity\Role;
+use BugCatcher\Entity\User;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;

@@ -1,7 +1,7 @@
 <?php
 
-use PhpSentinel\BugCatcher\Entity\RecordLog;
-use PhpSentinel\BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordLogTrace;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Validator;
+namespace BugCatcher\Validator;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

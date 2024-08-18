@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\DataFixtures;
+namespace BugCatcher\DataFixtures;
 
 use App\Factory\ProjectFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ObjectManager;
-use PhpSentinel\BugCatcher\Factory\LogRecordFactory;
-use PhpSentinel\BugCatcher\Factory\PingRecordFactory;
+use BugCatcher\Factory\LogRecordFactory;
+use BugCatcher\Factory\PingRecordFactory;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;

@@ -5,11 +5,11 @@
  * Date: 6. 8. 2024
  * Time: 15:11
  */
-namespace PhpSentinel\BugCatcher\Tests\Functional\Api;
+namespace BugCatcher\Tests\Functional\Api;
 
-use PhpSentinel\BugCatcher\Tests\App\Factory\ProjectFactory;
-use PhpSentinel\BugCatcher\Tests\App\KernelTestCase;
-use PhpSentinel\BugCatcher\Tests\Functional\apiTestHelper;
+use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\KernelTestCase;
+use BugCatcher\Tests\Functional\apiTestHelper;
 
 class SendRecordTest extends KernelTestCase {
 	use apiTestHelper;

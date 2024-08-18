@@ -1,14 +1,14 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordLog;
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
-use PhpSentinel\BugCatcher\Entity\RecordStatus;
+use BugCatcher\Entity\Record;
+use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordLogWithholder;
+use BugCatcher\Entity\RecordStatus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

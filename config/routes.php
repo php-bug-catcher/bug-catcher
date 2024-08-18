@@ -1,10 +1,10 @@
 <?php
 namespace {
 
-	use PhpSentinel\BugCatcher\Controller\Admin\DashboardController as AdminDashboardController;
-	use PhpSentinel\BugCatcher\Controller\DashboardController;
-	use PhpSentinel\BugCatcher\Controller\HelloController;
-	use PhpSentinel\BugCatcher\Controller\SecurityController;
+	use BugCatcher\Controller\Admin\DashboardController as AdminDashboardController;
+	use BugCatcher\Controller\DashboardController;
+	use BugCatcher\Controller\HelloController;
+	use BugCatcher\Controller\SecurityController;
 	use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 	/**

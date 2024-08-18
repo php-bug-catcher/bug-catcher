@@ -5,19 +5,19 @@
  * Date: 14. 7. 2024
  * Time: 21:01
  */
-namespace PhpSentinel\BugCatcher\EventSubscriber;
+namespace BugCatcher\EventSubscriber;
 
 use ApiPlatform\Symfony\EventListener\EventPriorities;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Entity\RecordLog;
-use PhpSentinel\BugCatcher\Entity\RecordPing;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Enum\RecordEventType;
-use PhpSentinel\BugCatcher\Event\RecordEvent;
-use PhpSentinel\BugCatcher\Event\RecordRecordedEvent;
-use PhpSentinel\BugCatcher\Repository\RecordRepository;
-use PhpSentinel\BugCatcher\Service\RecordLogWithholder;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Entity\Record;
+use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordPing;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\RecordEventType;
+use BugCatcher\Event\RecordEvent;
+use BugCatcher\Event\RecordRecordedEvent;
+use BugCatcher\Repository\RecordRepository;
+use BugCatcher\Service\RecordLogWithholder;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

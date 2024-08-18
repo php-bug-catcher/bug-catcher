@@ -5,16 +5,16 @@
  * Date: 31. 5. 2024
  * Time: 15:53
  */
-namespace PhpSentinel\BugCatcher\Repository;
+namespace BugCatcher\Repository;
 
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Enum\RecordEventType;
-use PhpSentinel\BugCatcher\Event\RecordEvent;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\Record;
+use BugCatcher\Enum\RecordEventType;
+use BugCatcher\Event\RecordEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Entity;
+namespace BugCatcher\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use PhpSentinel\BugCatcher\Repository\RecordPingRepository;
+use BugCatcher\Repository\RecordPingRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 #[ORM\Entity(repositoryClass: RecordPingRepository::class)]

@@ -5,11 +5,11 @@
  * Date: 5. 10. 2023
  * Time: 20:38
  */
-namespace PhpSentinel\BugCatcher\Twig\Components\LogList;
+namespace BugCatcher\Twig\Components\LogList;
 
 use Doctrine\Persistence\ManagerRegistry;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Repository\RecordRepository;
+use BugCatcher\Entity\Record;
+use BugCatcher\Repository\RecordRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;

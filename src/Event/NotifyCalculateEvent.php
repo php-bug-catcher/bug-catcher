@@ -5,11 +5,11 @@
  * Date: 26. 7. 2024
  * Time: 16:04
  */
-namespace PhpSentinel\BugCatcher\Event;
+namespace BugCatcher\Event;
 
-use PhpSentinel\BugCatcher\DTO\NotifierStatus;
-use PhpSentinel\BugCatcher\Entity\Notifier;
-use PhpSentinel\BugCatcher\Entity\Project;
+use BugCatcher\DTO\NotifierStatus;
+use BugCatcher\Entity\Notifier;
+use BugCatcher\Entity\Project;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class NotifyCalculateEvent extends Event {

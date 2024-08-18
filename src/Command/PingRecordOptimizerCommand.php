@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Command;
+namespace BugCatcher\Command;
 
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\RecordPing;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\RecordPing;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

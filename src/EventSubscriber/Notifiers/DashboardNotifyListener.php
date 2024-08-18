@@ -5,14 +5,14 @@
  * Date: 26. 7. 2024
  * Time: 16:21
  */
-namespace PhpSentinel\BugCatcher\EventSubscriber\Notifiers;
+namespace BugCatcher\EventSubscriber\Notifiers;
 
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
-use PhpSentinel\BugCatcher\Entity\NotifierFavicon;
-use PhpSentinel\BugCatcher\Entity\NotifierSound;
-use PhpSentinel\BugCatcher\Enum\Importance;
-use PhpSentinel\BugCatcher\Event\NotifyEvent;
-use PhpSentinel\BugCatcher\Service\DashboardImportance;
+use BugCatcher\Entity\NotifierEmail;
+use BugCatcher\Entity\NotifierFavicon;
+use BugCatcher\Entity\NotifierSound;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Event\NotifyEvent;
+use BugCatcher\Service\DashboardImportance;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]

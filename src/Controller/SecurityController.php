@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller;
+namespace BugCatcher\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
-use PhpSentinel\BugCatcher\Form\ChangePasswordType;
+use BugCatcher\Form\ChangePasswordType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

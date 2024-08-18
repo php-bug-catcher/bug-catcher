@@ -5,7 +5,7 @@
  * Date: 26. 7. 2024
  * Time: 19:57
  */
-namespace PhpSentinel\BugCatcher\Enum;
+namespace BugCatcher\Enum;
 
 enum RecordEventType {
 

@@ -4,8 +4,8 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="PhpSentinel\BugCatcher\Entity\RecordLogTrace" table="record_log_trace"
-            repository-class="PhpSentinel\BugCatcher\Repository\RecordLogTraceRepository">
+    <entity name="BugCatcher\Entity\RecordLogTrace" table="record_log_trace"
+            repository-class="BugCatcher\Repository\RecordLogTraceRepository">
         <field name="stackTrace" type="text" nullable="true"/>
 
     </entity>

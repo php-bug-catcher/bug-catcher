@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpSentinel\BugCatcher\Controller\Admin;
+namespace BugCatcher\Controller\Admin;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -12,9 +12,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\RecordLogWithholder;
-use PhpSentinel\BugCatcher\Form\NotifierType;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\RecordLogWithholder;
+use BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class RecordWithholderCrudController extends AbstractCrudController {

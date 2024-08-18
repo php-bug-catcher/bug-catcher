@@ -7,8 +7,8 @@ You are free to create your own notifier. You can send email, SMS or whatever yo
 ```php
 namespace App\EventSubscriber;
 
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
-use PhpSentinel\BugCatcher\Event\NotifyEvent;
+use BugCatcher\Entity\NotifierEmail;
+use BugCatcher\Event\NotifyEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\MailerInterface;
@@ -46,7 +46,7 @@ class EmailNotifyListener {
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use PhpSentinel\BugCatcher\Repository\NotifierRepository;
+use BugCatcher\Repository\NotifierRepository;
 
 class NotifierSms extends Notifier {
 
@@ -85,8 +85,8 @@ cp vendor/php-sentinel/bug-catcher/config/doctrine/Notifier.orm.xml config/doctr
 ```php
 namespace App\EventSubscriber;
 
-use PhpSentinel\BugCatcher\Entity\NotifierEmail;
-use PhpSentinel\BugCatcher\Event\NotifyEvent;
+use BugCatcher\Entity\NotifierEmail;
+use BugCatcher\Event\NotifyEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]

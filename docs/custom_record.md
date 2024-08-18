@@ -1,8 +1,8 @@
 ## Custom Record Item
 
 You are free to create your own record item.
-Just create class ```App\Entity\MyRecord``` extends ```PhpSentinel\BugCatcher\Entity\Record``` class.
-And also create ```App\Repository\MyRecordRepository``` extends ```PhpSentinel\BugCatcher\Repository\RecordRepository``` class.
+Just create class ```App\Entity\MyRecord``` extends ```BugCatcher\Entity\Record``` class.
+And also create ```App\Repository\MyRecordRepository``` extends ```BugCatcher\Repository\RecordRepository``` class.
 
 When you have custom class you need registered it to discriminator map.
 This is little bit tricky, because you need override all ORM mappings.
@@ -56,7 +56,7 @@ doctrine:
             BugCatcherBundle:
                 type: xml
                 dir: '%kernel.project_dir%/config/doctrine/BugCatcherBundle/'
-                prefix: 'PhpSentinel\BugCatcher\Entity'
+                prefix: 'BugCatcher\Entity'
                 alias: PhpSentinelBundle
 ```
 
@@ -64,7 +64,7 @@ doctrine:
 
 You need enable api plaform for your custom entity. See [Api Platform documentation](https://api-platform.com/docs/core/getting-started/) for more
 details.
-You can inspire in entity [PhpSentinel\BugCatcher\Entity\RecordLog](../src/Entity/RecordLog.php) for more details.
+You can inspire in entity [BugCatcher\Entity\RecordLog](../src/Entity/RecordLog.php) for more details.
 
 ### Run migrations
 ```
@@ -80,8 +80,8 @@ Now you can create twig component ```MyRecord``` for rendering log row in dashbo
 # config/packages/bug_catcher.yaml
 bug_catcher:
     dashboard_list_items:
-        - PhpSentinel\BugCatcher\Entity\RecordLog
-        - PhpSentinel\BugCatcher\Entity\RecordLogTrace
+        - BugCatcher\Entity\RecordLog
+        - BugCatcher\Entity\RecordLogTrace
         - App\Entity\MyRecord
 ```
 

@@ -6,11 +6,11 @@
  * Time: 10:09
  */
 
-namespace PhpSentinel\BugCatcher\Tests\Functional;
+namespace BugCatcher\Tests\Functional;
 
 use ApiPlatform\Api\IriConverterInterface;
 use JetBrains\PhpStorm\ArrayShape;
-use PhpSentinel\BugCatcher\Entity\User;
+use BugCatcher\Entity\User;
 use Zenstruck\Browser\KernelBrowser;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Test\ResetDatabase;

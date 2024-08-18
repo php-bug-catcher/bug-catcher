@@ -5,11 +5,11 @@
  * Date: 26. 7. 2024
  * Time: 19:56
  */
-namespace PhpSentinel\BugCatcher\Event;
+namespace BugCatcher\Event;
 
-use PhpSentinel\BugCatcher\Entity\Project;
-use PhpSentinel\BugCatcher\Entity\Record;
-use PhpSentinel\BugCatcher\Enum\RecordEventType;
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\Record;
+use BugCatcher\Enum\RecordEventType;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class RecordEvent extends Event {
