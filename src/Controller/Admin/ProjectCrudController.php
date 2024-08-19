@@ -17,6 +17,12 @@ use BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ProjectCrudController extends AbstractCrudController {
+
+
+	public function __construct(
+		private readonly array $collectors,
+	) {}
+
 	public static function getEntityFqcn(): string {
 		return Project::class;
 	}
@@ -28,8 +34,7 @@ class ProjectCrudController extends AbstractCrudController {
 
 
 	public function configureFields(string $pageName): iterable {
-		$parameterBag   = $this->container->get(ParameterBagInterface::class);
-		$collectorTypes = $parameterBag->get('collectors');
+		$collectorTypes = $this->collectors;
 		if (array_is_list($collectorTypes)) {
 			$collectorTypes = array_combine($collectorTypes, $collectorTypes);
 		}

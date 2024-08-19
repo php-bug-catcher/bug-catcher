@@ -6,6 +6,7 @@ use BugCatcher\Controller\Admin\NotifierCrudController;
 use BugCatcher\Controller\Admin\NotifierEmailCrudController;
 use BugCatcher\Controller\Admin\NotifierFaviconCrudController;
 use BugCatcher\Controller\Admin\NotifierSoundCrudController;
+use BugCatcher\Controller\Admin\ProjectCrudController;
 use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
 use BugCatcher\Controller\SecurityController;
@@ -67,6 +68,13 @@ class BugCatcherBundle extends AbstractBundle {
 			->tag('container.service_subscriber')
 			->tag('ea.crud_controller')
 			->arg('$roles', $config["roles"]);
+		$services->set(ProjectCrudController::class)
+			->autowire()
+			->public()
+			->tag('controller.service_arguments')
+			->tag('container.service_subscriber')
+			->tag('ea.crud_controller')
+			->arg('$collectors', $config["collectors"]);
 		foreach ([
 					 NotifierEmailCrudController::class,
 					 NotifierFaviconCrudController::class,
