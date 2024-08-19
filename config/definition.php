@@ -53,6 +53,8 @@ return static function (DefinitionConfigurator $definition): void {
 		->end()
 		->end()
 		->arrayNode("detail_components")
+			->useAttributeAsKey('name')
+			->arrayPrototype()->scalarPrototype()->end()->end()
 		->defaultValue([
 			RecordLogTrace::class => [
 				'Detail:Header',
@@ -66,10 +68,6 @@ return static function (DefinitionConfigurator $definition): void {
 				'Detail:HistoryList',
 			],
 		])
-		->prototype('array')
-		->children()
-		->arrayNode("components")
-		->prototype('scalar')->end()->end()->end()->end()
 		->end()
 		->arrayNode("roles")
 		->defaultValue([
