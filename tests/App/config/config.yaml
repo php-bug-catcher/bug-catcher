@@ -10,8 +10,44 @@ services:
             - '../Entity/'
             - '../src/Kernel.php'
             - '../src/KernelTestCase.php'
+    BugCatcher\Command\PingCollectorCommand:
+        arguments:
+            $collectors:
+                http: '@BugCatcher\Service\PingCollector\HttpPingCollector'
+                messenger: '@BugCatcher\Service\PingCollector\MessengerCollector'
+                cron-v2: '@BugCatcher\Tests\App\Service\CronPingCollector'
 bug_catcher:
     logo: 'default'
+    collectors:
+        Http: http
+        Messenger: messenger
+        Cron 2: cron-v2
+        None: none
+    refresh_interval: 5
+    dashboard_list_items:
+        - BugCatcher\Entity\RecordLog
+        - BugCatcher\Entity\RecordLogTrace
+        - App\Entity\RecordCron
+    detail_components:
+        BugCatcher\Entity\RecordLogTrace:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+            - 'Detail:StackTrace'
+        BugCatcher\Entity\RecordLog:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+        App\Entity\RecordCron:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+    roles:
+        Admin: ROLE_ADMIN
+        Developer: ROLE_DEVELOPER
+        User: ROLE_USER
+        Customer: ROLE_CUSTOMER
+        Full Page Reload: ROLE__FULL_PAGE_RELOAD
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
@@ -33,9 +69,14 @@ doctrine:
             App:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
+                dir: '%kernel.project_dir%/tests/App/Entity'
+                prefix: 'BugCatcher\Tests\App\Entity'
                 alias: App
+            BugCatcherBundle:
+                type: xml
+                dir: '%kernel.project_dir%/tests/App/config/doctrine/BugCatcherBundle/'
+                prefix: 'BugCatcher\Entity'
+                alias: PhpSentinelBundle
         controller_resolver:
             auto_mapping: false
         dql:
@@ -83,6 +124,10 @@ api_platform:
             rfc_7807_compliant_errors: true
     keep_legacy_inflector: false
     use_symfony_listeners: true
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/Entity'
+            - '%kernel.project_dir%/tests/App/Entity'
     swagger:
         api_keys:
             # overridden in OpenApiFactoryDecorator
