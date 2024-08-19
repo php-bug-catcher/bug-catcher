@@ -37,6 +37,15 @@
     "twig/twig": "^2.12|^3.0",
     "zenstruck/browser": "^1.8"
   },
+  "conflict": {
+    "symfony/asset-mapper": "*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../bug-catcher-bundle"
+    }
+  ],
   "config": {
     "sort-packages": true,
     "allow-plugins": {

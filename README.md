@@ -182,6 +182,8 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
 php bin/console app:create-user username password
+yarn install
+yarn build
 ```
 
 **Start the built-in web server**
