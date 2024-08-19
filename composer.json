@@ -62,5 +62,10 @@
     "symfony/runtime": "^7.1",
     "symfony/yaml": "^7.1",
     "zenstruck/foundry": "^2.0"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": "true"
+    }
   }
 }
