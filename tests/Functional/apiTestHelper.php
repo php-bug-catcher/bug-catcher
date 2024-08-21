@@ -26,8 +26,6 @@ trait apiTestHelper {
 
 	protected function setUp(): void {
 		$kernel = self::bootKernel();
-
-
 	}
 
 	#[ArrayShape([KernelBrowser::class, User::class])]

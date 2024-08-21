@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    BugCatcher\Tests\App\:
+        resource: '../'
+        exclude:
+            - '../config/'
+            - '../Factory/'
+            - '../Entity/'
+            - '../src/Kernel.php'
+            - '../src/KernelTestCase.php'
+    BugCatcher\Command\PingCollectorCommand:
+        arguments:
+            $collectors:
+                http: '@BugCatcher\Service\PingCollector\HttpPingCollector'
+                messenger: '@BugCatcher\Service\PingCollector\MessengerCollector'
+                cron-v2: '@BugCatcher\Tests\App\Service\CronPingCollector'
+

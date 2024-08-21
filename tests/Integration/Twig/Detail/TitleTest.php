@@ -23,7 +23,7 @@ class TitleTest extends KernelTestCase {
 		$record   = RecordLogTraceFactory::createOne([
 			"message" => "Test title",
 		]);
-		$rendered = $this->renderTwigComponent('Title', ['record' => $record]);
+		$rendered = $this->renderTwigComponent('Detail:Title', ['record' => $record]);
 		$this->assertSame("Test title", $rendered->crawler()->filter("h4")->text());
 	}
 }

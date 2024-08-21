@@ -1,0 +1,32 @@
+bug_catcher:
+    logo: 'default'
+    collectors:
+        Http: http
+        Messenger: messenger
+        Cron 2: cron-v2
+        None: none
+    refresh_interval: 5
+    dashboard_list_items:
+        - BugCatcher\Entity\RecordLog
+        - BugCatcher\Entity\RecordLogTrace
+        - App\Entity\RecordCron
+    detail_components:
+        BugCatcher\Entity\RecordLogTrace:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+            - 'Detail:StackTrace'
+        BugCatcher\Entity\RecordLog:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+        App\Entity\RecordCron:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+    roles:
+        Admin: ROLE_ADMIN
+        Developer: ROLE_DEVELOPER
+        User: ROLE_USER
+        Customer: ROLE_CUSTOMER
+        Full Page Reload: ROLE__FULL_PAGE_RELOAD

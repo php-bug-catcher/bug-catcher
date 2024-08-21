@@ -28,7 +28,7 @@ class StackTraceTest extends KernelTestCase {
 		$record   = RecordLogTraceFactory::createOne([
 			"stackTrace" => "not serialized",
 		]);
-		$rendered = $this->renderTwigComponent('StackTrace', ['record' => $record]);
+		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
 		$this->assertSame("Unable to unserialize stacktrace (line 0)", $rendered->crawler()->filter("button.accordion-button")->text());
 	}
 
@@ -38,7 +38,7 @@ class StackTraceTest extends KernelTestCase {
 			"stackTrace" => $this->getStackTrace(),
 		]);
 
-		$rendered = $this->mountTwigComponent('StackTrace', ['record' => $record]);
+		$rendered = $this->mountTwigComponent('Detail:StackTrace', ['record' => $record]);
 		$this->assertInstanceOf(StackTrace::class, $rendered);
 
 		$first = null;

@@ -17,12 +17,8 @@ use Symfony\Component\Routing\Loader\PhpFileLoader as RoutingPhpFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 
 class Kernel extends BaseKernel {
-	use MicroKernelTrait {
-		MicroKernelTrait::registerContainerConfiguration as registerContainerConfigurationTrait;
-	}
+	use MicroKernelTrait;
 
-
-	private array $configFiles = [];
 
 
 	/**
@@ -32,18 +28,13 @@ class Kernel extends BaseKernel {
 		return __DIR__ . '/config/bundles.php';
 	}
 
-	public function configureContainer() {
+	public function getConfigDir() {
 		return __DIR__ . '/config';
 	}
 
 
-	public function __construct(private array $options) {
+	public function __construct() {
 		parent::__construct('test', true);
-		$this->addConfigFile(__DIR__ . '/config/config.yaml');
-	}
-
-	public function addConfigFile(string $configFile): void {
-		$this->configFiles[] = $configFile;
 	}
 
 
@@ -51,31 +42,7 @@ class Kernel extends BaseKernel {
 		return $this->getProjectDir() . '/var/cache/' . $this->environment . '/' . spl_object_hash($this);
 	}
 
-	public function registerContainerConfiguration(LoaderInterface $loader): void {
-		$this->registerContainerConfigurationTrait($loader);
-		$loader->load(function (ContainerBuilder $container) use ($loader) {
-			foreach ($this->configFiles as $path) {
-				$loader->load($path);
-			}
-			$container->addObjectResource($this);
-			$container->loadFromExtension('bug_catcher', $this->options);
-		});
-	}
 
-	protected function configureRoutes(RoutingConfigurator $routes): void {
-//		$paths[] = __DIR__ . '/../../config/routes.php';
-//		foreach ($paths as $path) {
-//			if (!file_exists($path)) {
-//				throw new RuntimeException(sprintf('The file "%s" does not exist.', $path));
-//			}
-//			(require $path)($routes->withPath($path), $this);
-//		}
-
-		$paths = [__DIR__ . '/config/routes.yaml'];
-		foreach ($paths as $path) {
-			$routes->import($path);
-		}
-	}
 
 	public function __destruct() {
 		//remove entire cache dir recursively

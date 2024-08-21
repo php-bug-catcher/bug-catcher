@@ -1,0 +1,8 @@
+twig:
+    file_name_pattern: '*.twig'
+    globals:
+        logo: 'foo'
+
+when@test:
+    twig:
+        strict_variables: true

@@ -37,7 +37,7 @@ class RecordLogTest extends KernelTestCase {
 			"date"   => new DateTime("2022-01-01 00:00:00"),
 		])[0];
 
-		$rendered = $this->mountTwigComponent('RecordLog', ['log' => $record->_real(), "status" => "new"]);
+		$rendered = $this->mountTwigComponent('LogList:RecordLog', ['log' => $record->_real(), "status" => "new"]);
 		$this->assertInstanceOf(RecordLog::class, $rendered);
 
 		$rendered->clearOne("resolved");
@@ -63,7 +63,7 @@ class RecordLogTest extends KernelTestCase {
 			"hash"       => "hash",
 		]);
 
-		$rendered = $this->mountTwigComponent('RecordLog', ['log' => $record->_real(), "status" => "new"]);
+		$rendered = $this->mountTwigComponent('LogList:RecordLog', ['log' => $record->_real(), "status" => "new"]);
 		$this->assertInstanceOf(RecordLog::class, $rendered);
 
 		$rendered->clearOne("resolved");
