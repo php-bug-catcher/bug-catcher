@@ -17,7 +17,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserCrudController extends AbstractCrudController {
+final class UserCrudController extends AbstractCrudController
+{
 	public function __construct(
 		public UserPasswordHasherInterface $userPasswordHasher,
 		public array                       $roles

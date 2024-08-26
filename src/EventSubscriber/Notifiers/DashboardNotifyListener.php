@@ -16,7 +16,8 @@ use BugCatcher\Service\DashboardImportance;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
-class DashboardNotifyListener {
+final class DashboardNotifyListener
+{
 
 
 	public function __construct(

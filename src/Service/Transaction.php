@@ -11,7 +11,8 @@ namespace BugCatcher\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
-class Transaction {
+final class Transaction
+{
 
 	/** @var callable[] */
 	private array $rollbackHandlers = [];

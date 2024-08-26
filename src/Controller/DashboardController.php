@@ -7,7 +7,8 @@ use BugCatcher\Entity\Record;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 
-class DashboardController extends AbstractController {
+final class DashboardController extends AbstractController
+{
 
 
 	public function __construct(

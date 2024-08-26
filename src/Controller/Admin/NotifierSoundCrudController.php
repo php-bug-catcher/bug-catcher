@@ -9,7 +9,8 @@ use BugCatcher\Entity\NotifierSound;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Image;
 
-class NotifierSoundCrudController extends NotifierCrudController {
+final class NotifierSoundCrudController extends NotifierCrudController
+{
 	public static function getEntityFqcn(): string {
 		return NotifierSound::class;
 	}

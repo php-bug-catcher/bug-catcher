@@ -11,6 +11,7 @@ use BugCatcher\Entity\Record;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(template: '@BugCatcher/components/Detail/Header.html.twig')]
-class Header {
+final class Header
+{
 	public Record $record;
 }

@@ -2,12 +2,14 @@
 
 namespace BugCatcher\Repository;
 
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\Record;
+use BugCatcher\Entity\RecordPing;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use BugCatcher\Entity\Project;
-use BugCatcher\Entity\RecordPing;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -19,55 +21,87 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @method RecordPing[]    findAll()
  * @method RecordPing[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordPingRepository extends RecordRepository {
-	public function __construct(ManagerRegistry $registry, EventDispatcherInterface $dispatcher) {
-		parent::__construct($registry, $dispatcher, RecordPing::class);
-	}
+final class RecordPingRepository extends ServiceEntityRepository implements RecordRepositoryInterface
+{
+    public function __construct(
+        ManagerRegistry $registry,
+        EventDispatcherInterface $dispatcher,
+        private readonly RecordRepositoryInterface $recordRepository,
+    ) {
+        parent::__construct($registry, RecordPing::class);
+    }
 
-	public function save(RecordPing $entity, bool $flush = false): void {
-		$this->getEntityManager()->persist($entity);
+    public function save(RecordPing $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
 
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 
-	public function remove(RecordPing $entity, bool $flush = false): void {
-		$this->getEntityManager()->remove($entity);
+    public function remove(RecordPing $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
 
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 
-	public function createEmpty(bool $flush): RecordPing {
-		$entity = new RecordPing();
+    public function createEmpty(bool $flush): RecordPing
+    {
+        $entity = new RecordPing();
 
-		$this->save($entity, $flush);
+        $this->save($entity, $flush);
 
-		return $entity;
-	}
+        return $entity;
+    }
 
-	public function getQBWith(Project $project): QueryBuilder {
-		$qb = $this->createQueryBuilder('r');
+    public function getQBWith(Project $project): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('r');
 
-		$qb->andWhere('r.project = :project')
-			->setParameter('project', $project->getId(), UuidType::NAME);
+        $qb->andWhere('r.project = :project')
+            ->setParameter('project', $project->getId(), UuidType::NAME);
 
-		return $qb;
-	}
+        return $qb;
+    }
 
-	public function getLastRecord(Project $project, string $maxLife = '-1 hour'): ?RecordPing {
-		return $this->getQBWith(project: $project)
-			->andWhere("r.date >= :date")
-			->orderBy('r.date', 'DESC')
-			->setParameter('date', new DateTime($maxLife))
-			->setMaxResults(1)
-			->getQuery()
-			->getOneOrNullResult();
-	}
+    public function getLastRecord(Project $project, string $maxLife = '-1 hour'): ?RecordPing
+    {
+        return $this->getQBWith(project: $project)
+            ->andWhere("r.date >= :date")
+            ->orderBy('r.date', 'DESC')
+            ->setParameter('date', new DateTime($maxLife))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
-	public function getQBBlank(): QueryBuilder {
-		return $this->createQueryBuilder('p')->setMaxResults(0);
-	}
+    public function getQBBlank(): QueryBuilder
+    {
+        return $this->createQueryBuilder('p')->setMaxResults(0);
+    }
+
+    public function setStatusOlderThan(
+        array $projects,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        callable $qbCallback = null
+    ): void {
+        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCallback);
+    }
+
+    public function setStatus(
+        Record $log,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        bool $flush = false,
+        callable $qbCallback = null
+    ) {
+        $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCallback);
+    }
 }

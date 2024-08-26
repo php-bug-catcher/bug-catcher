@@ -11,6 +11,8 @@ use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
 use BugCatcher\Controller\SecurityController;
 use BugCatcher\Repository\RecordLogTraceRepository;
+use BugCatcher\Repository\RecordRepository;
+use BugCatcher\Repository\RecordRepositoryInterface;
 use BugCatcher\Twig\Components\Favicon;
 use BugCatcher\Twig\Components\LogList;
 use BugCatcher\Twig\Components\StatusList;
@@ -23,7 +25,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 /**
  * @link https://symfony.com/doc/current/bundles/best_practices.html
  */
-class BugCatcherBundle extends AbstractBundle {
+final class BugCatcherBundle extends AbstractBundle
+{
 	public function build(ContainerBuilder $container) {
 		parent::build($container);
 	}
@@ -104,6 +107,12 @@ class BugCatcherBundle extends AbstractBundle {
 			->autowire()
 			->autoconfigure()
 			->arg('$logo', $config["logo"]);
+
+        $services->set(RecordRepositoryInterface::class)
+            ->autowire()
+            ->autoconfigure()
+            ->class(RecordRepository::class)
+            ->public(true);
 	}
 
 

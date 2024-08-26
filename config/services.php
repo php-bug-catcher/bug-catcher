@@ -6,7 +6,8 @@ namespace {
 	use BugCatcher\Entity\RecordLog;
 	use BugCatcher\Entity\RecordLogTrace;
 	use BugCatcher\Repository\RecordLogTraceRepository;
-	use BugCatcher\Service\PingCollector\HttpPingCollector;
+    use BugCatcher\Repository\RecordRepositoryInterface;
+    use BugCatcher\Service\PingCollector\HttpPingCollector;
 	use BugCatcher\Service\PingCollector\MessengerCollector;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 	use function Symfony\Component\DependencyInjection\Loader\Configurator\service;

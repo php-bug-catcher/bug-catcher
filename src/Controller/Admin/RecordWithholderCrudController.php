@@ -17,7 +17,8 @@ use BugCatcher\Entity\RecordLogWithholder;
 use BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class RecordWithholderCrudController extends AbstractCrudController {
+final class RecordWithholderCrudController extends AbstractCrudController
+{
 	public static function getEntityFqcn(): string {
 		return RecordLogWithholder::class;
 	}

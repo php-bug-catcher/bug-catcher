@@ -15,7 +15,8 @@ use BugCatcher\Repository\ProjectRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class LogRecordSaveProcessor implements ProcessorInterface {
+final class LogRecordSaveProcessor implements ProcessorInterface
+{
 	public function __construct(
 		#[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
 		private ProcessorInterface         $persistProcessor,

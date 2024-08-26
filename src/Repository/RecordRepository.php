@@ -5,16 +5,17 @@
  * Date: 31. 5. 2024
  * Time: 15:53
  */
+
 namespace BugCatcher\Repository;
 
-use DateTimeInterface;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Enum\RecordEventType;
 use BugCatcher\Event\RecordEvent;
+use DateTimeInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -23,52 +24,72 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @method Record[] findAll()
  * @method Record[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordRepository extends ServiceEntityRepository {
-	public function __construct(
-		ManagerRegistry                    $registry,
-		protected EventDispatcherInterface $dispatcher,
-										   $class = Record::class
-	) {
-		parent::__construct($registry, $class);
-	}
+final class RecordRepository extends ServiceEntityRepository implements RecordRepositoryInterface
+{
+    public function __construct(
+        ManagerRegistry $registry,
+        protected EventDispatcherInterface $dispatcher,
+    ) {
+        parent::__construct($registry, Record::class);
+    }
 
-	/**
-	 * @param Project[] $projects
-	 */
-	public function setStatusOlderThan(array $projects, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new'): void {
-		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
+    /**
+     * @param Project[] $projects
+     */
+    public function setStatusOlderThan(
+        array $projects,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        callable $qbCallback = null
+    ): void {
+        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCallback);
 
-		$qb
-			->andWhere("l.project IN (:projects)")
-			->setParameter('projects', array_map(fn(Project $s) => $s->getId()->toBinary(), $projects))
-			->getQuery()
-			->execute();
-		$this->dispatcher->dispatch(new RecordEvent(null, RecordEventType::BATCH_UPDATED, $projects));
-	}
+        $qb
+            ->andWhere("l.project IN (:projects)")
+            ->setParameter('projects', array_map(fn(Project $s) => $s->getId()->toBinary(), $projects))
+            ->getQuery()
+            ->execute();
+        $this->dispatcher->dispatch(new RecordEvent(null, RecordEventType::BATCH_UPDATED, $projects));
+    }
 
-	public function setStatus(
-		Record $log, DateTimeInterface $lastDate, string $newStatus, string $previousStatus = 'new', bool $flush = false): void {
-		$qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus);
-		$qb
-			->andWhere('l.hash = :hash')
-			->setParameter('hash', $log->getHash())
-			->getQuery()
-			->execute();
-		$this->dispatcher->dispatch(new RecordEvent($log, RecordEventType::UPDATED, [$log->getProject()]));
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
+    public function setStatus(
+        Record $log,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        bool $flush = false,
+        callable $qbCallback = null
+    ): void {
+        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCallback);
+        $qb
+            ->andWhere('l.hash = :hash')
+            ->setParameter('hash', $log->getHash())
+            ->getQuery()
+            ->execute();
+        $this->dispatcher->dispatch(new RecordEvent($log, RecordEventType::UPDATED, [$log->getProject()]));
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 
-	protected function getUpdateStatusQB(string $newStatus, DateTimeInterface $lastDate, string $previousStatus): QueryBuilder {
-		$qb = $this->createQueryBuilder('l');
-		$qb = $qb->update()
-			->set('l.status', "'{$newStatus}'")
-			->andWhere('l.date <= :date')
-			->andWhere('l.status = :status')
-			->setParameter('date', $lastDate)
-			->setParameter('status', $previousStatus);
+    protected function getUpdateStatusQB(
+        string $newStatus,
+        DateTimeInterface $lastDate,
+        string $previousStatus,
+        callable $qbCallback = null
+    ): QueryBuilder {
+        $qb = $this->createQueryBuilder('l');
+        $qb = $qb->update()
+            ->set('l.status', "'{$newStatus}'")
+            ->andWhere('l.date <= :date')
+            ->andWhere('l.status = :status')
+            ->setParameter('date', $lastDate)
+            ->setParameter('status', $previousStatus);
+        if ($qbCallback != null) {
+            $qb = call_user_func_array($qbCallback, [$qb, $newStatus, $lastDate, $previousStatus]);
+        }
 
-		return $qb;
-	}
+        return $qb;
+    }
 }

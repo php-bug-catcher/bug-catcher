@@ -12,7 +12,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use BugCatcher\Entity\Project;
 use Symfony\Component\HttpFoundation\Response;
 
-class MessengerCollector implements PingCollectorInterface {
+final class MessengerCollector implements PingCollectorInterface
+{
 
 
 	public function __construct(

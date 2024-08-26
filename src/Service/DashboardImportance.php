@@ -12,7 +12,8 @@ use BugCatcher\Entity\Notifier;
 use BugCatcher\Enum\Importance;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class DashboardImportance {
+final class DashboardImportance
+{
 
 	public array $importance = [];
 

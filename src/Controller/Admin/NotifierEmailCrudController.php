@@ -5,7 +5,8 @@ namespace BugCatcher\Controller\Admin;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use BugCatcher\Entity\NotifierEmail;
 
-class NotifierEmailCrudController extends NotifierCrudController {
+final class NotifierEmailCrudController extends NotifierCrudController
+{
 	public static function getEntityFqcn(): string {
 		return NotifierEmail::class;
 	}

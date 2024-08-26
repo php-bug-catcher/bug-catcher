@@ -13,7 +13,8 @@ use BugCatcher\Entity\Record;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(template: '@BugCatcher/components/Detail/StackTrace.html.twig')]
-class StackTrace {
+final class StackTrace
+{
 	public Record $record;
 	/**
 	 * @var  Codeframe[]

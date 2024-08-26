@@ -5,7 +5,8 @@ namespace BugCatcher\Validator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class IsRegexValidator extends ConstraintValidator {
+final class IsRegexValidator extends ConstraintValidator
+{
 	public function validate(mixed $value, Constraint $constraint): void {
 		/* @var IsRegex $constraint */
 

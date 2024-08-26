@@ -13,7 +13,8 @@ use Symfony\Component\Uid\Uuid;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
-class WarningSound extends AbsComponent  {
+final class WarningSound extends AbsComponent
+{
 
 	public string $id;
 

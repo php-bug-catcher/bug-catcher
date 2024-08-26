@@ -17,7 +17,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[AsEventListener]
-class RecordListener {
+final class RecordListener
+{
 	public function __construct(
 		private readonly NotifierRepository       $notifierRepo,
 		private readonly EventDispatcherInterface $dispatcher

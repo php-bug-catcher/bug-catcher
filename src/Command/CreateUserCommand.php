@@ -18,7 +18,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 	name: 'app:create-user',
 	description: 'Initialize the app with superadmin',
 )]
-class CreateUserCommand extends Command {
+final class CreateUserCommand extends Command
+{
 	public function __construct(
 		private readonly UserRepository              $userRepo,
 		private readonly Transaction                 $transaction,

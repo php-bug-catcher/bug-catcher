@@ -2,7 +2,10 @@
 
 namespace BugCatcher\Tests\App\Repository;
 
+use BugCatcher\Entity\Record;
+use BugCatcher\Repository\RecordRepositoryInterface;
 use BugCatcher\Tests\App\Entity\RecordCron;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use BugCatcher\Repository\RecordRepository;
@@ -11,33 +14,33 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @extends ServiceEntityRepository<RecordCron>
  */
-class CronRecordRepository extends RecordRepository {
-	public function __construct(ManagerRegistry $registry, EventDispatcherInterface $dispatcher) {
-		parent::__construct($registry, $dispatcher, RecordCron::class);
+class CronRecordRepository extends ServiceEntityRepository implements RecordRepositoryInterface
+{
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly RecordRepositoryInterface $recordRepository,
+    ) {
+        parent::__construct($registry, RecordCron::class);
 	}
 
-	//    /**
-	//     * @return CronRecord[] Returns an array of CronRecord objects
-	//     */
-	//    public function findByExampleField($value): array
-	//    {
-	//        return $this->createQueryBuilder('c')
-	//            ->andWhere('c.exampleField = :val')
-	//            ->setParameter('val', $value)
-	//            ->orderBy('c.id', 'ASC')
-	//            ->setMaxResults(10)
-	//            ->getQuery()
-	//            ->getResult()
-	//        ;
-	//    }
+    public function setStatusOlderThan(
+        array $projects,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        callable $qbCallback = null
+    ): void {
+        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCallback);
+    }
 
-	//    public function findOneBySomeField($value): ?CronRecord
-	//    {
-	//        return $this->createQueryBuilder('c')
-	//            ->andWhere('c.exampleField = :val')
-	//            ->setParameter('val', $value)
-	//            ->getQuery()
-	//            ->getOneOrNullResult()
-	//        ;
-	//    }
+    public function setStatus(
+        Record $log,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        bool $flush = false,
+        callable $qbCallback = null
+    ) {
+        $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCallback);
+    }
 }

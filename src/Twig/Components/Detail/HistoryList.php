@@ -12,7 +12,8 @@ use BugCatcher\Repository\RecordRepository;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(template: '@BugCatcher/components/Detail/HistoryList.html.twig')]
-class HistoryList {
+final class HistoryList
+{
 	public Record $record;
 
 	public function __construct(private readonly RecordRepository $recordRepo) {}

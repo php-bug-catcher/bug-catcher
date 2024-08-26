@@ -11,7 +11,8 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Enum\BootstrapColor;
 use BugCatcher\Enum\Importance;
 
-class NotifierStatus {
+final class NotifierStatus
+{
 
 	/** @var array<Importance, Importance> */
 	private array $importances = [];

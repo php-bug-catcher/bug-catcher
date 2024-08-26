@@ -14,7 +14,8 @@ use BugCatcher\Service\DashboardImportance;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
-class NotifyAfterListener {
+final class NotifyAfterListener
+{
 	public function __construct(
 		private readonly DashboardImportance $importance
 	) {}

@@ -20,7 +20,8 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 
 #[AsLiveComponent(template: '@BugCatcher/components/LogList/RecordLog.html.twig')]
-class RecordLog {
+final class RecordLog
+{
 	use DefaultActionTrait;
 
 	#[LiveProp]

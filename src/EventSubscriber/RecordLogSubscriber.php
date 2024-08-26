@@ -27,7 +27,8 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class RecordLogSubscriber implements EventSubscriberInterface {
+final class RecordLogSubscriber implements EventSubscriberInterface
+{
 
 
 	public function __construct(

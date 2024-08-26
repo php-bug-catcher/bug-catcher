@@ -12,7 +12,8 @@ use BugCatcher\Entity\RecordLogWithholder as RecordLogWithholderEntity;
 use BugCatcher\Repository\RecordLogRepository;
 use BugCatcher\Repository\RecordLogWithholderRepository;
 
-readonly class RecordLogWithholder {
+readonly final class RecordLogWithholder
+{
 
 
 	public function __construct(

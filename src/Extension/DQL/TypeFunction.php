@@ -34,7 +34,8 @@ use Doctrine\ORM\Query\TokenType;
  * - get the type when we only have an ID
  * - query within a subset of all the available types
  */
-class TypeFunction extends FunctionNode {
+final class TypeFunction extends FunctionNode
+{
 	/**
 	 * @var string
 	 */

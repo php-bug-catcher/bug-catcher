@@ -15,7 +15,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SecurityController extends AbstractController {
+final class SecurityController extends AbstractController
+{
 
 	public function __construct(
 		private readonly string $logo,

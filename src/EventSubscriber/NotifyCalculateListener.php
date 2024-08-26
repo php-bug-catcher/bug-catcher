@@ -15,7 +15,8 @@ use BugCatcher\Repository\RecordRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
-class NotifyCalculateListener {
+final class NotifyCalculateListener
+{
 
 
 	public function __construct(

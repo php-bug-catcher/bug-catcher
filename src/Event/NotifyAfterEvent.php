@@ -10,7 +10,8 @@ namespace BugCatcher\Event;
 use BugCatcher\Entity\Notifier;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NotifyAfterEvent extends Event {
+final class NotifyAfterEvent extends Event
+{
 
 
 	public function __construct(

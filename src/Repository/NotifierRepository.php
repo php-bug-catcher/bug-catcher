@@ -13,7 +13,8 @@ use BugCatcher\Enum\NotifyRepeat;
 /**
  * @extends ServiceEntityRepository<Notifier>
  */
-class NotifierRepository extends ServiceEntityRepository {
+final class NotifierRepository extends ServiceEntityRepository
+{
 	public function __construct(ManagerRegistry $registry, string $entityClass = Notifier::class) {
 		parent::__construct($registry, $entityClass);
 	}

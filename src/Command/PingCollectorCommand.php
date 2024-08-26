@@ -18,7 +18,8 @@ use Throwable;
 #[AsCommand(
 	name: 'app:ping-collector',
 )]
-class PingCollectorCommand extends Command implements ServiceSubscriberInterface {
+final class PingCollectorCommand extends Command implements ServiceSubscriberInterface
+{
 	public function __construct(
 		private readonly array                $collectors,
 		private readonly ProjectRepository    $projectRepo,

@@ -16,7 +16,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
-class Favicon {
+final class Favicon
+{
 
 	public string $id = "";
 

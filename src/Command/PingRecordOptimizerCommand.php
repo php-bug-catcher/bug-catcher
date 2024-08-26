@@ -19,7 +19,8 @@ use Symfony\Component\Uid\Uuid;
 	name: 'app:record-optimizer',
 	description: 'Add a short description for your command',
 )]
-class PingRecordOptimizerCommand extends Command {
+final class PingRecordOptimizerCommand extends Command
+{
 	public function __construct(
 		private readonly EntityManagerInterface $em,
 	) {

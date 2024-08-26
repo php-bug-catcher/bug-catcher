@@ -10,7 +10,8 @@ namespace BugCatcher\Event;
 use BugCatcher\Entity\Record;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class RecordRecordedEvent extends AbsRecordEvent {
+final class RecordRecordedEvent extends AbsRecordEvent
+{
 
 
 }

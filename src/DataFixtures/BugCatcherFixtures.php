@@ -12,7 +12,8 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class BugCatcherFixtures extends Fixture {
+final class BugCatcherFixtures extends Fixture
+{
 	public function load(ObjectManager $manager): void {
 		/** @var Connection $object */
 		$object = $manager->getConnection();

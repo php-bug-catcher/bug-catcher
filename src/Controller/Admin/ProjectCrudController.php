@@ -16,7 +16,8 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Form\NotifierType;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class ProjectCrudController extends AbstractCrudController {
+final class ProjectCrudController extends AbstractCrudController
+{
 
 
 	public function __construct(

@@ -12,7 +12,8 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Enum\Importance;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NotifyEvent extends Event {
+final class NotifyEvent extends Event
+{
 
 
 	public function __construct(

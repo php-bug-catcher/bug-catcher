@@ -2,6 +2,7 @@
 
 namespace BugCatcher\Repository;
 
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,12 +20,46 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @method RecordLogWithholder[]    findAll()
  * @method RecordLogWithholder[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogWithholderRepository extends RecordRepository {
+final class RecordLogWithholderRepository extends ServiceEntityRepository implements RecordRepositoryInterface
+{
 	public function __construct(
 		ManagerRegistry $registry,
-		EventDispatcherInterface $dispatcher,
+        private readonly RecordRepositoryInterface $recordRepository,
 	) {
-		parent::__construct($registry, $dispatcher, RecordLogWithholder::class);
-	}
+        parent::__construct($registry, RecordLogWithholder::class);
+    }
 
+    public function setStatusOlderThan(
+        array $projects,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        callable $qbCallback = null
+    ): void {
+        $this->recordRepository->setStatusOlderThan(
+            $projects,
+            $lastDate,
+            $newStatus,
+            $previousStatus,
+            $qbCallback
+        );
+    }
+
+    public function setStatus(
+        Record $log,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        bool $flush = false,
+        callable $qbCallback = null
+    ) {
+        $this->recordRepository->setStatus(
+            $log,
+            $lastDate,
+            $newStatus,
+            $previousStatus,
+            $flush,
+            $qbCallback
+        );
+    }
 }

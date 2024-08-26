@@ -12,7 +12,8 @@ use BugCatcher\Entity\Record;
 use BugCatcher\Enum\RecordEventType;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class RecordEvent extends Event {
+final class RecordEvent extends Event
+{
 
 
 	public function __construct(

@@ -10,7 +10,8 @@ namespace BugCatcher\Service\PingCollector;
 use BugCatcher\Entity\Project;
 use Symfony\Component\HttpFoundation\Response;
 
-class HttpPingCollector implements PingCollectorInterface {
+final class HttpPingCollector implements PingCollectorInterface
+{
 
 	public function ping(Project $project): string {
 		return $this->validUrl($project->getUrl());

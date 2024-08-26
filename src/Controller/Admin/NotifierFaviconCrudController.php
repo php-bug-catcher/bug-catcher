@@ -9,7 +9,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use BugCatcher\Entity\NotifierFavicon;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class NotifierFaviconCrudController extends NotifierCrudController {
+final class NotifierFaviconCrudController extends NotifierCrudController
+{
 	public static function getEntityFqcn(): string {
 		return NotifierFavicon::class;
 	}

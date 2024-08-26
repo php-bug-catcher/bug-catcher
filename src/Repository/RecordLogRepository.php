@@ -2,6 +2,7 @@
 
 namespace BugCatcher\Repository;
 
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,12 +19,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @method Record[]    findAll()
  * @method Record[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RecordLogRepository extends RecordRepository {
+final class RecordLogRepository extends ServiceEntityRepository implements RecordRepositoryInterface
+{
 	public function __construct(
 		ManagerRegistry $registry,
-		EventDispatcherInterface $dispatcher
+        private readonly RecordRepositoryInterface $recordRepository,
 	) {
-		parent::__construct($registry, $dispatcher, RecordLog::class);
+        parent::__construct($registry, RecordLog::class);
 	}
 
 	public function save(Record $entity, bool $flush = false): void {
@@ -60,5 +62,26 @@ class RecordLogRepository extends RecordRepository {
 		return $this->createQueryBuilder('l')->setMaxResults(0);
 	}
 
+
+    public function setStatusOlderThan(
+        array $projects,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        callable $qbCallback = null
+    ): void {
+        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCallback);
+    }
+
+    public function setStatus(
+        Record $log,
+        DateTimeInterface $lastDate,
+        string $newStatus,
+        string $previousStatus = 'new',
+        bool $flush = false,
+        callable $qbCallback = null
+    ) {
+        $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCallback);
+    }
 
 }

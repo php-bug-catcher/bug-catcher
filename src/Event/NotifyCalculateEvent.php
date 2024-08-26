@@ -12,7 +12,8 @@ use BugCatcher\Entity\Notifier;
 use BugCatcher\Entity\Project;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NotifyCalculateEvent extends Event {
+final class NotifyCalculateEvent extends Event
+{
 
 	/**
 	 * @var NotifierStatus[]
