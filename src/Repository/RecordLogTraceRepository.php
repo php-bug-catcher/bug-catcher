@@ -32,12 +32,11 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
     }
 
     protected function updateQb(
-        QueryBuilder $qb,
         string $newStatus,
         DateTimeInterface $lastDate,
         string $previousStatus
     ): QueryBuilder {
-
+        $qb = $this->createQueryBuilder("l");
         if ($newStatus == 'resolved' && $this->clearStackTrace) {
             $qb = $qb->set('l.stackTrace', 'NULL');
         }
@@ -51,7 +50,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
         DateTimeInterface $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void {
         $this->recordRepository->setStatusOlderThan(
             $projects,
@@ -68,7 +67,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCallback = null
+        callable $qbCreator = null
     ) {
         $this->recordRepository->setStatus(
             $log,

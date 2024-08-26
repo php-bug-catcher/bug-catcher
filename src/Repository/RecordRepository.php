@@ -41,9 +41,9 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         DateTimeInterface $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void {
-        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCallback);
+        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCreator);
 
         $qb
             ->andWhere("l.project IN (:projects)")
@@ -59,9 +59,9 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void {
-        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCallback);
+        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCreator);
         $qb
             ->andWhere('l.hash = :hash')
             ->setParameter('hash', $log->getHash())
@@ -77,18 +77,21 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         string $newStatus,
         DateTimeInterface $lastDate,
         string $previousStatus,
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): QueryBuilder {
-        $qb = $this->createQueryBuilder('l');
+
+        if ($qbCreator != null) {
+            /** @var QueryBuilder $qb */
+            $qb = call_user_func_array($qbCreator, [$newStatus, $lastDate, $previousStatus]);
+        } else {
+            $qb = $this->createQueryBuilder('l');
+        }
         $qb = $qb->update()
             ->set('l.status', "'{$newStatus}'")
             ->andWhere('l.date <= :date')
             ->andWhere('l.status = :status')
             ->setParameter('date', $lastDate)
             ->setParameter('status', $previousStatus);
-        if ($qbCallback != null) {
-            $qb = call_user_func_array($qbCallback, [$qb, $newStatus, $lastDate, $previousStatus]);
-        }
 
         return $qb;
     }

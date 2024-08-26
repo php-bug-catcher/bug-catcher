@@ -34,14 +34,14 @@ final class RecordLogWithholderRepository extends ServiceEntityRepository implem
         DateTimeInterface $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void {
         $this->recordRepository->setStatusOlderThan(
             $projects,
             $lastDate,
             $newStatus,
             $previousStatus,
-            $qbCallback
+            $qbCreator
         );
     }
 
@@ -51,7 +51,7 @@ final class RecordLogWithholderRepository extends ServiceEntityRepository implem
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCallback = null
+        callable $qbCreator = null
     ) {
         $this->recordRepository->setStatus(
             $log,
@@ -59,7 +59,7 @@ final class RecordLogWithholderRepository extends ServiceEntityRepository implem
             $newStatus,
             $previousStatus,
             $flush,
-            $qbCallback
+            $qbCreator
         );
     }
 }

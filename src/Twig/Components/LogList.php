@@ -85,10 +85,10 @@ final class LogList extends AbstractController {
 			$class = $row['0']::class;
 			$repo  = $this->registry->getRepository($class);
 			$repo->setStatusOlderThan(
-				$this->getUser()->getProjects()->toArray(),
-				$date,
-				'resolved',
-				$this->status
+                $this->getUser()->getProjects()->toArray(),
+                $date,
+                'resolved',
+                $this->status
 			);
 
 		}

@@ -68,9 +68,9 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
         DateTimeInterface $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void {
-        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCallback);
+        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCreator);
     }
 
     public function setStatus(
@@ -79,9 +79,9 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCallback = null
+        callable $qbCreator = null
     ) {
-        $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCallback);
+        $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCreator);
     }
 
 }

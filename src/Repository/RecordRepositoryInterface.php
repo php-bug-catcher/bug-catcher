@@ -23,7 +23,7 @@ interface RecordRepositoryInterface
         DateTimeInterface $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCallback = null
+        callable $qbCreator = null
     ): void;
 
     public function setStatus(
@@ -32,7 +32,7 @@ interface RecordRepositoryInterface
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCallback = null
+        callable $qbCreator = null
     );
 
 }
