@@ -11,8 +11,11 @@ namespace BugCatcher\Repository;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use DateTimeInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
+use Doctrine\Common\Collections\Selectable;
+use Doctrine\Persistence\ObjectRepository;
 
-interface RecordRepositoryInterface
+interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  ObjectRepository, Selectable
 {
 
     /**
