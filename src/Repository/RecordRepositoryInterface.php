@@ -19,11 +19,13 @@ interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  O
 {
 
     /**
+     * @param DateTimeInterface $to
      * @param Project[] $projects
      */
-    public function setStatusOlderThan(
+    public function setStatusBetween(
         array $projects,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
         callable $qbCreator = null

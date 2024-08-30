@@ -52,7 +52,8 @@ class LogListTest extends KernelTestCase {
 		}
 		$rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
 		$this->assertInstanceOf(LogList::class, $rendered);
-		$logs = $rendered->getLogs();
+        $rendered->init();
+        $logs = $rendered->logs;
 		$this->assertCount(6, $logs);
 		foreach ($logs as $log) {
 			$this->assertSame(10, $log->getCount());
@@ -76,7 +77,8 @@ class LogListTest extends KernelTestCase {
 		]);
 		$rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
 		$this->assertInstanceOf(LogList::class, $rendered);
-		$logs = $rendered->getLogs();
+        $rendered->init();
+        $logs = $rendered->logs;
 		$this->assertCount(1, $logs);
 		foreach ($logs as $log) {
 			$this->assertSame(100, $log->getCount());
@@ -93,22 +95,22 @@ class LogListTest extends KernelTestCase {
 		$user->_refresh();
 		$this->loginUser($user->_real());
 		RecordLogFactory::createMany(15, [
-			"date"   => new DateTime("2022-01-01 00:00:00"),
+            "date" => new DateTime("2022-01-02 00:00:00"),
 			"status" => "new",
 			"project" => ProjectFactory::random(),
 		]);
 		RecordLogFactory::createMany(5, [
-			"date"   => new DateTime("2022-01-01 00:00:00"),
+            "date" => new DateTime("2022-01-02 00:00:00"),
 			"status" => "status-to-not-to-be-deleted",
 			"project" => ProjectFactory::random(),
 		]);
 		RecordLogTraceFactory::createMany(15, [
-			"date"   => new DateTime("2022-01-01 00:10:00"),
+            "date" => new DateTime("2022-01-02 00:10:00"),
 			"status" => "new",
 			"project" => ProjectFactory::random(),
 		]);
 		RecordLogFactory::createMany(10, [
-			"date"   => new DateTime("2022-02-01 00:00:00"),
+            "date" => new DateTime("2022-02-02 00:00:00"),
 			"status" => "new",
 			"project" => ProjectFactory::random(),
 		]);
@@ -116,11 +118,41 @@ class LogListTest extends KernelTestCase {
 
 		$rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
 		$this->assertInstanceOf(LogList::class, $rendered);
-		$rendered->clearAll(new DateTimeImmutable("2022-01-01 01:00:00"));
+        $rendered->clearAll(new DateTimeImmutable("2022-01-01 01:00:00"), new DateTimeImmutable("2022-01-02 01:00:00"));
 
 		$this->assertSame(10, RecordLogFactory::count(["status" => "new"]));
 		$this->assertSame(5, RecordLogFactory::count(["status" => "status-to-not-to-be-deleted"]));
 		$this->assertSame(30, RecordLogFactory::count(["status" => "resolved"]));
 		$this->assertSame(15, RecordLogTraceFactory::count(["status" => "resolved"]));
 	}
+
+    public function testClearAllMax()
+    {
+        $user = UserFactory::createOne([
+        ]);
+        ProjectFactory::createMany(3, [
+            "users" => new ArrayCollection([$user->_real()]),
+            "enabled" => true,
+        ]);
+        $user->_refresh();
+        $this->loginUser($user->_real());
+        RecordLogFactory::createMany(50, [
+            "date" => new DateTime("2022-01-01 00:00:00"),
+            "status" => "new",
+            "project" => ProjectFactory::random(),
+        ]);
+        RecordLogFactory::createMany(100, [
+            "date" => new DateTime("2022-01-02 00:00:00"),
+            "status" => "new",
+            "project" => ProjectFactory::random(),
+        ]);
+        $this->assertSame(150, RecordLogFactory::count());
+
+        $rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
+        $this->assertInstanceOf(LogList::class, $rendered);
+        $rendered->clearAll(new DateTimeImmutable("2022-01-01 01:00:00"), new DateTimeImmutable("2022-01-03 01:00:00"));
+
+        $this->assertSame(50, RecordLogFactory::count(["status" => "new"]));
+        $this->assertSame(100, RecordLogFactory::count(["status" => "resolved"]));
+    }
 }

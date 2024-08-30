@@ -45,16 +45,17 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
     }
 
 
-    public function setStatusOlderThan(
+    public function setStatusBetween(
         array $projects,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
         callable $qbCreator = null
     ): void {
-        $this->recordRepository->setStatusOlderThan(
+        $this->recordRepository->setStatusBetween(
             $projects,
-            $lastDate,
+            $from, $to,
             $newStatus,
             $previousStatus,
             $this->updateQb(...)

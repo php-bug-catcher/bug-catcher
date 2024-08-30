@@ -23,14 +23,15 @@ class CronRecordRepository extends ServiceEntityRepository implements RecordRepo
         parent::__construct($registry, RecordCron::class);
 	}
 
-    public function setStatusOlderThan(
+    public function setStatusBetween(
         array $projects,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
         callable $qbCreator = null
     ): void {
-        $this->recordRepository->setStatusOlderThan($projects, $lastDate, $newStatus, $previousStatus, $qbCreator);
+        $this->recordRepository->setStatusBetween($projects, $from, $to, $newStatus, $previousStatus, $qbCreator);
     }
 
     public function setStatus(

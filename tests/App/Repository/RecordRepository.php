@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
 
 
-#[AsDecorator(decorates: \BugCatcher\Repository\RecordRepositoryInterface::class)]
+#[AsDecorator(decorates: RecordRepositoryInterface::class)]
 class RecordRepository  implements RecordRepositoryInterface
 {
     public function __construct(
@@ -26,16 +26,17 @@ class RecordRepository  implements RecordRepositoryInterface
     }
 
 
-    public function setStatusOlderThan(
+    public function setStatusBetween(
         array $projects,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
         callable $qbCreator = null
     ): void {
-        $this->inner->setStatusOlderThan(
+        $this->inner->setStatusBetween(
             $projects,
-            $lastDate,
+            $from, $to,
             $newStatus,
             $previousStatus,
             $qbCreator

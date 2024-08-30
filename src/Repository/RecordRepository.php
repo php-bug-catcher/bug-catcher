@@ -12,6 +12,7 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Enum\RecordEventType;
 use BugCatcher\Event\RecordEvent;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -34,16 +35,18 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
     }
 
     /**
+     * @param DateTimeInterface $to
      * @param Project[] $projects
      */
-    public function setStatusOlderThan(
+    public function setStatusBetween(
         array $projects,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
         callable $qbCreator = null
     ): void {
-        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCreator);
+        $qb = $this->getUpdateStatusQB($newStatus, $from, $to, $previousStatus, $qbCreator);
 
         $qb
             ->andWhere("l.project IN (:projects)")
@@ -61,7 +64,7 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         bool $flush = false,
         callable $qbCreator = null
     ): void {
-        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, $previousStatus, $qbCreator);
+        $qb = $this->getUpdateStatusQB($newStatus, $lastDate, new DateTimeImmutable(), $previousStatus, $qbCreator);
         $qb
             ->andWhere('l.hash = :hash')
             ->setParameter('hash', $log->getHash())
@@ -75,22 +78,24 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
 
     protected function getUpdateStatusQB(
         string $newStatus,
-        DateTimeInterface $lastDate,
+        DateTimeInterface $from,
+        DateTimeInterface $to,
         string $previousStatus,
         callable $qbCreator = null
     ): QueryBuilder {
 
         if ($qbCreator != null) {
             /** @var QueryBuilder $qb */
-            $qb = call_user_func_array($qbCreator, [$newStatus, $lastDate, $previousStatus]);
+            $qb = call_user_func_array($qbCreator, [$newStatus, $from, $previousStatus]);
         } else {
             $qb = $this->createQueryBuilder('l');
         }
         $qb = $qb->update()
             ->set('l.status', "'{$newStatus}'")
-            ->andWhere('l.date <= :date')
+            ->andWhere('l.date BETWEEN :from AND :to')
             ->andWhere('l.status = :status')
-            ->setParameter('date', $lastDate)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
             ->setParameter('status', $previousStatus);
 
         return $qb;

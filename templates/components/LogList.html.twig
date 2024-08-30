@@ -1,13 +1,15 @@
 <div{{ attributes.defaults({
     class:'my-3 p-3 bg-body rounded shadow-sm'
 }) }}>
+    {{ this.init }}
     {% set logs = this.logs %}
     {% if logs|length %}
         <div class="nav justify-content-end pb-1">
             <button class="btn btn-outline-secondary btn-sm" aria-current="page"
                     data-action="live#action"
                     data-live-action-param="clearAll"
-                    data-live-date-param="{{ logs[0].date|date('Y-m-d-H-i-s') }}"
+                    data-live-from-param="{{ this.to|date('Y-m-d-H-i-s') }}"
+                    data-live-to-param="{{ this.from|date('Y-m-d-H-i-s') }}"
             >
                 <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
                 Fix all

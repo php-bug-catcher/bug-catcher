@@ -2,96 +2,113 @@
 
 namespace BugCatcher\Twig\Components;
 
-use DateTimeImmutable;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
 use BugCatcher\Controller\AbstractController;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
+use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsLiveComponent]
-final class LogList extends AbstractController {
-	use DefaultActionTrait;
+final class LogList extends AbstractController
+{
+    use DefaultActionTrait;
 
-	#[LiveProp]
-	public string $status;
+    #[LiveProp]
+    public string $status;
 
-	#[LiveProp]
-	public string $id;
+    #[LiveProp]
+    public string $id;
+    /** @var Record[] */
+    #[ExposeInTemplate]
+    public array $logs = [];
+    #[ExposeInTemplate]
+    public ?DateTimeInterface $from = null;
+    #[ExposeInTemplate]
+    public ?DateTimeInterface $to = null;
 
-	public function __construct(
-		private readonly RecordRepository $recordRepo,
-		private ManagerRegistry $registry,
-		private array           $classes
-	) {
-		$this->id = uniqid();
-	}
+    public function __construct(
+        private readonly RecordRepository $recordRepo,
+        private ManagerRegistry $registry,
+        private array $classes
+    ) {
+        $this->id = uniqid();
+    }
 
-	/**
-	 * @return Record[]
-	 */
-	public function getLogs(): array {
+    public function init(): void
+    {
 
-		$em            = $this->registry->getManager();
-		$classMetadata = $em->getClassMetadata(Record::class);
-		$discriminatorMap = $classMetadata->discriminatorMap;
-		$discriminatorMap = array_flip($discriminatorMap);
-		$keys          = array_map(fn($class) => $discriminatorMap[$class]??null, $this->classes);
+        $em = $this->registry->getManager();
+        $classMetadata = $em->getClassMetadata(Record::class);
+        $discriminatorMap = $classMetadata->discriminatorMap;
+        $discriminatorMap = array_flip($discriminatorMap);
+        $keys = array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes);
 
-		/** @var Record[] $records */
-		$records = $this->recordRepo->createQueryBuilder("record")
-			->where("record.status like :status")
-			->andWhere("record INSTANCE OF :class")
-			->andWhere("record.project IN (:projects)")
-			->setParameter("status", $this->status . '%')
-			->setParameter("class", $keys)
-			->setParameter('projects',
-				array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getActiveProjects()->toArray())
-			)
-			->orderBy("record.date", "DESC")
-			->setMaxResults(100)
-			->getQuery()->getResult();
-		$logs = [];
-		foreach ($records as $row) {
-			$record = $logs[$row->getHash()] = $logs[$row->getHash()]??$row->setCount(0);
-			$record->setCount($record->getCount() + 1);
-		}
+        /** @var Record[] $records */
+        $records = $this->recordRepo->createQueryBuilder("record")
+            ->where("record.status like :status")
+            ->andWhere("record INSTANCE OF :class")
+            ->andWhere("record.project IN (:projects)")
+            ->setParameter("status", $this->status . '%')
+            ->setParameter("class", $keys)
+            ->setParameter('projects',
+                array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getActiveProjects()->toArray())
+            )
+            ->orderBy("record.date", "DESC")
+            ->setMaxResults(100)
+            ->getQuery()->getResult();
 
-		return array_values($logs);
-	}
+        if ($records === []) {
+            return;
+        }
+        $this->from = $records[0]->getDate();
+        $this->to = $records[count($records) - 1]->getDate();
 
 
-	#[LiveAction]
-	public function clearAll(
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $date,
-	) {
-		$rows = $this->recordRepo->createQueryBuilder("record")
-			->addSelect('TYPE(record) as type')
-			->where("record.status = :status")
-			->andWhere("record.date <= :date")
-			->setParameter("status", $this->status)
-			->setParameter("date", $date)
-			->groupBy('type')
-			->getQuery()->getResult();
-		foreach ($rows as $row) {
-			$class = $row['0']::class;
-			$repo  = $this->registry->getRepository($class);
-			$repo->setStatusOlderThan(
+        $logs = [];
+        foreach ($records as $row) {
+            $record = $logs[$row->getHash()] = $logs[$row->getHash()] ?? $row->setCount(0);
+            $record->setCount($record->getCount() + 1);
+        }
+
+        $this->logs = array_values($logs);
+    }
+
+
+    #[LiveAction]
+    public function clearAll(
+        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $from,
+        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $to,
+    ) {
+        $rows = $this->recordRepo->createQueryBuilder("record")
+            ->addSelect('TYPE(record) as type')
+            ->where("record.status = :status")
+            ->andWhere("record.date BETWEEN :from AND :to")
+            ->setParameter("status", $this->status)
+            ->setParameter("from", $from)
+            ->setParameter("to", $to)
+            ->groupBy('type')
+            ->getQuery()->getResult();
+
+        foreach ($rows as $row) {
+            $class = $row['0']::class;
+            $repo = $this->registry->getRepository($class);
+            $repo->setStatusBetween(
                 $this->getUser()->getProjects()->toArray(),
-                $date,
-                'resolved',
-                $this->status
-			);
+                $from,
+                $to,
+                'resolved', $this->status
+            );
 
-		}
+        }
 
-	}
+    }
 }
