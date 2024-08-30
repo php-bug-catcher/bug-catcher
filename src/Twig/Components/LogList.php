@@ -85,8 +85,8 @@ final class LogList extends AbstractController
 
     #[LiveAction]
     public function clearAll(
-        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $from,
-        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $to,
+        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
+        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $to,
     ) {
         $rows = $this->recordRepo->createQueryBuilder("record")
             ->addSelect('TYPE(record) as type')

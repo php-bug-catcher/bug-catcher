@@ -149,8 +149,9 @@ class LogListTest extends KernelTestCase {
         $this->assertSame(150, RecordLogFactory::count());
 
         $rendered = $this->mountTwigComponent('LogList', ["status" => "new"]);
+        $rendered->init();
         $this->assertInstanceOf(LogList::class, $rendered);
-        $rendered->clearAll(new DateTimeImmutable("2022-01-01 01:00:00"), new DateTimeImmutable("2022-01-03 01:00:00"));
+        $rendered->clearAll($rendered->from, $rendered->to);
 
         $this->assertSame(50, RecordLogFactory::count(["status" => "new"]));
         $this->assertSame(100, RecordLogFactory::count(["status" => "resolved"]));
