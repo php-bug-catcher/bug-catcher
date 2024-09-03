@@ -2,6 +2,7 @@
 
 namespace BugCatcher\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,6 +30,15 @@ abstract class Record {
 	#[Assert\NotBlank(groups: ['api'])]
 	#[Assert\Length(min: 1, max: 50, groups: ['api'])]
 	protected ?string $projectCode = null;
+
+    #[Groups(['record:write'])]
+    #[ApiProperty(openapiContext: [
+        'type' => 'object',
+        "additionalProperties" => [
+            "type" => "string"
+        ]
+    ])]
+    public ?array $metadata = null;
 
 	public function __construct(DateTimeInterface $date = null) {
 		if ($date) {

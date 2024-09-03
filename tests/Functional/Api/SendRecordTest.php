@@ -52,4 +52,30 @@ class SendRecordTest extends KernelTestCase {
 			])
 			->assertStatus(404);
 	}
+
+    public function testMetadata(): void
+    {
+        [$browser] = $this->browser([]);
+
+        ProjectFactory::createOne([
+            "code" => "testProject",
+        ]);
+        $browser
+            ->post("/api/record_logs", [
+                "headers" => [
+                    "Content-Type" => "application/json",
+                ],
+                "body" => json_encode([
+                    "level" => 500,
+                    "message" => "message",
+                    "requestUri" => "/",
+                    "projectCode" => "testProject",
+                    "metadata" => [
+                        "key" => "value",
+                        "key2" => "value2",
+                    ],
+                ]),
+            ])
+            ->assertStatus(201);
+    }
 }

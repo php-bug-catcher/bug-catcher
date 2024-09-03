@@ -26,6 +26,7 @@
         <field name="date" type="datetime" nullable="false"/>
         <field name="status" type="string" length="50"/>
         <field name="hash" type="string" length="32" nullable="true"/>
+        <field name="metadata" type="array" nullable="true"/>
         <many-to-one field="project" target-entity="BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
         </many-to-one>
