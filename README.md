@@ -1,4 +1,5 @@
 ![Tests](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/php-bug-catcher/bug-catcher/badge.svg?branch=main)](https://coveralls.io/github/php-bug-catcher/bug-catcher?branch=main)
 
 # Catch every bug in all your PHP applications in one place
 
