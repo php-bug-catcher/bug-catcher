@@ -32,7 +32,7 @@ jobs:
             php-version: ${{ matrix.php-versions }}
             tools: phpunit-bridge
             extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
-            coverage: xdebug
+            coverage: pcov
 
       # Local MySQL service in GitHub hosted environments is disabled by default.
       # If you are using it instead of service containers, make sure you start it.
