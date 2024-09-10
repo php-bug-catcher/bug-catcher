@@ -53,7 +53,9 @@ jobs:
             restore-keys: ${{ runner.os }}-composer-
 
       -   name: Install Composer dependencies
-          run: composer install --no-progress --prefer-dist --optimize-autoloader
+          run: |
+            composer global require php-coveralls/php-coveralls
+            composer update --prefer-stable --prefer-dist --no-interaction
 
       -   name: set sql mode
           run: mysql --protocol=tcp -h localhost -P ${{ job.services.mysql.ports['3306'] }}  -uroot -psymfony -e "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
@@ -64,4 +66,10 @@ jobs:
       -   name: Execute tests (Unit and Feature tests) via PHPUnit
           env:
             DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
-          run: vendor/bin/phpunit
+          run: vendor/bin/phpunit --coverage-clover build/reports/clover.xml
+
+      - name: Upload coverage results to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          php-coveralls --coverage_clover=build/reports/clover.xml --json_path=build/reports/coveralls-upload.json -v
