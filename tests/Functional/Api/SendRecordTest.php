@@ -53,6 +53,19 @@ class SendRecordTest extends KernelTestCase {
 			->assertStatus(404);
 	}
 
+    public function testOrherApi(): void
+    {
+        [$browser] = $this->browser([]);
+        $browser
+            ->post("/api/other-api", [
+                "headers" => [
+                    "Content-Type" => "application/json",
+                ],
+                "body" => json_encode([]),
+            ])
+            ->assertStatus(201);
+    }
+
     public function testMetadata(): void
     {
         [$browser] = $this->browser([]);
