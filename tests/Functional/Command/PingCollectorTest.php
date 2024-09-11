@@ -102,6 +102,28 @@ class PingCollectorTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_OK, $record->getStatusCode());
     }
 
+    public function testHttpNoUrlCollector()
+    {
+        ProjectFactory::createOne([
+            "code" => "testProject",
+            "enabled" => true,
+            "pingCollector" => 'http',
+            "url" => '',
+        ]);
+        $this->getContainer()->get(MessageBusInterface::class)->dispatch(new BlankMessage());
+
+        $application = new Application(self::$kernel);
+
+        $command = $application->find('app:ping-collector');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName()));
+
+        $count = RecordPingFactory::count();
+        $this->assertEquals(1, $count);
+        $record = RecordPingFactory::first();
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $record->getStatusCode());
+    }
+
     public function testMessengerCollector()
     {
         date_default_timezone_set('UTC');
@@ -134,5 +156,39 @@ class PingCollectorTest extends KernelTestCase
         $this->assertEquals(1, $count);
         $record = RecordPingFactory::first();
         $this->assertEquals(Response::HTTP_SERVICE_UNAVAILABLE, $record->getStatusCode());
+
+        RecordPingFactory::truncate();
+        //get database connection and truncate table messenger_messages
+        $this->getContainer()->get('doctrine.dbal.default_connection')->executeQuery("TRUNCATE TABLE messenger_messages;");
+
+        $commandTester->execute(array('command' => $command->getName()));
+
+        $count = RecordPingFactory::count();
+        $this->assertEquals(1, $count);
+        $record = RecordPingFactory::first();
+        $this->assertEquals(Response::HTTP_OK, $record->getStatusCode());
+    }
+
+    public function testMessengerNotConnectionCollector()
+    {
+        date_default_timezone_set('UTC');
+        ProjectFactory::createOne([
+            "code" => "testProject",
+            "enabled" => true,
+            "pingCollector" => 'messenger',
+            "dbConnection" => '',
+        ]);
+        $this->getContainer()->get(MessageBusInterface::class)->dispatch(new BlankMessage());
+
+        $application = new Application(self::$kernel);
+
+        $command = $application->find('app:ping-collector');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName()));
+
+        $count = RecordPingFactory::count();
+        $this->assertEquals(1, $count);
+        $record = RecordPingFactory::first();
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $record->getStatusCode());
     }
 }
