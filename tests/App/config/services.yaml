@@ -15,5 +15,6 @@ services:
             $collectors:
                 http: '@BugCatcher\Service\PingCollector\HttpPingCollector'
                 messenger: '@BugCatcher\Service\PingCollector\MessengerCollector'
-                cron-v2: '@BugCatcher\Tests\App\Service\CronPingCollector'
+                always_ok: '@BugCatcher\Tests\App\Service\OkPingCollector'
+                always_throw: '@BugCatcher\Tests\App\Service\ThrowCollector'
 
