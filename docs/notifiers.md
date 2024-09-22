@@ -22,7 +22,7 @@ class EmailNotifyListener {
 
 	public function __invoke(NotifyEvent $event): void {
 		if ($event->notifier instanceof NotifierEmail) {
-			if ($event->importance->isHigherOrEqual($event->notifier->getMinimalImportance())) {
+			if ($event->importance->isHigherOrEqualThan($event->notifier->getMinimalImportance())) {
 			    foreach($event->project->getUsers() as $user){
                     $email = (new Email())
                         ->from('hello@example.com')

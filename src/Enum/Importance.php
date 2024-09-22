@@ -27,13 +27,19 @@ enum Importance: string {
 		];
 	}
 
-	public function isHigher(Importance $importance): bool {
+    /**
+     * Determines if this importance is higher than the given importance.
+     * @param Importance $importance
+     * @return bool
+     */
+    public function isHigherThan(Importance $importance): bool
+    {
 		foreach (self::all() as $i) {
 			if ($i === $importance) {
-				return false;
+                return true;
 			}
 			if ($i === $this) {
-				return true;
+                return false;
 			}
 		}
 	}
@@ -44,8 +50,9 @@ enum Importance: string {
 	 * @param Importance $importance
 	 * @return bool
 	 */
-	public function isHigherOrEqual(Importance $importance): bool {
-		return $this === $importance || $this->isHigher($importance);
+    public function isHigherOrEqualThan(Importance $importance): bool
+    {
+        return $this === $importance || $this->isHigherThan($importance);
 	}
 
 	public static function min(): Importance {
@@ -80,6 +87,7 @@ enum Importance: string {
 
 	public function higher(): Importance {
 		return match ($this) {
+            self::Normal => self::Low,
 			self::Low => self::Medium,
 			self::Medium => self::High,
 			self::High => self::Critical,

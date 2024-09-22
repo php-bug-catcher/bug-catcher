@@ -27,7 +27,7 @@ final class DashboardImportance
 			"importance" => $importance,
 			"notifier"   => $notifier,
 		];
-		if ($importance->isHigher($current["importance"])) {
+        if ($importance->isHigherThan($current["importance"])) {
 			$current = [
 				"importance" => $importance,
 				"notifier"   => $notifier,

@@ -150,7 +150,7 @@ class Project {
 	 */
 	public function findNotifiers(string $class, Importance $minimalImportance = Importance::Normal): Collection {
 		return $this->notifiers->filter(function (Notifier $notifier) use ($class, $minimalImportance) {
-			return $notifier instanceof $class && $notifier->getMinimalImportance()->isHigherOrEqual($minimalImportance);
+            return $notifier instanceof $class && $notifier->getMinimalImportance()->isHigherOrEqualThan($minimalImportance);
 		});
 	}
 
