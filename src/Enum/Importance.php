@@ -35,11 +35,11 @@ enum Importance: string {
     public function isHigherThan(Importance $importance): bool
     {
 		foreach (self::all() as $i) {
-			if ($i === $importance) {
-                return true;
-			}
-			if ($i === $this) {
+            if ($i === $this) {
                 return false;
+            }
+            if ($i === $importance) {
+                return true;
 			}
 		}
 	}
