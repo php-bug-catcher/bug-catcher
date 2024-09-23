@@ -31,6 +31,7 @@
     "symfony/validator": "7.1.*",
     "symfony/web-link": "7.1.*",
     "symfony/webpack-encore-bundle": "^2.1",
+    "tito10047/doctrine-transaction": "^0.1.1",
     "tito10047/php-sparkline": "^1.0",
     "twig/extra-bundle": "^2.12|^3.0",
     "twig/string-extra": "^3.10",

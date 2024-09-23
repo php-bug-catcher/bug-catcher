@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Tito10047\DoctrineTransaction\TransactionManagerInterface;
 
 #[AsCommand(
 	name: 'app:create-user',
@@ -22,7 +23,7 @@ final class CreateUserCommand extends Command
 {
 	public function __construct(
 		private readonly UserRepository              $userRepo,
-		private readonly Transaction                 $transaction,
+        private readonly TransactionManagerInterface $tm,
 		private readonly UserPasswordHasherInterface $passwordHasher
 	) {
 		parent::__construct();
@@ -39,8 +40,8 @@ final class CreateUserCommand extends Command
 		$username = $input->getArgument('username');
 		$password = $input->getArgument('password');
 
+        $transaction = $this->tm->beginTransaction();
 		try {
-			$this->transaction->begin();
 			$user = $this->userRepo->createEmpty($username, true);
 			$user
 				->setEnabled(true)
@@ -53,9 +54,9 @@ final class CreateUserCommand extends Command
 
 
 			$io->success("User {$user->getEmail()} created");
-			$this->transaction->commit();
+            $transaction->commit();
 		} catch (Exception $e) {
-			$this->transaction->rollback();
+            $transaction->rollback();
 			throw $e;
 		}
 

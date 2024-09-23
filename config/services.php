@@ -10,7 +10,9 @@ namespace {
     use BugCatcher\Service\PingCollector\HttpPingCollector;
 	use BugCatcher\Service\PingCollector\MessengerCollector;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-	use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+    use Tito10047\DoctrineTransaction\TransactionManager;
+    use Tito10047\DoctrineTransaction\TransactionManagerInterface;
+    use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 	/**
 	 * @link https://symfony.com/doc/current/bundles/best_practices.html#services
@@ -29,6 +31,9 @@ namespace {
 			'http'=>service(HttpPingCollector::class),
 			'messenger'=>service(MessengerCollector::class),
 		]);
+        $services->set(TransactionManagerInterface::class)
+            ->class(TransactionManager::class)
+            ->arg('$mr', service('doctrine'));
 	};
 
 }
