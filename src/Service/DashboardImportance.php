@@ -23,10 +23,7 @@ final class DashboardImportance
 	) {}
 
 	public function upgradeHigher(string $group, Importance $importance, Notifier $notifier): void {
-		$current = $this->importance[$group]??[
-			"importance" => $importance,
-			"notifier"   => $notifier,
-		];
+        $current = $this->importance[$group] ?? $this->load($group, $importance, $notifier);
         if ($importance->isHigherThan($current["importance"])) {
 			$current = [
 				"importance" => $importance,
@@ -46,10 +43,11 @@ final class DashboardImportance
 	}
 
 	#[ArrayShape(['importance' => "BugCatcher\Enum\Importance", 'notifier' => "BugCatcher\Entity\Notifier"])]
-	public function load(string $group): ?array {
+    public function load(string $group, $defaultImportance = null, $defaultNotifier = null): ?array
+    {
 		$group = substr(md5($group), 0, 8);
 		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {
-			return ["importance" => null, "notifier" => null];
+            return ["importance" => $defaultImportance, "notifier" => $defaultNotifier];
 		}
 
 		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.txt"));

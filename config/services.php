@@ -25,6 +25,7 @@ namespace {
 			->autoconfigure();
 		$services
 			->load('BugCatcher\\', '../src/')
+            ->share()
 			->exclude('../src/{DependencyInjection,DataFixtures,Entity,DTO,Event,Factory,Extension,BugCatcherBundle.php}');
 
 		$services->set(PingCollectorCommand::class)->arg('$collectors',[
