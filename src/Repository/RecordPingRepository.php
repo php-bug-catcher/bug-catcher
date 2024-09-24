@@ -40,33 +40,8 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
         }
     }
 
-    public function remove(RecordPing $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
 
-    public function createEmpty(bool $flush): RecordPing
-    {
-        $entity = new RecordPing();
-
-        $this->save($entity, $flush);
-
-        return $entity;
-    }
-
-    public function getQBWith(Project $project): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('r');
-
-        $qb->andWhere('r.project = :project')
-            ->setParameter('project', $project->getId(), UuidType::NAME);
-
-        return $qb;
-    }
 
     public function getLastRecord(Project $project, string $maxLife = '-1 hour'): ?RecordPing
     {
@@ -79,10 +54,6 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
             ->getOneOrNullResult();
     }
 
-    public function getQBBlank(): QueryBuilder
-    {
-        return $this->createQueryBuilder('p')->setMaxResults(0);
-    }
 
     public function setStatusBetween(
         array $projects,

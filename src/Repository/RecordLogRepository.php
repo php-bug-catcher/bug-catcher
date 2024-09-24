@@ -28,41 +28,6 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
         parent::__construct($registry, RecordLog::class);
 	}
 
-	public function save(Record $entity, bool $flush = false): void {
-		$this->getEntityManager()->persist($entity);
-
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
-
-	public function remove(Record $entity, bool $flush = false): void {
-		$this->getEntityManager()->remove($entity);
-
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
-
-	public function createEmpty(bool $flush): Record {
-		$entity = new RecordLog();
-
-		$this->save($entity, $flush);
-
-		return $entity;
-	}
-
-	public function getQBWith(): QueryBuilder {
-		$qb = $this->createQueryBuilder('l');
-
-		return $qb;
-	}
-
-	public function getQBBlank(): QueryBuilder {
-		return $this->createQueryBuilder('l')->setMaxResults(0);
-	}
-
-
     public function setStatusBetween(
         array $projects,
         DateTimeInterface $from,

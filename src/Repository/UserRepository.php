@@ -68,13 +68,4 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
 		}
 	}
 
-	public function getQBWith(): QueryBuilder {
-		$qb = $this->createQueryBuilder('u');
-
-		return $qb;
-	}
-
-	public function getQBBlank(): QueryBuilder {
-		return $this->createQueryBuilder('u')->setMaxResults(0);
-	}
 }
