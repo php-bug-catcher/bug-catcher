@@ -9,6 +9,7 @@
             {% for dashboardComponent in components %}
                 {{ component(dashboardComponent,{
                     status:status,
+                    project:project,
                     'data-poll':"delay("~refreshInterval~"000)|$render"
                 }) }}
             {% endfor %}

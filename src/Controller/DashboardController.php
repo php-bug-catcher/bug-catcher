@@ -2,10 +2,16 @@
 
 namespace BugCatcher\Controller;
 
+use BugCatcher\Entity\Project;
+use BugCatcher\Repository\ProjectRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use BugCatcher\Entity\Record;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Uid\Uuid;
 
 final class DashboardController extends AbstractController
 {
@@ -18,9 +24,23 @@ final class DashboardController extends AbstractController
 	) {}
 
 	public function index(
+        EntityManagerInterface $em,
+        Request $request,
+        #[MapQueryParameter]
+        string $project = 'all',
+        #[MapQueryParameter]
 		string $status = 'new'
 	): Response {
-		return $this->render('@BugCatcher/dashboard/index.html.twig', [
+        if ($project == 'all') {
+            $project = null;
+        } else {
+            $project = $em->getReference(Project::class, new Uuid($project));
+        }
+        $request->attributes->set('project', $project);
+        $request->attributes->set('status', $status);
+
+        return $this->render('@BugCatcher/dashboard/index.html.twig', [
+            "project" => $project,
 			"status" => $status,
 			"components"      => $this->components,
 			"refreshInterval" => $this->refreshInterval,

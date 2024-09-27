@@ -25,9 +25,6 @@ namespace {
 			->add('bug_catcher.dashboard.index', '/')
 				->controller(DashboardController::class . "::index")
 				->methods(['GET'])
-			->add('bug_catcher.dashboard.status', '/status/{status}')
-				->controller(DashboardController::class . "::index")
-				->methods(['GET'])
 			->add('bug_catcher.dashboard.detail', '/detail/{record}')
 			->controller(DashboardController::class . "::detail")
 				->methods(['GET']);

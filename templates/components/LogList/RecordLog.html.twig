@@ -19,7 +19,8 @@
         {% endif %}
         <div>
             <span class="badge text-bg-secondary ">{{ log.date|date('d.m.Y H:i:s') }}</span>
-            <span class="badge text-bg-primary ">{{ log.project.name }}</span>
+            <a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
+               class="badge text-bg-primary text-decoration-none">{{ log.project.name }}</a>
             <span class="badge text-bg-{{ status }} ">{{ log.count }}</span>
             <div class="d-inline text-break">{{ log.message }}</div>
         </div>
@@ -29,14 +30,14 @@
                         data-action="live#action"
                         data-live-action-param="clearOne"
                         data-live-status-param="resolved"
-                        title="Fix it"
+                        title="{{ 'Fix it'|trans }}"
                 >
                     <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
                 </button>
                 <a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
                    class="btn btn-outline-success btn-sm"
                    target="_blank"
-                   title="Detail"
+                   title="{{ 'Detail'|trans }}"
                 >
                     <twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="20px" height="20px"/>
                 </a>
@@ -44,7 +45,7 @@
                         data-action="live#action"
                         data-live-action-param="clearOne"
                         data-live-status-param="archived"
-                        title="Archive it"
+                        title="{{ 'Archive it'|trans }}"
                 >
                     <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
                 </button>

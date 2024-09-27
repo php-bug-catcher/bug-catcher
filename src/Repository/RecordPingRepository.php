@@ -41,7 +41,15 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
     }
 
 
+    public function getQBWith(Project $project): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('r');
 
+        $qb->andWhere('r.project = :project')
+            ->setParameter('project', $project->getId(), UuidType::NAME);
+
+        return $qb;
+    }
 
     public function getLastRecord(Project $project, string $maxLife = '-1 hour'): ?RecordPing
     {

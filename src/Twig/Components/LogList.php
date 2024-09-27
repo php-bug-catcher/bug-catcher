@@ -26,6 +26,9 @@ final class LogList extends AbstractController
     public string $status;
 
     #[LiveProp]
+    public ?Project $project = null;
+
+    #[LiveProp]
     public string $id;
     /** @var Record[] */
     #[ExposeInTemplate]
@@ -52,6 +55,11 @@ final class LogList extends AbstractController
         $discriminatorMap = array_flip($discriminatorMap);
         $keys = array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes);
 
+        if ($this->project) {
+            $projects = [$this->project];
+        } else {
+            $projects = $this->getUser()->getActiveProjects()->toArray();
+        }
         /** @var Record[] $records */
         $records = $this->recordRepo->createQueryBuilder("record")
             ->where("record.status like :status")
@@ -60,7 +68,7 @@ final class LogList extends AbstractController
             ->setParameter("status", $this->status . '%')
             ->setParameter("class", $keys)
             ->setParameter('projects',
-                array_map(fn(Project $p) => $p->getId()->toBinary(), $this->getUser()->getActiveProjects()->toArray())
+                array_map(fn(Project $p) => $p->getId()->toBinary(), $projects)
             )
             ->orderBy("record.date", "DESC")
             ->setMaxResults(100)

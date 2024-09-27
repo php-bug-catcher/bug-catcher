@@ -5,6 +5,12 @@
     {% set logs = this.logs %}
     {% if logs|length %}
         <div class="nav justify-content-end pb-1">
+            {% if app.request.attributes.get("project") is not null %}
+                <a href="{{ path('bug_catcher.dashboard.index') }}" class="btn btn-primary btn-sm mx-1">
+                    <twig:ux:icon name="lucide:filter-x" width="20px" height="20px"/>
+                    {{ 'Clear filter'|trans }}
+                </a>
+            {% endif %}
             <button class="btn btn-outline-secondary btn-sm" aria-current="page"
                     data-action="live#action"
                     data-live-action-param="clearAll"
@@ -12,7 +18,7 @@
                     data-live-to-param="{{ this.from|date('Y-m-d-H-i-s') }}"
             >
                 <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
-                Fix all
+                {{ 'Fix all'|trans }}
             </button>
         </div>
         <ul class="list-group">
