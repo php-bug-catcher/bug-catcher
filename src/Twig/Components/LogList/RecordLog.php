@@ -7,11 +7,13 @@
  */
 namespace BugCatcher\Twig\Components\LogList;
 
+use DateTimeInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
@@ -37,7 +39,8 @@ final class RecordLog
 
 	#[LiveAction]
 	public function clearOne(
-		#[LiveArg] string $status
+        #[LiveArg] string $status,
+        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
 	) {
 		if (!$this->log) {
 			return;
@@ -45,7 +48,7 @@ final class RecordLog
 		$class = $this->log::class;
 		$repo  = $this->registry->getRepository($class);
 		assert($repo instanceof RecordRepository);
-		$repo->setStatus($this->log, $this->log->getDate(), $status, $this->status, true);
+        $repo->setStatus($this->log, $from, $status, $this->status, true);
 		$this->log = null;
 	}
 }

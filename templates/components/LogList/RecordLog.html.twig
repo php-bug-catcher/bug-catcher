@@ -30,6 +30,7 @@
                         data-action="live#action"
                         data-live-action-param="clearOne"
                         data-live-status-param="resolved"
+                        data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
                         title="{{ 'Fix it'|trans }}"
                 >
                     <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>

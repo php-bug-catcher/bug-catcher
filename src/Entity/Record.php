@@ -3,6 +3,7 @@
 namespace BugCatcher\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -49,6 +50,7 @@ abstract class Record {
 	}
 
 	private int $count = 1;
+    private ?DateTime $firstOccurrence = null;
 
 	public function getId(): ?Uuid {
 		return $this->id;
@@ -96,6 +98,17 @@ abstract class Record {
 		return $this;
 	}
 
+    public function getFirstOccurrence(): ?DateTime
+    {
+        return $this->firstOccurrence;
+    }
+
+    public function setFirstOccurrence(?DateTime $firstOccurrence): self
+    {
+        $this->firstOccurrence = $firstOccurrence;
+        return $this;
+    }
+
 	public function getProjectCode(): ?string {
 		return $this->projectCode;
 	}
@@ -121,5 +134,6 @@ abstract class Record {
 	abstract function getComponentName(): string;
 
 	abstract function isError(): bool;
+
 
 }

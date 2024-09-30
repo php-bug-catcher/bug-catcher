@@ -85,6 +85,7 @@ final class LogList extends AbstractController
         foreach ($records as $row) {
             $record = $logs[$row->getHash()] = $logs[$row->getHash()] ?? $row->setCount(0);
             $record->setCount($record->getCount() + 1);
+            $record->setFirstOccurrence($row->getDate());
         }
 
         $this->logs = array_values($logs);
