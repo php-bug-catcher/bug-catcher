@@ -46,6 +46,7 @@
                         data-action="live#action"
                         data-live-action-param="clearOne"
                         data-live-status-param="archived"
+                        data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
                         title="{{ 'Archive it'|trans }}"
                 >
                     <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
