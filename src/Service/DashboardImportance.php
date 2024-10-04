@@ -7,6 +7,7 @@
  */
 namespace BugCatcher\Service;
 
+use BugCatcher\Entity\Project;
 use JetBrains\PhpStorm\ArrayShape;
 use BugCatcher\Entity\Notifier;
 use BugCatcher\Enum\Importance;
@@ -22,15 +23,17 @@ final class DashboardImportance
 		private readonly string $cacheDir
 	) {}
 
-	public function upgradeHigher(string $group, Importance $importance, Notifier $notifier): void {
-        $current = $this->importance[$group] ?? $this->load($group, $importance, $notifier);
+    public function upgradeHigher(string $group, Project $project, Importance $importance, Notifier $notifier): void
+    {
+        $current = $this->importance[$group][$project->getId()->toString()] ??
+            $this->load($group, $project, $importance, $notifier)[$project->getId()->toString()];
         if ($importance->isHigherThan($current["importance"])) {
 			$current = [
 				"importance" => $importance,
 				"notifier"   => $notifier,
 			];
 		}
-		$this->importance[$group] = $current;
+        $this->importance[$group][$project->getId()->toString()] = $current;
 	}
 
 	public function save(string $group): void {
@@ -42,12 +45,30 @@ final class DashboardImportance
 		file_put_contents($this->cacheDir . "/importance-$group.txt", serialize($importance));
 	}
 
-	#[ArrayShape(['importance' => "BugCatcher\Enum\Importance", 'notifier' => "BugCatcher\Entity\Notifier"])]
-    public function load(string $group, $defaultImportance = null, $defaultNotifier = null): ?array
+    #[ArrayShape([
+        "string" => [
+            'importance' => "BugCatcher\Enum\Importance",
+            'notifier' => "BugCatcher\Entity\Notifier"
+        ]
+    ])]
+    public function load(
+        string $group,
+        Project $defaultProject = null,
+        $defaultImportance = null,
+        $defaultNotifier = null
+    ): ?array
     {
 		$group = substr(md5($group), 0, 8);
 		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {
-            return ["importance" => $defaultImportance, "notifier" => $defaultNotifier];
+            if ($defaultProject === null) {
+                return [];
+            }
+            return [
+                $defaultProject->getId()->toString() => [
+                    "importance" => $defaultImportance,
+                    "notifier" => $defaultNotifier
+                ]
+            ];
 		}
 
 		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.txt"));

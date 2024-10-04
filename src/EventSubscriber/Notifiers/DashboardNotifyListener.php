@@ -26,7 +26,8 @@ final class DashboardNotifyListener
 
 	public function __invoke(NotifyEvent $event): void {
 		if ($event->notifier instanceof NotifierFavicon || $event->notifier instanceof NotifierSound) {
-			$this->importance->upgradeHigher($event->notifier::class, $event->importance, $event->notifier);
+            $this->importance->upgradeHigher($event->notifier::class, $event->project, $event->importance,
+                $event->notifier);
 		}
 	}
 

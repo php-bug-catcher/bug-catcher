@@ -9,6 +9,7 @@ namespace BugCatcher\Twig\Components;
 
 use BugCatcher\Entity\NotifierSound;
 use BugCatcher\Service\DashboardImportance;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Uid\Uuid;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -16,10 +17,12 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 final class WarningSound extends AbsComponent
 {
 
+    use \BugCatcher\Twig\Components\DashboardImportance;
 	public string $id;
 
 	public function __construct(
-		private readonly DashboardImportance $importance,
+        private readonly DashboardImportance $importance,
+        private readonly Security $security,
 	) {
 		$this->id = Uuid::v6()->toRfc4122();
 	}
@@ -27,8 +30,8 @@ final class WarningSound extends AbsComponent
 
 	public function getSound(): ?string {
 		/** @var NotifierSound $notifier */
-		[$importance, $notifier] = array_values($this->importance->load(NotifierSound::class));
-		if (!$importance) {
+        [$importance, $notifier] = $this->getMaxImportance();
+        if (!$notifier) {
 			return null;
 		}
 
