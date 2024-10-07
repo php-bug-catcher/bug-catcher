@@ -36,6 +36,9 @@ trait DashboardImportance
         $maxImportance = Importance::min();
         $maxNotifier = null;
         foreach ($projects as [$importance, $notifier]) {
+            if (!$importance) {
+                continue;
+            }
             if ($importance->isHigherThan($maxImportance)) {
                 $maxImportance = $importance;
                 $maxNotifier = $notifier;
