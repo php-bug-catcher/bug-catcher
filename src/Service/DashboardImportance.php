@@ -25,8 +25,14 @@ final class DashboardImportance
 
     public function upgradeHigher(string $group, Project $project, Importance $importance, Notifier $notifier): void
     {
-        $current = $this->importance[$group][$project->getId()->toString()] ??
-            $this->load($group, $project, $importance, $notifier)[$project->getId()->toString()];
+        $importances = $this->importance[$group] ?? null;
+        if (!$importances) {
+            $importances = $this->load($group);
+        }
+        $current = $importances[$project->getId()->toString()] ?? [
+            "importance" => $importance,
+            "notifier" => $notifier
+        ];
         if ($importance->isHigherThan($current["importance"])) {
 			$current = [
 				"importance" => $importance,
@@ -53,22 +59,11 @@ final class DashboardImportance
     ])]
     public function load(
         string $group,
-        Project $defaultProject = null,
-        $defaultImportance = null,
-        $defaultNotifier = null
     ): ?array
     {
 		$group = substr(md5($group), 0, 8);
 		if (!file_exists($this->cacheDir . "/importance-$group.txt")) {
-            if ($defaultProject === null) {
-                return [];
-            }
-            return [
-                $defaultProject->getId()->toString() => [
-                    "importance" => $defaultImportance,
-                    "notifier" => $defaultNotifier
-                ]
-            ];
+            return [];
 		}
 
 		return unserialize(file_get_contents($this->cacheDir . "/importance-$group.txt"));
