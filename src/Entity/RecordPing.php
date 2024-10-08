@@ -5,6 +5,7 @@ namespace BugCatcher\Entity;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use BugCatcher\Repository\RecordPingRepository;
+use LogicException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[ORM\Entity(repositoryClass: RecordPingRepository::class)]
@@ -27,21 +28,16 @@ class RecordPing extends Record {
 		return $this->statusCode;
 	}
 
-	public function setStatusCode(string $statusCode): static {
-		$this->statusCode = $statusCode;
-
-		return $this;
-	}
 
 	function calculateHash(): ?string {
-		return null;
+        throw new LogicException("Ping record does not have hash");
 	}
 
 	function getComponentName(): string {
-		return "RecordLog";
+        throw new LogicException("Ping record does not have component name");
 	}
 
 	function isError(): bool {
-		return $this->getStatus() != Response::HTTP_OK;
+        return $this->statusCode != Response::HTTP_OK;
 	}
 }
