@@ -8,7 +8,6 @@
 namespace BugCatcher\DTO;
 
 use BugCatcher\Entity\Project;
-use BugCatcher\Enum\BootstrapColor;
 use BugCatcher\Enum\Importance;
 
 final class NotifierStatus
@@ -29,8 +28,6 @@ final class NotifierStatus
 	public function levelUp(Importance $group): void {
 		if (!array_key_exists($group->value, $this->importances)) {
 			$this->importances[$group->value] = Importance::min();
-
-			return;
 		}
 		$all = Importance::all();
 		foreach ($all as $key => $value) {
@@ -67,18 +64,22 @@ final class NotifierStatus
 	}
 
 	public function ok(Importance $group): void {
-		$this->importances[$group->value] = BootstrapColor::Success;
+        $this->importances[$group->value] = Importance::min();
 	}
 
 	public function danger(Importance $group): void {
-		$this->importances[$group->value] = BootstrapColor::Danger;
+        $this->importances[$group->value] = Importance::max();
 	}
 
 	public function getImportance(): Importance {
-		$all = Importance::all();
-		usort($this->importances, function (Importance $a, Importance $b) use ($all) {
+        $all = array_map(fn(Importance $importance) => $importance->value, Importance::all());
+        $importances = $this->importances;
+        uksort($importances, function ($a, $b) use ($all) {
 			return array_search($b, $all) <=> array_search($a, $all);
 		});
-		return $this->importances[0]??Importance::Normal;
+        if ($importance = current($importances)) {
+            return $importance;
+        }
+        return Importance::Normal;
 	}
 }
