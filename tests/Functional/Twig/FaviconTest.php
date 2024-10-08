@@ -137,8 +137,12 @@ class FaviconTest extends KernelTestCase
         /** @var DashboardImportance $importance = */
         $importance = $this->getContainer()->get(DashboardImportance::class);
         /** @var NotifierFavicon $notifier */
-        [$importance, $notifier] = array_values($importance->load(NotifierFavicon::class,
-            $project->_real())[$project->getId()->toString()]);
+        $allImportances = $importance->load(NotifierFavicon::class, $project->_real());
+        if ($allImportances[$project->getId()->toString()] ?? null) {
+            [$importance, $notifier] = array_values($allImportances[$project->getId()->toString()]);
+        } else {
+            $importance = null;
+        }
         $targetImportance = $targetImportance == Importance::Normal ? null : $targetImportance;
         $this->assertSame($targetImportance?->value, $importance?->value);
         $this->getContainer()->reset();
