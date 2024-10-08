@@ -39,13 +39,6 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
 		$this->getEntityManager()->flush();
 	}
 
-	public function remove(User $entity, bool $flush = false): void {
-		$this->getEntityManager()->remove($entity);
-
-		if ($flush) {
-			$this->getEntityManager()->flush();
-		}
-	}
 
 	public function createEmpty(string $email, bool $flush): User {
 		$entity = new User();
