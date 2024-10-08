@@ -45,10 +45,10 @@ final class CreateUserCommand extends Command
 			$user = $this->userRepo->createEmpty($username, true);
 			$user
 				->setEnabled(true)
-				->setRoles(['ROLE_ADMIN'])
-				->setPassword(
-					$this->passwordHasher->hashPassword($user, $password)
-				);
+                ->setRoles(['ROLE_ADMIN']);
+            $this->userRepo->upgradePassword($user,
+                $this->passwordHasher->hashPassword($user, $password)
+            );
 
 			$this->userRepo->save($user, true);
 
