@@ -25,7 +25,6 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
 {
     public function __construct(
         ManagerRegistry $registry,
-        EventDispatcherInterface $dispatcher,
         private readonly RecordRepositoryInterface $recordRepository,
     ) {
         parent::__construct($registry, RecordPing::class);

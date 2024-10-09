@@ -46,7 +46,8 @@
         </div>
     {% endblock %}
     <div class="dropup position-fixed bottom-0 end-0 m-5">
-        <button type="button" class="btn btn-success hide-toggle rounded-circle p-3" data-bs-toggle="dropdown" aria-expanded="false"
+        <button type="button" class="btn btn-success hide-toggle rounded-circle p-3" data-bs-toggle="dropdown"
+                aria-expanded="false"
                 aria-haspopup="true">
             <twig:ux:icon name="pajamas:hamburger" width="25" height="25"/>
             {#            <span class="visually-hidden">Add Category</span> #}
@@ -56,6 +57,14 @@
                 {% if is_granted('ROLE_ADMIN') %}
                     <a class="dropdown-item" href="{{ path('bug_catcher.admin') }}">Administration</a>
                 {% endif %}
+                {% if app.token is instanceof('\\BugCatcher\\Security\\MultipleLoginToken') %}
+                    <hr class="dropdown-divider">
+                    {% for identifier in app.token.userIdentifiers %}
+                        <a class="dropdown-item"
+                           href="{{ path('bug_catcher.dashboard.index',{"_switch_user":identifier}) }}">{{ identifier }}</a>
+                    {% endfor %}
+                {% endif %}
+
                 <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index',{status:'archived'}) }}">Archived
                     logs</a>

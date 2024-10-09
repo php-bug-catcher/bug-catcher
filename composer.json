@@ -9,6 +9,7 @@
     "api-platform/core": "^3.3",
     "easycorp/easyadmin-bundle": "^4.10",
     "kregel/exception-probe": "^1.0",
+    "lelyfoto/twig-instanceof": "^1.2",
     "symfony/asset": "7.1.*",
     "symfony/console": "7.1.*",
     "symfony/form": "7.1.*",
