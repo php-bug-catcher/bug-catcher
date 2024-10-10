@@ -31,7 +31,7 @@ final class Favicon
 
 	public function getIcon(): string {
 
-        [$importance, $notifier] = $this->getMaxImportance();
+        [$importance, $notifier] = $this->getMaxImportance(NotifierFavicon::class);
         $color = $importance->getColor()->value;
 
 		return $this->assetManager->getUrl("/assets/logo/{$this->logo}/icon-{$color}.svg", 'bug_catcher');

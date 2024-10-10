@@ -8,6 +8,7 @@
 namespace BugCatcher\Twig\Components;
 
 use BugCatcher\Entity\NotifierSound;
+use BugCatcher\Enum\Importance;
 use BugCatcher\Service\DashboardImportance;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Uid\Uuid;
@@ -30,12 +31,13 @@ final class WarningSound extends AbsComponent
 
 	public function getSound(): ?string {
 		/** @var NotifierSound $notifier */
-        [$importance, $notifier] = $this->getMaxImportance();
+        /** @var Importance $importance */
+        [$importance, $notifier] = $this->getMaxImportance(NotifierSound::class);
         if (!$notifier) {
 			return null;
 		}
 
-		if ($importance->isHigher($notifier->getMinimalImportance())) {
+        if ($importance->isHigherThan($notifier->getMinimalImportance())) {
 			return '/uploads/sound/' . $notifier->getFile();
 		}
 		return null;
