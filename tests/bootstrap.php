@@ -5,6 +5,12 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 
+// needed to avoid encoding issues when running tests on different platforms
+setlocale(LC_ALL, 'en_US.UTF-8');
+
+// needed to avoid failed tests when other timezones than UTC are configured for PHP
+date_default_timezone_set('UTC');
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
