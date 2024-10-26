@@ -17,7 +17,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class HistoryListTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
-	use ResetDatabase;
+
+    //use ResetDatabase;
 	use Factories;
 
 

@@ -32,6 +32,9 @@ doctrine:
         dql:
             string_functions:
                 TYPE: BugCatcher\Extension\DQL\TypeFunction
+            datetime_functions:
+                sectotime: DoctrineExtensions\Query\Mysql\SecToTime
+                div: DoctrineExtensions\Query\Mysql\Div
 
 when@test:
     doctrine:

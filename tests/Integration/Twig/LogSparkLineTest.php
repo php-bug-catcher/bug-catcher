@@ -18,7 +18,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class LogSparkLineTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
-	use ResetDatabase;
+
+    //use ResetDatabase;
 	use Factories;
 
 	public function testSparkLineIntervals() {

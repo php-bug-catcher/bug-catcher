@@ -16,12 +16,12 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class CreateUserTest extends KernelTestCase
 {
-    use ResetDatabase;
+    //use ResetDatabase;
 
     public function testCreateUser()
     {
 
-
+        self::bootKernel();
         $application = new Application(self::$kernel);
 
         $command = $application->find('app:create-user');

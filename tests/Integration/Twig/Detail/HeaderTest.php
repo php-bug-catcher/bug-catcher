@@ -15,7 +15,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class HeaderTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
-	use ResetDatabase;
+
+    //use ResetDatabase;
 	use Factories;
 
 	public function testHeader(): void {

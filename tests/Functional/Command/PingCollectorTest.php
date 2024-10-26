@@ -20,7 +20,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class PingCollectorTest extends KernelTestCase
 {
-    use ResetDatabase;
+    //use ResetDatabase;
 
     public function testAlwaysOkCollector()
     {
@@ -29,7 +29,7 @@ class PingCollectorTest extends KernelTestCase
             "enabled" => true,
             "pingCollector" => 'always_ok',
         ]);
-
+        self::bootKernel();
         $application = new Application(self::$kernel);
 
         $command = $application->find('app:ping-collector');
@@ -50,6 +50,7 @@ class PingCollectorTest extends KernelTestCase
             "pingCollector" => 'not-found',
         ]);
 
+        self::bootKernel();
         $application = new Application(self::$kernel);
 
         $command = $application->find('app:ping-collector');
@@ -68,6 +69,7 @@ class PingCollectorTest extends KernelTestCase
             "pingCollector" => 'always_throw',
         ]);
 
+        self::bootKernel();
         $application = new Application(self::$kernel);
 
         $command = $application->find('app:ping-collector');
@@ -135,6 +137,7 @@ class PingCollectorTest extends KernelTestCase
         ]);
         $this->getContainer()->get(MessageBusInterface::class)->dispatch(new BlankMessage());
 
+        self::bootKernel();
         $application = new Application(self::$kernel);
 
         $command = $application->find('app:ping-collector');
@@ -159,7 +162,7 @@ class PingCollectorTest extends KernelTestCase
 
         RecordPingFactory::truncate();
         //get database connection and truncate table messenger_messages
-        $this->getContainer()->get('doctrine.dbal.default_connection')->executeQuery("TRUNCATE TABLE messenger_messages;");
+        $this->getContainer()->get('doctrine.dbal.default_connection')->executeQuery("DELETE FROM messenger_messages;");
 
         $commandTester->execute(array('command' => $command->getName()));
 

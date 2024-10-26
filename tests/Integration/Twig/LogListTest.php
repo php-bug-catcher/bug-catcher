@@ -23,7 +23,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class LogListTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
-	use ResetDatabase;
+
+    //use ResetDatabase;
 	use Factories;
 
 

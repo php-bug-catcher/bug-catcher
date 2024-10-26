@@ -16,7 +16,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class TitleTest extends KernelTestCase {
 	use InteractsWithTwigComponents;
-	use ResetDatabase;
+
+    //use ResetDatabase;
 	use Factories;
 
 	public function testTitle() {

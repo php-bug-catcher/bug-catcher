@@ -14,4 +14,5 @@ return [
 	ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class   => ['all' => true],
 	Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
+    DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['all' => true],
 ];

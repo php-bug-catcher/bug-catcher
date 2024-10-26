@@ -47,19 +47,19 @@ class Kernel extends BaseKernel {
 
     public function __construct(private readonly ?string $configDir, private mixed $preBootHandler = null)
     {
-		parent::__construct('test', true);
+        parent::__construct('test', false);
 	}
 
 
 	public function getCacheDir(): string {
-		return $this->getProjectDir() . '/var/cache/' . $this->environment . '/' . spl_object_hash($this);
+        return $this->getProjectDir() . '/var/cache/' . $this->environment;
 	}
 
 
 
 	public function __destruct() {
 		//remove entire cache dir recursively
-		$this->removeDir($this->getCacheDir());
+//		$this->removeDir($this->getCacheDir());
 	}
 
 	private function removeDir(string $dir): void {

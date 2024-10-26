@@ -23,7 +23,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class FaviconTest extends KernelTestCase
 {
-    use ResetDatabase;
+    //use ResetDatabase;
     use apiTestHelper;
     use Factories;
 

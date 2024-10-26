@@ -58,6 +58,8 @@
     }
   },
   "require-dev": {
+    "beberlei/doctrineextensions": "^1.5",
+    "dama/doctrine-test-bundle": "^8.2",
     "phpunit/phpunit": "^9.5",
     "symfony/css-selector": "^7.1",
     "symfony/doctrine-messenger": "^7.1",
