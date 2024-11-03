@@ -17,7 +17,8 @@ use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Tests\App\Service\ListenerIsCalled;
 use BugCatcher\Tests\Functional\apiTestHelper;
 
-class NotifierTest extends KernelTestCase {
+class NotifierSameErrorTest extends KernelTestCase
+{
 	use apiTestHelper;
 
 	public function testNotifierPassSimple() {
