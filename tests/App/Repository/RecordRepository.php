@@ -61,27 +61,32 @@ class RecordRepository  implements RecordRepositoryInterface
         );
     }
 
-    public function find($id)
+	public function find(mixed $id): ?object
     {
         return $this->inner->find($id);
     }
 
-    public function findAll()
+	public function findAll(): array
     {
         return $this->inner->findAll();
     }
 
-    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null)
+	public function findBy(
+		array  $criteria,
+		?array $orderBy = null,
+		?int   $limit = null,
+		?int   $offset = null
+	): array
     {
         return $this->inner->findBy($criteria, $orderBy, $limit, $offset);
     }
 
-    public function findOneBy(array $criteria)
+	public function findOneBy(array $criteria): ?object
     {
         return $this->inner->findOneBy($criteria);
     }
 
-    public function getClassName()
+	public function getClassName(): string
     {
         return $this->inner->getClassName();
     }
