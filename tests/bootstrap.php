@@ -1,9 +1,9 @@
 <?php
 
+use BugCatcher\Tests\App\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Tito10047\MigrationBackup\Tests\App\Kernel;
 
 // needed to avoid encoding issues when running tests on different platforms
 setlocale(LC_ALL, 'en_US.UTF-8');
