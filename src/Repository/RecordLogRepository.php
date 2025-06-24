@@ -34,7 +34,7 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
         DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void {
         $this->recordRepository->setStatusBetween($projects, $from, $to, $newStatus, $previousStatus, $qbCreator);
     }
@@ -45,7 +45,7 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ) {
         $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCreator);
     }

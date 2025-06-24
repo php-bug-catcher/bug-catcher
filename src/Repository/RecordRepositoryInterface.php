@@ -28,7 +28,7 @@ interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  O
         DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void;
 
     public function setStatus(
@@ -37,7 +37,7 @@ interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  O
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     );
 
 }

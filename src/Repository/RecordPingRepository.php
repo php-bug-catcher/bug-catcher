@@ -69,7 +69,7 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
         DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void {
         $this->recordRepository->setStatusBetween($projects, $from, $to, $newStatus, $previousStatus, $qbCreator);
     }
@@ -80,7 +80,7 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ) {
         $this->recordRepository->setStatus($log, $lastDate, $newStatus, $previousStatus, $flush, $qbCreator);
     }

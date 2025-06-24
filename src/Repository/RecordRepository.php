@@ -62,7 +62,7 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void {
         $qb = $this->getUpdateStatusQB($newStatus, $lastDate, new DateTimeImmutable(), $previousStatus, $qbCreator);
         $qb
@@ -81,7 +81,7 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
         DateTimeInterface $from,
         DateTimeInterface $to,
         string $previousStatus,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): QueryBuilder {
 
         if ($qbCreator != null) {

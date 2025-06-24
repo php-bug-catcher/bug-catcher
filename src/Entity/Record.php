@@ -41,7 +41,7 @@ abstract class Record {
     ])]
     public ?array $metadata = null;
 
-	public function __construct(DateTimeInterface $date = null) {
+	public function __construct(?DateTimeInterface $date = null) {
 		if ($date) {
 			$this->date = $date;
 		} else {

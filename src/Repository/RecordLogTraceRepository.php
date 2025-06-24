@@ -51,7 +51,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
         DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void {
         $this->recordRepository->setStatusBetween(
             $projects,
@@ -68,7 +68,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ) {
         $this->recordRepository->setStatus(
             $log,

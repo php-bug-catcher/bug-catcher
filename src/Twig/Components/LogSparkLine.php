@@ -49,7 +49,6 @@ where project_id=:project and `date` > :date
 group by period
 order by period
 SQL;
-        echo $sql;
 		$stm     = $this->em->getConnection()
 			->prepare($sql);
 		$stm->bindValue("project", $this->project->getId(), UuidType::NAME);

@@ -32,7 +32,7 @@ class RecordRepository  implements RecordRepositoryInterface
         DateTimeInterface $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ): void {
         $this->inner->setStatusBetween(
             $projects,
@@ -49,7 +49,7 @@ class RecordRepository  implements RecordRepositoryInterface
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
-        callable $qbCreator = null
+		?callable $qbCreator = null
     ) {
         $this->inner->setStatus(
             $log,
