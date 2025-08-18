@@ -26,6 +26,8 @@ abstract class Record {
 
 	protected ?string $hash = null;
 
+	#[Groups(['record:write'])]
+	#[Assert\Length(max: 15, groups: ['api'])]
 	protected ?string $code = null;
 
 
