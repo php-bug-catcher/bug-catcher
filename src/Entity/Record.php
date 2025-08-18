@@ -26,6 +26,8 @@ abstract class Record {
 
 	protected ?string $hash = null;
 
+	protected ?string $code = null;
+
 
 	#[Groups(['record:write'])]
 	#[Assert\NotBlank(groups: ['api'])]
@@ -125,6 +127,16 @@ abstract class Record {
 
 	public function setHash(?string $hash): self {
 		$this->hash = $hash;
+
+		return $this;
+	}
+
+	public function getCode(): ?string {
+		return $this->code;
+	}
+
+	public function setCode(?string $code): self {
+		$this->code = $code;
 
 		return $this;
 	}

@@ -22,6 +22,9 @@
             <a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
                class="badge text-bg-primary text-decoration-none">{{ log.project.name }}</a>
             <span class="badge text-bg-{{ status }} ">{{ log.count }}</span>
+            {% if log.code is not empty %}
+                <span class="badge text-bg-default text-primary border border-primary">{{ log.code }}</span>
+            {% endif %}
             <div class="d-inline text-break">{{ log.message }}</div>
         </div>
         {% if is_granted('ROLE_DEVELOPER') %}

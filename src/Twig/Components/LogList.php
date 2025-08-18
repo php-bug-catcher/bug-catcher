@@ -37,6 +37,8 @@ final class LogList extends AbstractController
     public ?DateTimeInterface $from = null;
     #[ExposeInTemplate]
     public ?DateTimeInterface $to = null;
+	#[LiveProp(writable: true)]
+	public string $query = '';
 
     public function __construct(
         private readonly RecordRepository $recordRepo,
@@ -61,17 +63,24 @@ final class LogList extends AbstractController
             $projects = $this->getUser()->getActiveProjects()->toArray();
         }
         /** @var Record[] $records */
-        $records = $this->recordRepo->createQueryBuilder("record")
-            ->where("record.status like :status")
-            ->andWhere("record INSTANCE OF :class")
-            ->andWhere("record.project IN (:projects)")
-            ->setParameter("status", $this->status . '%')
-            ->setParameter("class", $keys)
-            ->setParameter('projects',
-                array_map(fn(Project $p) => $p->getId()->toBinary(), $projects)
-            )
-            ->orderBy("record.date", "DESC")
-            ->setMaxResults(100)
+		$qb = $this->recordRepo->createQueryBuilder("record")
+			->where("record.status like :status")
+			->andWhere("record INSTANCE OF :class")
+			->andWhere("record.project IN (:projects)")
+			->setParameter("status", $this->status . '%')
+			->setParameter("class", $keys)
+			->setParameter('projects',
+				array_map(fn(Project $p) => $p->getId()->toBinary(), $projects)
+			)
+			->orderBy("record.date", "DESC")
+			->setMaxResults(100);
+
+		if ($this->query) {
+			$qb->andWhere("record.code = :query")
+				->setParameter("query", $this->query);
+		}
+
+		$records = $qb
             ->getQuery()->getResult();
 
         if ($records === []) {

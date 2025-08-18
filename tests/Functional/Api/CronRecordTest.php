@@ -39,4 +39,30 @@ class CronRecordTest extends KernelTestCase {
 			])
 			->assertStatus(201);
 	}
+
+	public function testSendPlainRecordWithCode(): void {
+		[$browser] = $this->browser([]);
+
+		ProjectFactory::createOne([
+			"code" => "testProject",
+		]);
+
+		$browser
+			->post("/api/record_cron", [
+				"headers" => [
+					"Content-Type" => "application/json",
+				],
+				"body"    => json_encode([
+					"level"     => 500,
+					"command"   => "app:test-cron",
+					"code"      => "testCode",
+					"lastStart" => (new DateTime("2022-01-01 10:00:00"))->format(DateTime::RFC3339_EXTENDED),
+					"lastEnd"   => (new DateTime("2022-01-01 10:00:01"))->format(DateTime::RFC3339_EXTENDED),
+					"interval"  => 360,
+					"estimated" => 10,
+					"projectCode" => "testProject",
+				]),
+			])
+			->assertStatus(201);
+	}
 }

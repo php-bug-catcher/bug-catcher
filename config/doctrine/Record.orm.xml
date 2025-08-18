@@ -11,6 +11,7 @@
             <index name="date_idx" columns="status,date"/>
             <index name="done_idx" columns="project_id,status"/>
             <index name="hash_idx" columns="hash,status,date"/>
+            <index name="code_idx" columns="status,code,date"/>
         </indexes>
         <discriminator-column name="discr" type="string"/>
         <discriminator-map>
@@ -26,6 +27,7 @@
         <field name="date" type="datetime" nullable="false"/>
         <field name="status" type="string" length="50"/>
         <field name="hash" type="string" length="32" nullable="true"/>
+        <field name="code" type="string" length="15" nullable="true"/>
         <field name="metadata" type="array" nullable="true"/>
         <many-to-one field="project" target-entity="BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
