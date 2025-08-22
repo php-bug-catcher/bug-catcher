@@ -5,7 +5,7 @@
         {% for key,item in this.trace %}
             <div class="accordion-item">
                 <h3 class="accordion-header" id="heading-{{ key }}">
-                    <button class="accordion-button collapsed"
+                    <button class="accordion-button collapsed text-body"
                             type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapse-{{ key }}"
                             aria-expanded="{% if opened==key %}true{% else %}false{% endif %}"

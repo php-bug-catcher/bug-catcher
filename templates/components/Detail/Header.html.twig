@@ -1,7 +1,7 @@
 <header{{ attributes.defaults({
     class:'pb-1 mb-4 border-bottom'
 }) }}>
-    <a href="{{ record.requestUri }}" target="_blank" class="d-flex align-items-center text-dark text-decoration-none">
+    <a href="{{ record.requestUri }}" target="_blank" class="d-flex align-items-center text-body text-decoration-none">
         <img class="p-1" src="{{ asset('/assets/logo/'~logo~'/icon.svg', 'bug_catcher') }}" alt="bug" style="width: 43px;height:43px;"/>
         <span class="fs-4">{{ record.requestUri|u.truncate(150, '...') }} </span>
     </a>

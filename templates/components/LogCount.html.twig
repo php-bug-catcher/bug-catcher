@@ -2,7 +2,8 @@
     class:'col-2 px-1'
 }) }}>
     {% set count = this.count %}
-    <div class="w-100 badge text-bg-{% if count==0 %}success0{% elseif count<5 %}warning{% else %}danger{% endif %}  fs-6">
+    {% set color = count==0 ? 'success' : (count<5 ? 'warning' : 'danger') %}
+    <div class="w-100 badge border border-{{ color }}-subtle bg-{{ color }}-subtle text-{{ color }}-emphasis fs-6">
         <div class="mt-px">{{ count }}</div>
     </div>
 </div>

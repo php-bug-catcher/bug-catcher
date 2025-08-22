@@ -3,11 +3,11 @@
     "bug_catcher": {
       "js": [
         "/bundles/bugcatcher/runtime.f29bab85.js",
-        "/bundles/bugcatcher/579.9a6ebc31.js",
+        "/bundles/bugcatcher/579.c35234fc.js",
         "/bundles/bugcatcher/bug_catcher.b421cb92.js"
       ],
       "css": [
-        "/bundles/bugcatcher/bug_catcher.84008d0c.css"
+        "/bundles/bugcatcher/bug_catcher.2165f9c7.css"
       ]
     }
   }

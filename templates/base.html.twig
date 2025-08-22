@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{{ app_name|default('Bug Catcher') }}{% endblock %}</title>
@@ -11,10 +11,25 @@
 
     {% block javascripts %}
         {{ encore_entry_script_tags('bug_catcher',null,'bug_catcher') }}
+        <script>
+            (function () {
+                const key = 'bc-theme';
+                const saved = localStorage.getItem(key) || 'auto';
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = saved === 'auto' ? (prefersDark ? 'dark' : 'light') : saved;
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                if (saved === 'auto' && window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)')
+                            .addEventListener('change', (e) => {
+                                document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+                            });
+                }
+            })();
+        </script>
     {% endblock %}
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 </head>
-<body class="bg-light" {{ stimulus_controller('toast') }}
+<body class="bg-body" {{ stimulus_controller('toast') }}
         {{ stimulus_action('toast',"show","toast:show") }}
 >
 <div {{ stimulus_target('toast','container') }} class="toast-container"></div>
@@ -66,9 +81,29 @@
                 <a class="dropdown-item" href="{{ path('bug_catcher.security.change-password') }}">Change password</a>
                 <hr class="dropdown-divider">
                 <a class="dropdown-item" href="{{ path('bug_catcher.security.logout') }}">Log out</a>
+                <hr class="dropdown-divider">
+                <div class="px-3 py-2 text-muted small">Theme</div>
+                <a class="dropdown-item" href="#" data-theme-choice="light">Light</a>
+                <a class="dropdown-item" href="#" data-theme-choice="dark">Dark</a>
+                <a class="dropdown-item" href="#" data-theme-choice="auto">Auto</a>
             </li>
         </ul>
     </div>
+    <script>
+        document.addEventListener('click', function (e) {
+            const a = e.target.closest('[data-theme-choice]');
+            if (!a) return;
+            e.preventDefault();
+            const choice = a.getAttribute('data-theme-choice');
+            localStorage.setItem('bc-theme', choice);
+            if (choice === 'auto') {
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', choice);
+            }
+        });
+    </script>
 </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-//https://huemint.com/bootstrap-basic/#palette=e3e8eb-ffffff-030619-204e7a-64b9e3-6c6b59
+// https://huemint.com/bootstrap-basic/#palette=e3e8eb-ffffff-030619-204e7a-64b9e3-6c6b59
 $min-contrast-ratio: 3;
 $white: #ffffff;
 
@@ -12,57 +12,79 @@ $theme-colors: (
         "warning": #e4cb22,
         "danger": #f41611,
 );
+
 @import "bootstrap/scss/bootstrap";
+
+/* Custom CSS variables for Bug Catcher components */
+:root {
+  --bc-body-bg: var(--bs-body-bg);
+  --bc-code-bg: #f6f8fa; /* light */
+  --bc-code-selected-bg: #b5f5ec; /* light */
+  --bc-timeline-line: #204e7a; /* matches primary */
+  --bc-timeline-dot: #204e7a;
+}
+
+/* Dark overrides */
+[data-bs-theme="dark"] {
+  --bc-body-bg: var(--bs-body-bg);
+  --bc-code-bg: #1f2430; /* dark code background */
+  --bc-code-selected-bg: #16323f; /* dark selection */
+  --bc-timeline-line: #6ea8fe; /* accessible on dark */
+  --bc-timeline-dot: #6ea8fe;
+}
+
+/* Use variables instead of hard-coded colors */
 body {
-    background-color: lightgray;
+  background-color: var(--bc-body-bg);
 }
 
 code {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 div.code::before {
-    counter-reset: listing;
+  counter-reset: listing;
 }
 
 div.code code {
-    counter-increment: listing;
-    display: block;
-    width: 100%;
+  counter-increment: listing;
+  display: block;
+  width: 100%;
+  background-color: var(--bc-code-bg);
 }
 
 div.code code.selected {
-    background-color: #b5f5ec;
+  background-color: var(--bc-code-selected-bg);
 }
 
 div.code code::before {
-    content: counter(listing) ". ";
-    display: inline-block;
-    width: 4em; /* now works */
-    text-align: right; /* now works */
+  content: counter(listing) ". ";
+  display: inline-block;
+  width: 4em;
+  text-align: right;
 }
 
 .timeline {
-    border-left: 1px solid #204e7a;
-    position: relative;
-    list-style: none;
+  border-left: 1px solid var(--bc-timeline-line);
+  position: relative;
+  list-style: none;
 }
 
 .timeline .timeline-item {
-    position: relative;
+  position: relative;
 }
 
 .timeline .timeline-item:after {
-    position: absolute;
-    display: block;
-    top: 0;
+  position: absolute;
+  display: block;
+  top: 0;
 }
 
 .timeline .timeline-item:after {
-    background-color: #204e7a;
-    left: -38px;
-    border-radius: 50%;
-    height: 11px;
-    width: 11px;
-    content: "";
+  background-color: var(--bc-timeline-dot);
+  left: -38px;
+  border-radius: 50%;
+  height: 11px;
+  width: 11px;
+  content: "";
 }
