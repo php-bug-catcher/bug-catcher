@@ -18,12 +18,12 @@
             {% set status = 'danger' %}
         {% endif %}
         <div>
-            <span class="badge text-bg-secondary ">{{ log.date|date('d.m.Y H:i:s') }}</span>
+            <span class="badge border border-secondary-subtle bg-secondary-subtle text-secondary-emphasis">{{ log.date|date('d.m.Y H:i:s') }}</span>
             <a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
-               class="badge text-bg-primary text-decoration-none">{{ log.project.name }}</a>
-            <span class="badge text-bg-{{ status }} ">{{ log.count }}</span>
+               class="badge border border-primary-subtle bg-primary-subtle text-primary-emphasis text-decoration-none">{{ log.project.name }}</a>
+            <span class="badge border border-{{ status }}-subtle bg-{{ status }}-subtle text-{{ status }}-emphasis">{{ log.count }}</span>
             {% if log.code is not empty %}
-                <span class="badge text-bg-default text-primary border border-primary">{{ log.code }}</span>
+                <span class="badge border border-primary-subtle bg-primary-subtle text-primary-emphasis">{{ log.code }}</span>
             {% endif %}
             <div class="d-inline text-break">{{ log.message }}</div>
         </div>
