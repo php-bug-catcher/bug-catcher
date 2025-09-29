@@ -37,8 +37,27 @@
 			{% endfor %}
 		</ul>
 	{% else %}
-		<h6 class="border-bottom pb-1 mb-0">Your are happy, No Errors
-			<twig:ux:icon name="game-icons:schrodingers-cat-alive" width="30px" height="30px"/>
-		</h6>
+		<div class="empty-state text-center py-5">
+			<div class="mb-3">
+				<twig:ux:icon name="lucide:party-popper" width="68" height="68" class="text-success"/>
+			</div>
+			<h5 class="empty-title mb-2">
+				{{ 'No bugs, hurrah'|trans({},"BugCatcher") }}
+			</h5>
+			<p class="empty-subtitle mb-4 text-body-secondary">
+				{{ this.funnyMessage|trans({},"BugCatcher") }}
+			</p>
+			<div class="d-flex justify-content-center gap-2">
+				{% if app.request.attributes.get("project") is not null %}
+					<a href="/" class="btn btn-primary btn-sm">
+						<twig:ux:icon name="lucide:filter-x" width="18" height="18"/>
+						Zrušiť filter
+					</a>
+				{% endif %}
+				<button class="btn btn-outline-primary btn-sm" onclick="alert('{{ 'Just funny 🙂'|trans({},"BugCatcher") }}')">
+					<twig:ux:icon name="lucide:bug-off" width="18" height="18"/> {{ 'Generate bug'|trans({},"BugCatcher") }}
+				</button>
+			</div>
+		</div>
 	{% endif %}
 </div>

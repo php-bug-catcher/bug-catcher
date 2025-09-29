@@ -6,7 +6,6 @@ use BugCatcher\Controller\AbstractController;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
@@ -18,51 +17,54 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsLiveComponent]
-final class LogList extends AbstractController
-{
-    use DefaultActionTrait;
+final class LogList extends AbstractController {
 
-    #[LiveProp]
-    public string $status;
+	use DefaultActionTrait;
 
-    #[LiveProp]
-    public ?Project $project = null;
+	#[LiveProp]
+	public string $status;
 
-    #[LiveProp]
-    public string $id;
-    /** @var Record[] */
-    #[ExposeInTemplate]
-    public array $logs = [];
-    #[ExposeInTemplate]
-    public ?DateTimeInterface $from = null;
-    #[ExposeInTemplate]
-    public ?DateTimeInterface $to = null;
+	#[LiveProp]
+	public ?Project $project = null;
+
+	#[LiveProp]
+	public string $id;
+	/** @var Record[] */
+	#[ExposeInTemplate]
+	public array              $logs         = [];
+	#[ExposeInTemplate]
+	public ?DateTimeInterface $from         = null;
+	#[ExposeInTemplate]
+	public ?DateTimeInterface $to           = null;
 	#[LiveProp(writable: true)]
-	public string $query = '';
+	public string             $query        = '';
+	#[LiveProp()]
+	public ?string            $funnyMessage = null;
 
-    public function __construct(
-        private readonly RecordRepository $recordRepo,
-        private ManagerRegistry $registry,
-        private array $classes
-    ) {
-        $this->id = uniqid();
-    }
+	public function __construct(
+		private readonly RecordRepository $recordRepo,
+		private ManagerRegistry           $registry,
+		private array                     $classes,
+		private array                     $noBugFunnyMessages
+	) {
+		$this->id = uniqid();
+		$this->checkMessage();
+	}
 
-    public function init(): void
-    {
+	public function init(): void {
 
-        $em = $this->registry->getManager();
-        $classMetadata = $em->getClassMetadata(Record::class);
-        $discriminatorMap = $classMetadata->discriminatorMap;
-        $discriminatorMap = array_flip($discriminatorMap);
-        $keys = array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes);
+		$em               = $this->registry->getManager();
+		$classMetadata    = $em->getClassMetadata(Record::class);
+		$discriminatorMap = $classMetadata->discriminatorMap;
+		$discriminatorMap = array_flip($discriminatorMap);
+		$keys             = array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes);
 
-        if ($this->project) {
-            $projects = [$this->project];
-        } else {
-            $projects = $this->getUser()->getActiveProjects()->toArray();
-        }
-        /** @var Record[] $records */
+		if ($this->project) {
+			$projects = [$this->project];
+		} else {
+			$projects = $this->getUser()->getActiveProjects()->toArray();
+		}
+		/** @var Record[] $records */
 		$qb = $this->recordRepo->createQueryBuilder("record")
 			->where("record.status like :status")
 			->andWhere("record INSTANCE OF :class")
@@ -81,52 +83,64 @@ final class LogList extends AbstractController
 		}
 
 		$records = $qb
-            ->getQuery()->getResult();
+			->getQuery()->getResult();
 
-        if ($records === []) {
-            return;
-        }
-        $this->from = $records[0]->getDate();
-        $this->to = $records[count($records) - 1]->getDate();
-
-
-        $logs = [];
-        foreach ($records as $row) {
-            $record = $logs[$row->getHash()] = $logs[$row->getHash()] ?? $row->setCount(0);
-            $record->setCount($record->getCount() + 1);
-            $record->setFirstOccurrence($row->getDate());
-        }
-
-        $this->logs = array_values($logs);
-    }
+		if ($records === []) {
+			$this->checkMessage();
+			return;
+		}
+		$this->from = $records[0]->getDate();
+		$this->to   = $records[count($records) - 1]->getDate();
 
 
-    #[LiveAction]
-    public function clearAll(
-        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
-        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $to,
-    ) {
-        $rows = $this->recordRepo->createQueryBuilder("record")
-            ->addSelect('TYPE(record) as type')
-            ->where("record.status = :status")
-            ->andWhere("record.date BETWEEN :from AND :to")
-            ->setParameter("status", $this->status)
-            ->setParameter("from", $from)
-            ->setParameter("to", $to)
-            ->groupBy('type')
-            ->getQuery()->getResult();
+		$logs = [];
+		foreach ($records as $row) {
+			$record = $logs[$row->getHash()] = $logs[$row->getHash()] ?? $row->setCount(0);
+			$record->setCount($record->getCount() + 1);
+			$record->setFirstOccurrence($row->getDate());
+		}
 
-        foreach ($rows as $row) {
-            $class = $row['0']::class;
-            $repo = $this->registry->getRepository($class);
-            $repo->setStatusBetween(
-                $this->getUser()->getProjects()->toArray(),
-                $from,
-                $to,
-                'resolved', $this->status
-            );
+		$this->logs = array_values($logs);
+		$this->checkMessage();
+	}
 
-        }
 
-    }
+	#[LiveAction]
+	public function clearAll(
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $to,
+	) {
+		$rows = $this->recordRepo->createQueryBuilder("record")
+			->addSelect('TYPE(record) as type')
+			->where("record.status = :status")
+			->andWhere("record.date BETWEEN :from AND :to")
+			->setParameter("status", $this->status)
+			->setParameter("from", $from)
+			->setParameter("to", $to)
+			->groupBy('type')
+			->getQuery()->getResult();
+
+		foreach ($rows as $row) {
+			$class = $row['0']::class;
+			$repo  = $this->registry->getRepository($class);
+			$repo->setStatusBetween(
+				$this->getUser()->getProjects()->toArray(),
+				$from,
+				$to,
+				'resolved', $this->status
+			);
+
+		}
+
+	}
+
+	private function checkMessage(): void {
+		if (!count($this->logs)) {
+			if ($this->funnyMessage == null) {
+				$this->funnyMessage = $this->noBugFunnyMessages[array_rand($this->noBugFunnyMessages)];
+			}
+		} else {
+			$this->funnyMessage = null;
+		}
+	}
 }

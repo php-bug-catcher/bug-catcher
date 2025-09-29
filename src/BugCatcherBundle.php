@@ -94,7 +94,8 @@ final class BugCatcherBundle extends AbstractBundle
 		$services->set(LogList::class)
 			->autowire()
 			->autoconfigure()
-			->arg('$classes', $config["dashboard_list_items"]);
+			->arg('$classes', $config["dashboard_list_items"])
+			->arg('$noBugFunnyMessages', $config["no_bug_funny_messages"]);
 		$services->set(LogList\RecordLog::class)
 			->autowire()
 			->autoconfigure()

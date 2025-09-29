@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="fr" datatype="plaintext" original="file.ext">
+        <body>
+		  <trans-unit id="0">
+			<source>No bugs, hurrah</source>
+			<target>Žiadne chybové logy. Hurá!</target>
+		  </trans-unit>
+		  <trans-unit id="1">
+			<source>The bugs are hiding under the rug today. But we know where they live.</source>
+			<target>Bugy sa dnes schovali pod koberec. Ale my vieme, kde bývajú.</target>
+		  </trans-unit>
+		  <trans-unit id="2">
+			<source>System clean as a freshly washed commit.</source>
+			<target>Systém čistý ako čerstvo umytý commit.</target>
+		  </trans-unit>
+		  <trans-unit id="3">
+			<source>If something doesn’t work, it’s just an illusion – everything’s fine here.</source>
+			<target>Ak niečo nefunguje, je to len ilúzia – tu je všetko v poriadku.</target>
+		  </trans-unit>
+		  <trans-unit id="4">
+			<source>Debugger is resting today. And so can you.</source>
+			<target>Debugger dnes oddychuje. A ty môžeš tiež.</target>
+		  </trans-unit>
+		  <trans-unit id="5">
+			<source>Calm before the storm? Or a final victory?</source>
+			<target>Ticho pred búrkou? Alebo definitívne víťazstvo?</target>
+		  </trans-unit>
+		  <trans-unit id="6">
+			<source>No bugs? Must be a trick… or a miracle.</source>
+			<target>Žiadne chyby? To bude určite trik… alebo zázrak.</target>
+		  </trans-unit>
+		  <trans-unit id="7">
+			<source>Your code just hit the jackpot – bug-free zone!</source>
+			<target>Tvoj kód dnes vyhral jackpot – bug-free zóna!</target>
+		  </trans-unit>
+		  <trans-unit id="8">
+			<source>The robot swept so well even the bugs gave up.</source>
+			<target>Robot zametal tak dobre, že sa aj bugy vzdali.</target>
+		  </trans-unit>
+		  <trans-unit id="9">
+			<source>Don’t worry, if there’s no bug here, maybe it’s on vacation.</source>
+			<target>Neboj, ak tu nie je bug, možno je na dovolenke.</target>
+		  </trans-unit>
+		  <trans-unit id="10">
+			<source>Code so clean you could eat it with a spoon.</source>
+			<target>Kód tak čistý, že by sa dal jesť lyžicou.</target>
+		  </trans-unit>
+		  <trans-unit id="11">
+			<source>No bugs? You must have become a wizard.</source>
+			<target>Žiadne bugy? Asi si sa stal čarodejníkom.</target>
+		  </trans-unit>
+		  <trans-unit id="12">
+			<source>Even the Matrix has glitches… but not here.</source>
+			<target>Aj Matrix má chyby… ale nie tu.</target>
+		  </trans-unit>
+		  <trans-unit id="13">
+			<source>Everything runs smoothly, like a merge without conflicts.</source>
+			<target>Všetko ide hladko, ako merge bez konfliktu.</target>
+		  </trans-unit>
+		  <trans-unit id="14">
+			<source>This is the moment when you can believe in miracles.</source>
+			<target>Toto je ten okamih, keď môžeš veriť v zázraky.</target>
+		  </trans-unit>
+		  <trans-unit id="15">
+			<source>No bugs, just pure programming joy.</source>
+			<target>Žiadne bugy, iba čistá radosť z programovania.</target>
+		  </trans-unit>
+		  <trans-unit id="16">
+			<source>Today you don’t need a coffee debug session.</source>
+			<target>Dnes nepotrebuješ coffee debug session.</target>
+		  </trans-unit>
+		  <trans-unit id="17">
+			<source>Bugs? Please, those are already legacy.</source>
+			<target>Bugy? Prosím ťa, tie už sú dávno legacy.</target>
+		  </trans-unit>
+		  <trans-unit id="18">
+			<source>Code so clean even linters approve it.</source>
+			<target>Kód taký čistý, že ho schválil aj linterna.</target>
+		  </trans-unit>
+		  <trans-unit id="19">
+			<source>No bugs – no excuses.</source>
+			<target>Žiadne bugy – žiadne výhovorky.</target>
+		  </trans-unit>
+		  <trans-unit id="20">
+			<source>QA can relax today, everything’s safe.</source>
+			<target>Dnes môže QA oddychovať, všetko je safe.</target>
+		  </trans-unit>
+		  <trans-unit id="21">
+			<source>If there was a bug, you would’ve found it already.</source>
+			<target>Keby tu bol bug, už by si ho určite našiel.</target>
+		  </trans-unit>
+		  <trans-unit id="22">
+			<source>Robot checked every pixel. Nothing.</source>
+			<target>Robot skontroloval každý pixel. Nič.</target>
+		  </trans-unit>
+		  <trans-unit id="23">
+			<source>The code shines brighter than the sun on production.</source>
+			<target>Kód žiari viac ako slnko na productione.</target>
+		  </trans-unit>
+		  <trans-unit id="24">
+			<source>Bugs are missing, but we don’t miss courage.</source>
+			<target>Chýbajú bugy, ale nechýba nám odvaha.</target>
+		  </trans-unit>
+		  <trans-unit id="25">
+			<source>Nothing to fix here. Sorry, dev.</source>
+			<target>Tu nie je nič na fixnutie. Prepáč, dev.</target>
+		  </trans-unit>
+		  <trans-unit id="26">
+			<source>Everything works so well it’s getting suspicious.</source>
+			<target>Všetko funguje tak dobre, že to začína byť podozrivé.</target>
+		  </trans-unit>
+		  <trans-unit id="27">
+			<source>A bug-free day is a good day.</source>
+			<target>Bug-free deň je dobrý deň.</target>
+		  </trans-unit>
+		  <trans-unit id="28">
+			<source>Nothing broke – are you sure you’re still in the right project?</source>
+			<target>Nič sa nerozbilo – ešte stále si v správnom projekte?</target>
+		  </trans-unit>
+		  <trans-unit id="29">
+			<source>Even the TODO comments are hiding today.</source>
+			<target>Dokonca aj TODO komentáre sa dnes skrývajú.</target>
+		  </trans-unit>
+		  <trans-unit id="30">
+			<source>Congrats, your code would pass grandma’s quality check.</source>
+			<target>Gratulujem, tvoj kód by prešiel aj babkinou kontrolou kvality.</target>
+		  </trans-unit>
+		  <trans-unit id="31">
+			<source>Generate bug</source>
+			<target>Vygenerovať bug</target>
+		  </trans-unit>
+		  <trans-unit id="32">
+			<source>Just funny 🙂</source>
+			<target>Len žartujeme 🙂</target>
+		  </trans-unit>
+		  <trans-unit id="33">
+			<source>Administration</source>
+			<target>Administrácia</target>
+		  </trans-unit>
+		  <trans-unit id="34">
+			<source>Archived logs</source>
+			<target>Archivované logy</target>
+		  </trans-unit>
+		  <trans-unit id="35">
+			<source>Withheld logs</source>
+			<target>Pozdržané logy</target>
+		  </trans-unit>
+		  <trans-unit id="36">
+			<source>New logs</source>
+			<target>Nové logy</target>
+		  </trans-unit>
+		  <trans-unit id="37">
+			<source>Change password</source>
+			<target>Zmeniť heslo</target>
+		  </trans-unit>
+		  <trans-unit id="38">
+			<source>Log out</source>
+			<target>Odhlásiť</target>
+		  </trans-unit>
+		  <trans-unit id="39">
+			<source>Theme</source>
+			<target>Téma</target>
+		  </trans-unit>
+		  <trans-unit id="40">
+			<source>Light</source>
+			<target>Svetlá</target>
+		  </trans-unit>
+		  <trans-unit id="41">
+			<source>Dark</source>
+			<target>Tmavá</target>
+		  </trans-unit>
+		  <trans-unit id="42">
+			<source>Auto</source>
+			<target>Automatická</target>
+		  </trans-unit>
+        </body>
+    </file>
+</xliff>

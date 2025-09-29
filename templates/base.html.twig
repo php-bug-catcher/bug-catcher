@@ -69,23 +69,22 @@
         <ul class="dropdown-menu">
             <li>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a class="dropdown-item" href="{{ path('bug_catcher.admin') }}">Administration</a>
+					<a class="dropdown-item" href="{{ path('bug_catcher.admin') }}">{{ 'Administration'|trans({},"BugCatcher") }}</a>
                 {% endif %}
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index',{status:'archived'}) }}">Archived
+				<a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index',{status:'archived'}) }}">{{ 'Archived logs'|trans({},"BugCatcher") }}</a>
+				<a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index',{status:'withheld'}) }}">{{ 'Withheld logs'|trans({},"BugCatcher") }}
                     logs</a>
-                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index',{status:'withheld'}) }}">Withheld
-                    logs</a>
-                <a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index') }}">New logs</a>
+				<a class="dropdown-item" href="{{ path('bug_catcher.dashboard.index') }}">{{ 'New logs'|trans({},"BugCatcher") }}</a>
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('bug_catcher.security.change-password') }}">Change password</a>
+				<a class="dropdown-item" href="{{ path('bug_catcher.security.change-password') }}">{{ 'Change password'|trans({},"BugCatcher") }}</a>
                 <hr class="dropdown-divider">
-                <a class="dropdown-item" href="{{ path('bug_catcher.security.logout') }}">Log out</a>
+				<a class="dropdown-item" href="{{ path('bug_catcher.security.logout') }}">{{ 'Log out'|trans({},"BugCatcher") }}</a>
                 <hr class="dropdown-divider">
-                <div class="px-3 py-2 text-muted small">Theme</div>
-                <a class="dropdown-item" href="#" data-theme-choice="light">Light</a>
-                <a class="dropdown-item" href="#" data-theme-choice="dark">Dark</a>
-                <a class="dropdown-item" href="#" data-theme-choice="auto">Auto</a>
+				<div class="px-3 py-2 text-muted small">{{ 'Theme'|trans({},"BugCatcher") }}</div>
+				<a class="dropdown-item" href="#" data-theme-choice="light">{{ 'Light'|trans({},"BugCatcher") }}</a>
+				<a class="dropdown-item" href="#" data-theme-choice="dark">{{ 'Dark'|trans({},"BugCatcher") }}</a>
+				<a class="dropdown-item" href="#" data-theme-choice="auto">{{ 'Auto'|trans({},"BugCatcher") }}</a>
             </li>
         </ul>
     </div>

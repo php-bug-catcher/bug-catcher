@@ -88,3 +88,16 @@ div.code code::before {
   width: 11px;
   content: "";
 }
+
+/* Empty state styling for LogList */
+.empty-state {
+  text-align: center;
+}
+
+.empty-state .empty-title {
+  font-weight: 600;
+}
+
+.empty-state .empty-subtitle {
+  color: var(--bs-secondary-color);
+}
