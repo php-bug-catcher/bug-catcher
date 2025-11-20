@@ -3,7 +3,7 @@
   "type": "symfony-bundle",
   "license": "MIT",
   "description": "Catch all bugs from all your applications in one place",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "require": {
     "php": ">=8.3",
     "api-platform/core": "^3.3",
@@ -31,6 +31,7 @@
     "symfony/validator": "7.3.*",
     "symfony/web-link": "7.3.*",
     "symfony/webpack-encore-bundle": "^2.1",
+    "tito10047/batch-selection-bundle": "dev-main",
     "tito10047/doctrine-transaction": "^0.1.1",
     "tito10047/php-sparkline": "^1.0",
     "twig/extra-bundle": "^2.12|^3.0",
@@ -80,5 +81,11 @@
     "phpunit": "vendor/bin/phpunit --display-warnings --display-skipped --display-deprecations --display-errors --display-notices",
     "coverage": "vendor/bin/phpunit --coverage-html build/reports/html --coverage-clover build/reports/clover.xml",
     "csfixer": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
-  }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "~/phpProjects/contrib/batch-selection-bundle"
+    }
+  ]
 }
