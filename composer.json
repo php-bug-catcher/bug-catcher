@@ -82,11 +82,5 @@
     "phpunit": "vendor/bin/phpunit --display-warnings --display-skipped --display-deprecations --display-errors --display-notices",
     "coverage": "vendor/bin/phpunit --coverage-html build/reports/html --coverage-clover build/reports/clover.xml",
     "csfixer": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "~/phpProjects/contrib/batch-selection-bundle"
-    }
-  ]
+  }
 }

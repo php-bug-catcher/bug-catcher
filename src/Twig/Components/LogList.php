@@ -136,7 +136,7 @@ final class LogList extends AbstractController {
 			$repo = $this->registry->getRepository($record::class);
 			$repo->setStatus(
 				$record,
-				new DateTimeImmutable("-1 year"),
+				new DateTimeImmutable("-1 month"),
 				'resolved',
 				$this->status
 			);
