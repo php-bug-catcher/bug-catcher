@@ -5,8 +5,7 @@ namespace BugCatcher\Repository;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordPing;
-use DateTime;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -56,7 +55,7 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
         return $this->getQBWith(project: $project)
             ->andWhere("r.date >= :date")
             ->orderBy('r.date', 'DESC')
-            ->setParameter('date', new DateTime($maxLife))
+			->setParameter('date', new DateTimeImmutable($maxLife))
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -65,8 +64,8 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
 
     public function setStatusBetween(
         array $projects,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $newStatus,
         string $previousStatus = 'new',
 		?callable $qbCreator = null
@@ -76,7 +75,7 @@ final class RecordPingRepository extends ServiceEntityRepository implements Reco
 
     public function setStatus(
         Record $log,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,

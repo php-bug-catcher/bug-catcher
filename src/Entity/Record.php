@@ -3,9 +3,7 @@
 namespace BugCatcher\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
-use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,7 +15,7 @@ abstract class Record {
 	protected ?Uuid $id = null;
 
 	#[Assert\NotBlank()]
-	protected ?DateTimeInterface $date = null;
+	protected ?DateTimeImmutable $date            = null;
 
 	#[Assert\NotNull(groups: ['Default'])]
 	protected ?Project $project = null;
@@ -45,7 +43,7 @@ abstract class Record {
     ])]
     public ?array $metadata = null;
 
-	public function __construct(?DateTimeInterface $date = null) {
+	public function __construct(?DateTimeImmutable $date = null) {
 		if ($date) {
 			$this->date = $date;
 		} else {
@@ -54,17 +52,17 @@ abstract class Record {
 	}
 
 	private int $count = 1;
-    private ?DateTime $firstOccurrence = null;
+	private ?DateTimeImmutable   $firstOccurrence = null;
 
 	public function getId(): ?Uuid {
 		return $this->id;
 	}
 
-	public function getDate(): ?DateTimeInterface {
+	public function getDate(): ?DateTimeImmutable {
 		return $this->date;
 	}
 
-	public function setDate(DateTimeInterface $date): static {
+	public function setDate(DateTimeImmutable $date): static {
 		$this->date = $date;
 
 		return $this;
@@ -102,12 +100,12 @@ abstract class Record {
 		return $this;
 	}
 
-    public function getFirstOccurrence(): ?DateTime
+	public function getFirstOccurrence(): ?DateTimeImmutable
     {
         return $this->firstOccurrence;
     }
 
-    public function setFirstOccurrence(?DateTime $firstOccurrence): self
+	public function setFirstOccurrence(?DateTimeImmutable $firstOccurrence): self
     {
         $this->firstOccurrence = $firstOccurrence;
         return $this;

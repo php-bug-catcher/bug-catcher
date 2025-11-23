@@ -11,6 +11,7 @@ use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Tests\Functional\apiTestHelper;
 use DateTime;
+use DateTimeImmutable;
 
 class CronRecordTest extends KernelTestCase {
 	use apiTestHelper;
@@ -30,8 +31,8 @@ class CronRecordTest extends KernelTestCase {
 				"body"    => json_encode([
 					"level"       => 500,
 					"command"     => "app:test-cron",
-					"lastStart"   => (new DateTime("2022-01-01 10:00:00"))->format(DateTime::RFC3339_EXTENDED),
-					"lastEnd"     => (new DateTime("2022-01-01 10:00:01"))->format(DateTime::RFC3339_EXTENDED),
+					"lastStart" => (new DateTimeImmutable("2022-01-01 10:00:00"))->format(DateTime::RFC3339_EXTENDED),
+					"lastEnd"   => (new DateTimeImmutable("2022-01-01 10:00:01"))->format(DateTime::RFC3339_EXTENDED),
 					"interval"    => 360,
 					"estimated"   => 10,
 					"projectCode" => "testProject",
@@ -56,8 +57,8 @@ class CronRecordTest extends KernelTestCase {
 					"level"     => 500,
 					"command"   => "app:test-cron",
 					"code"      => "testCode",
-					"lastStart" => (new DateTime("2022-01-01 10:00:00"))->format(DateTime::RFC3339_EXTENDED),
-					"lastEnd"   => (new DateTime("2022-01-01 10:00:01"))->format(DateTime::RFC3339_EXTENDED),
+					"lastStart" => (new DateTimeImmutable("2022-01-01 10:00:00"))->format(DateTime::RFC3339_EXTENDED),
+					"lastEnd"   => (new DateTimeImmutable("2022-01-01 10:00:01"))->format(DateTime::RFC3339_EXTENDED),
 					"interval"  => 360,
 					"estimated" => 10,
 					"projectCode" => "testProject",

@@ -24,7 +24,7 @@
             <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
         </id>
 
-        <field name="date" type="datetime" nullable="false"/>
+        <field name="date" type="datetime_immutable" nullable="false"/>
         <field name="status" type="string" length="50"/>
         <field name="hash" type="string" length="32" nullable="true"/>
         <many-to-one field="project" target-entity="BugCatcher\Entity\Project">

@@ -1,14 +1,20 @@
 {
-    "controllers": {
-        "@symfony/ux-live-component": {
-            "live": {
-                "enabled": true,
-                "fetch": "eager",
-                "autoimport": {
-                    "@symfony/ux-live-component/dist/live.min.css": true
-                }
-            }
+  "controllers": {
+    "@symfony/ux-live-component": {
+      "live": {
+        "enabled": true,
+        "fetch": "eager",
+        "autoimport": {
+          "@symfony/ux-live-component/dist/live.min.css": true
         }
+      }
     },
-    "entrypoints": []
+    "@tito10047/batch-selection-bundle": {
+      "batch-selection": {
+        "enabled": true,
+        "fetch": "eager"
+      }
+    }
+  },
+  "entrypoints": []
 }
