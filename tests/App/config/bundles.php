@@ -15,5 +15,5 @@ return [
 	Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['all' => true],
-	Tito10047\BatchSelectionBundle\BatchSelectionBundle::class => ['all' => true],
+	Tito10047\PersistentStateBundle\PersistentStateBundle::class => ['all' => true],
 ];

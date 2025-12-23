@@ -18,9 +18,7 @@ use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
-use Tito10047\BatchSelectionBundle\Normalizer\ArrayNormalizer;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
-use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\PersistentStateBundle\Selection\Service\SelectionManagerInterface;
 
 #[AsLiveComponent]
 final class LogList extends AbstractController {
@@ -49,6 +47,7 @@ final class LogList extends AbstractController {
 
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
+		#[Autowire(service: 'persistent_state.selection.manager.default')]
 		private readonly SelectionManagerInterface $selectionManager,
 		private ManagerRegistry           $registry,
 		private array                     $classes,
@@ -89,7 +88,7 @@ final class LogList extends AbstractController {
 				->setParameter("query", $this->query);
 		}
 
-		$this->selectionManager->registerSource("main_logs", $qb);
+		$this->selectionManager->registerSelection("main_logs", $qb);
 
 		$records = $qb
 			->getQuery()->getResult();
@@ -136,12 +135,13 @@ final class LogList extends AbstractController {
 			$repo = $this->registry->getRepository($record::class);
 			$repo->setStatus(
 				$record,
-				new DateTimeImmutable("-1 month"),
+				$from,
 				'resolved',
 				$this->status
 			);
 
 		}
+		$this->id = uniqid();
 	}
 
 	private function checkMessage(): void {

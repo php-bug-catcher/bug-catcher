@@ -9,8 +9,8 @@
         }
       }
     },
-    "@tito10047/batch-selection-bundle": {
-      "batch-selection": {
+    "@tito10047/persistent-state-bundle": {
+      "selection": {
         "enabled": true,
         "fetch": "eager"
       }
