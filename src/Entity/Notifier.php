@@ -2,7 +2,7 @@
 
 namespace BugCatcher\Entity;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +26,7 @@ abstract class Notifier {
 
 	protected ?int $delayInterval = null;
 
-	protected ?DateTimeInterface $lastFailedStatus = null;
+	protected ?DateTimeImmutable $lastFailedStatus = null;
 	protected int $failedStatusCount = 0;
 
 	protected NotifyRepeat $repeat = NotifyRepeat::FrequencyRecords;
@@ -38,9 +38,9 @@ abstract class Notifier {
 
 	protected ?int $clearInterval = null;
 
-	protected ?DateTimeInterface $lastNotified = null;
+	protected ?DateTimeImmutable $lastNotified = null;
 
-	protected ?DateTimeInterface $firstOkStatus = null;
+	protected ?DateTimeImmutable $firstOkStatus = null;
 
 	protected int $lastOkStatusCount = 0;
 
@@ -105,21 +105,21 @@ abstract class Notifier {
 		return $this;
 	}
 
-	public function getLastNotified(): ?DateTimeInterface {
+	public function getLastNotified(): ?DateTimeImmutable {
 		return $this->lastNotified;
 	}
 
-	public function setLastNotified(?DateTimeInterface $lastNotified): self {
+	public function setLastNotified(?DateTimeImmutable $lastNotified): self {
 		$this->lastNotified = $lastNotified;
 
 		return $this;
 	}
 
-	public function getFirstOkStatus(): ?DateTimeInterface {
+	public function getFirstOkStatus(): ?DateTimeImmutable {
 		return $this->firstOkStatus;
 	}
 
-	public function setFirstOkStatus(?DateTimeInterface $firstOkStatus): self {
+	public function setFirstOkStatus(?DateTimeImmutable $firstOkStatus): self {
 		$this->firstOkStatus = $firstOkStatus;
 
 		return $this;
@@ -174,11 +174,11 @@ abstract class Notifier {
 		return $this;
 	}
 
-	public function getLastFailedStatus(): ?DateTimeInterface {
+	public function getLastFailedStatus(): ?DateTimeImmutable {
 		return $this->lastFailedStatus;
 	}
 
-	public function setLastFailedStatus(?DateTimeInterface $lastFailedStatus): self {
+	public function setLastFailedStatus(?DateTimeImmutable $lastFailedStatus): self {
 		$this->lastFailedStatus = $lastFailedStatus;
 
 		return $this;

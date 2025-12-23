@@ -1,15 +1,38 @@
 <div{{ attributes.defaults({
 	class:'my-3 p-3 bg-body rounded shadow-sm'
-}) }}>
+}).defaults(persistent_selection_stimulus_controller("main_logs", null,{
+	selectAllClass:'btn-primary',
+	unselectAllClass:'btn-outline-secondary',
+},"default",true)) }}>
 	{{ this.init }}
 	{% set logs = this.logs %}
+	{% set isAllSelected = persistent_selection_is_selected_all("main_logs") %}
+	{% set isCurrentSelected = true %}
+	{% for log in logs %}
+		{% set isCurrentSelected = isCurrentSelected and persistent_selection_is_selected("main_logs",log) %}
+	{% endfor %}
 	{% if logs|length or query is not empty %}
 		<div class="nav d-flex justify-content-between pb-1">
-			<div>
+			<div class="d-flex flex-row">
+				<button
+						class="btn btn-{% if isCurrentSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
+						data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage"
+				>
+					<twig:ux:icon name="bi:check" width="20px" height="20px"/>
+					{{ 'Select visible'|trans }}
+				</button>
+				<button
+						class="btn btn-{% if isAllSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap  m-1"
+						data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll"
+				>
+					<twig:ux:icon name="bi:check-all" width="20px" height="20px"/>
+					{{ 'Select all'|trans }}
+				</button>
+				<span class="p-1 text-nowrap align-content-around">Selected {{ persistent_selection_count("main_logs") }} of {{ persistent_selection_total("main_logs") }}</span>
 				<input
 						type="search"
 						data-model="query"
-						class="form-control form-control-sm"
+						class="form-control form-control-sm  m-1"
 						placeholder="{{ 'Error code'|trans }}"
 				>
 			</div>
@@ -27,7 +50,7 @@
 						data-live-to-param="{{ this.from|date('Y-m-d-H-i-s') }}"
 				>
 					<twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
-					{{ 'Fix all'|trans }}
+					{{ 'Fix selected'|trans }}
 				</button>
 			</div>
 		</div>

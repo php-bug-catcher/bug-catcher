@@ -6,15 +6,19 @@ use BugCatcher\Controller\AbstractController;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
-use DateTimeInterface;
+use BugCatcher\Repository\RecordRepositoryInterface;
+use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Attribute\MapDateTime;
+use Symfony\Component\Uid\Uuid;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
+use Tito10047\PersistentStateBundle\Selection\Service\SelectionManagerInterface;
 
 #[AsLiveComponent]
 final class LogList extends AbstractController {
@@ -33,9 +37,9 @@ final class LogList extends AbstractController {
 	#[ExposeInTemplate]
 	public array              $logs         = [];
 	#[ExposeInTemplate]
-	public ?DateTimeInterface $from         = null;
+	public ?DateTimeImmutable $from = null;
 	#[ExposeInTemplate]
-	public ?DateTimeInterface $to           = null;
+	public ?DateTimeImmutable $to   = null;
 	#[LiveProp(writable: true)]
 	public string             $query        = '';
 	#[LiveProp()]
@@ -43,6 +47,8 @@ final class LogList extends AbstractController {
 
 	public function __construct(
 		private readonly RecordRepository $recordRepo,
+		#[Autowire(service: 'persistent_state.selection.manager.default')]
+		private readonly SelectionManagerInterface $selectionManager,
 		private ManagerRegistry           $registry,
 		private array                     $classes,
 		private array                     $noBugFunnyMessages
@@ -82,6 +88,8 @@ final class LogList extends AbstractController {
 				->setParameter("query", $this->query);
 		}
 
+		$this->selectionManager->registerSelection("main_logs", $qb);
+
 		$records = $qb
 			->getQuery()->getResult();
 
@@ -107,31 +115,33 @@ final class LogList extends AbstractController {
 
 	#[LiveAction]
 	public function clearAll(
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $to,
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $from,
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $to,
 	) {
+		$ids = $this->selectionManager->getSelection("main_logs")->getSelectedIdentifiers();
+
+		$ids = array_map(function (string $hexId) {
+			return (new Uuid($hexId))->toBinary();
+		}, $ids);
+
 		$rows = $this->recordRepo->createQueryBuilder("record")
-			->addSelect('TYPE(record) as type')
-			->where("record.status = :status")
-			->andWhere("record.date BETWEEN :from AND :to")
-			->setParameter("status", $this->status)
-			->setParameter("from", $from)
-			->setParameter("to", $to)
-			->groupBy('type')
+			->where("record.id IN (:ids)")
+			->setParameter("ids", $ids)
 			->getQuery()->getResult();
 
-		foreach ($rows as $row) {
-			$class = $row['0']::class;
-			$repo  = $this->registry->getRepository($class);
-			$repo->setStatusBetween(
-				$this->getUser()->getProjects()->toArray(),
+
+		foreach ($rows as $record) {
+			/** @var RecordRepositoryInterface $repo */
+			$repo = $this->registry->getRepository($record::class);
+			$repo->setStatus(
+				$record,
 				$from,
-				$to,
-				'resolved', $this->status
+				'resolved',
+				$this->status
 			);
 
 		}
-
+		$this->id = uniqid();
 	}
 
 	private function checkMessage(): void {

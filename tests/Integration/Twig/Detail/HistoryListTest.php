@@ -10,7 +10,7 @@ namespace BugCatcher\Tests\Integration\Twig\Detail;
 use BugCatcher\Tests\App\Factory\RecordLogFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Twig\Components\Detail\HistoryList;
-use DateTime;
+use DateTimeImmutable;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -42,7 +42,7 @@ class HistoryListTest extends KernelTestCase {
 	}
 
 	public function testRenderOne() {
-		$date     = new DateTime("2024-06-01 07:11:00");
+		$date = new DateTimeImmutable("2024-06-01 07:11:00");
 		$record   = RecordLogFactory::createOne([
 			"hash"   => "hash",
 			"status" => "status",
@@ -53,10 +53,10 @@ class HistoryListTest extends KernelTestCase {
 	}
 
 	public function testRenderMulti() {
-		$date      = new DateTime("2024-06-01 07:11:00");
+		$date = new DateTimeImmutable("2024-06-01 07:11:00");
 		$firstDate = clone $date;
 		for ($i = 0; $i < 5; $i++) {
-			$date->modify("+1 day");
+			$date = $date->modify("+1 day");
 			$record = RecordLogFactory::createOne([
 				"hash"   => "hash",
 				"status" => "status",
@@ -72,7 +72,7 @@ class HistoryListTest extends KernelTestCase {
 
 		$rendered = $this->renderTwigComponent('Detail:HistoryList', ['record' => $record]);
 
-		$firstDate->modify("+1 day");
+		$firstDate = $firstDate->modify("+1 day");
 		$expected = $date->format("d.m.Y H:i:s") . " - " . $firstDate->format("d.m.Y H:i:s");
 		$this->assertSame($expected, $rendered->crawler()->filter('button.accordion-button>span')->text());
 	}
@@ -81,12 +81,12 @@ class HistoryListTest extends KernelTestCase {
 		RecordLogFactory::createOne([
 			"hash"   => "hash",
 			"status" => "status",
-			'date'   => clone new DateTime("2024-06-02 07:11:00"),
+			'date' => clone new DateTimeImmutable("2024-06-02 07:11:00"),
 		]);
 		$record   = RecordLogFactory::createMany(5, [
 			"hash"   => "hash",
 			"status" => "status",
-			'date'   => clone new DateTime("2024-06-01 07:11:00"),
+			'date' => clone new DateTimeImmutable("2024-06-01 07:11:00"),
 		])[0];
 		$rendered = $this->renderTwigComponent('Detail:HistoryList', ['record' => $record]);
 		$this->assertCount(2, $rendered->crawler()->filter('.timeline>li'));

@@ -10,7 +10,7 @@ namespace BugCatcher\Repository;
 
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordLogTrace;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -33,7 +33,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
 
     protected function updateQb(
         string $newStatus,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $previousStatus
     ): QueryBuilder {
         $qb = $this->createQueryBuilder("l");
@@ -47,8 +47,8 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
 
     public function setStatusBetween(
         array $projects,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $newStatus,
         string $previousStatus = 'new',
 		?callable $qbCreator = null
@@ -64,7 +64,7 @@ final class RecordLogTraceRepository extends ServiceEntityRepository implements 
 
     public function setStatus(
         Record $log,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,

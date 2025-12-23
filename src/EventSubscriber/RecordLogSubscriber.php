@@ -36,7 +36,7 @@ final class RecordLogSubscriber implements EventSubscriberInterface
 		private readonly EventDispatcherInterface $dispatcher
 	) {}
 
-	public static function getSubscribedEvents() {
+	public static function getSubscribedEvents(): array {
 		return [
 			KernelEvents::VIEW => ['process', EventPriorities::POST_WRITE],
 		];

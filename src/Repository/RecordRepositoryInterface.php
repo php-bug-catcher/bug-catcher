@@ -10,7 +10,7 @@ namespace BugCatcher\Repository;
 
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
 use Doctrine\Common\Collections\Selectable;
 use Doctrine\Persistence\ObjectRepository;
@@ -19,13 +19,13 @@ interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  O
 {
 
     /**
-     * @param DateTimeInterface $to
+	 * @param DateTimeImmutable $to
      * @param Project[] $projects
      */
     public function setStatusBetween(
         array $projects,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $newStatus,
         string $previousStatus = 'new',
 		?callable $qbCreator = null
@@ -33,7 +33,7 @@ interface RecordRepositoryInterface extends ServiceEntityRepositoryInterface,  O
 
     public function setStatus(
         Record $log,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,

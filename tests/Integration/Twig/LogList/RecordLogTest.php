@@ -27,7 +27,7 @@ class RecordLogTest extends KernelTestCase {
 
 	public function testClearOne() {
 
-        $startDate = new DateTime("2022-01-01 00:00:00");
+		$startDate = new DateTimeImmutable("2022-01-01 00:00:00");
         RecordLogFactory::createMany(10, [
 			"status" => "new",
 			"hash"   => "hash-2",

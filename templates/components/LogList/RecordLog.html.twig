@@ -18,6 +18,7 @@
             {% set status = 'danger' %}
         {% endif %}
         <div>
+			{{ persistent_selection_row_selector("main_logs",log,{class:"m-1 align-bottom"}) }}
             <span class="badge border border-secondary-subtle bg-secondary-subtle text-secondary-emphasis">{{ log.date|date('d.m.Y H:i:s') }}</span>
             <a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
                class="badge border border-primary-subtle bg-primary-subtle text-primary-emphasis text-decoration-none">{{ log.project.name }}</a>

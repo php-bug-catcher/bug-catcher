@@ -2,7 +2,6 @@
 
 namespace BugCatcher\Repository;
 
-use DateTime;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -124,7 +123,7 @@ final class NotifierRepository extends ServiceEntityRepository
 
 				return true;
 			case NotifyRepeat::PeriodTime:
-				if ($notifier->getLastFailedStatus()?->getTimestamp() <= (new DateTime())->getTimestamp() - $notifier->getDelayInterval()) {
+				if ($notifier->getLastFailedStatus()?->getTimestamp() <= (new DateTimeImmutable())->getTimestamp() - $notifier->getDelayInterval()) {
 					return false;
 				}
 				if ($notifier->getLastFailedStatus() === null) {

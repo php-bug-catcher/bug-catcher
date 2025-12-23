@@ -7,7 +7,7 @@
  */
 namespace BugCatcher\Twig\Components\LogList;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
@@ -40,7 +40,7 @@ final class RecordLog
 	#[LiveAction]
 	public function clearOne(
         #[LiveArg] string $status,
-        #[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeInterface $from,
+		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $from,
 	) {
 		if (!$this->log) {
 			return;

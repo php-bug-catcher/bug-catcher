@@ -2,7 +2,7 @@
 
 namespace BugCatcher\Repository;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -30,8 +30,8 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
 
     public function setStatusBetween(
         array $projects,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $newStatus,
         string $previousStatus = 'new',
 		?callable $qbCreator = null
@@ -41,7 +41,7 @@ final class RecordLogRepository extends ServiceEntityRepository implements Recor
 
     public function setStatus(
         Record $log,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,

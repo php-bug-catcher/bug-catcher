@@ -7,7 +7,7 @@ use ApiPlatform\Metadata\Post;
 use BugCatcher\Api\Processor\LogRecordSaveProcessor;
 use BugCatcher\Entity\Record;
 use BugCatcher\Tests\App\Repository\CronRecordRepository;
-use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -132,7 +132,7 @@ class RecordCron extends Record {
 	public function getMessage(): string {
 		$shouldRun     = $this->getLastEnd()->modify("+{$this->getInterval()} minutes");
 		$executionTime = $this->getLastEnd()->getTimestamp() - $this->getLastStart()->getTimestamp();
-		if (($this->getInterval() > 0 && $shouldRun < new DateTime("-5 minutes"))) {
+		if (($this->getInterval() > 0 && $shouldRun < new DateTimeImmutable("-5 minutes"))) {
 			return "Skript sa neukončil správne. Mal by sa ukončiť do {$this->getInterval()} minút. Posledný štart: {$this->getLastStart()->format("H:i")}";
 		}
 		if ($this->getEstimated() > 0 && $executionTime >= 0 && $executionTime > $this->getEstimated()) {

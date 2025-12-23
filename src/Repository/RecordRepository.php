@@ -13,7 +13,6 @@ use BugCatcher\Entity\Record;
 use BugCatcher\Enum\RecordEventType;
 use BugCatcher\Event\RecordEvent;
 use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -35,16 +34,16 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
     }
 
     /**
-     * @param DateTimeInterface $to
+	 * @param DateTimeImmutable $to
      * @param Project[] $projects
      */
     public function setStatusBetween(
         array $projects,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $newStatus,
         string $previousStatus = 'new',
-        callable $qbCreator = null
+		?callable         $qbCreator = null
     ): void {
         $qb = $this->getUpdateStatusQB($newStatus, $from, $to, $previousStatus, $qbCreator);
 
@@ -58,7 +57,7 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
 
     public function setStatus(
         Record $log,
-        DateTimeInterface $lastDate,
+		DateTimeImmutable $lastDate,
         string $newStatus,
         string $previousStatus = 'new',
         bool $flush = false,
@@ -78,8 +77,8 @@ final class RecordRepository extends ServiceEntityRepository implements RecordRe
 
     protected function getUpdateStatusQB(
         string $newStatus,
-        DateTimeInterface $from,
-        DateTimeInterface $to,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
         string $previousStatus,
 		?callable $qbCreator = null
     ): QueryBuilder {

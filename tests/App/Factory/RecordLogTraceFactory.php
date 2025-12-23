@@ -3,6 +3,7 @@
 namespace BugCatcher\Tests\App\Factory;
 
 use BugCatcher\Entity\RecordLogTrace;
+use DateTimeImmutable;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -27,7 +28,7 @@ final class RecordLogTraceFactory extends PersistentProxyObjectFactory {
 	 */
 	protected function defaults(): array|callable {
 		return [
-			'date'       => self::faker()->dateTime(),
+			'date' => DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
 			'level'      => self::faker()->randomNumber(),
 			'message'    => self::faker()->text(),
 			'project'    => ProjectFactory::new(),
