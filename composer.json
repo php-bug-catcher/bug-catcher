@@ -68,6 +68,7 @@
     "symfony/dotenv": "7.4.*",
     "symfony/messenger": "7.4.*",
     "symfony/phpunit-bridge": "7.4.*",
+    "symfony/routing": "^7.4",
     "symfony/runtime": "7.4.*",
     "symfony/var-exporter": "7.4.*",
     "symfony/yaml": "7.4.*",

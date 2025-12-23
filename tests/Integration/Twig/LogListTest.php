@@ -12,6 +12,7 @@ use BugCatcher\Tests\App\Factory\RecordLogFactory;
 use BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use BugCatcher\Tests\App\Factory\RecordPingFactory;
 use BugCatcher\Tests\App\Factory\UserFactory;
+use BugCatcher\Tests\Integration\Trait\SessionInterfaceTrait;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,9 +27,10 @@ class LogListTest extends KernelTestCase {
 
     //use ResetDatabase;
 	use Factories;
-
+	use SessionInterfaceTrait;
 
 	function testLogsCount() {
+		$this->initSession();
 		$user = UserFactory::createOne([
 		]);
 		ProjectFactory::createMany(3, [
@@ -62,6 +64,7 @@ class LogListTest extends KernelTestCase {
 	}
 
 	public function testMaxRecords() {
+		$this->initSession();
 		$user = UserFactory::createOne([
 		]);
 		ProjectFactory::createMany(3, [
