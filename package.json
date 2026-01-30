@@ -4,7 +4,7 @@
     "@babel/preset-env": "^7.16.0",
     "@hotwired/stimulus": "^3.0.0",
     "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
-    "@tito10047/batch-selection-bundle": "file:vendor/tito10047/persistent-state-bundle/assets",
+    "@tito10047/persistent-state-bundle": "file:vendor/tito10047/persistent-state-bundle/assets",
     "@symfony/stimulus-bridge": "^4.0.1",
     "@symfony/webpack-encore": "^5.0.0",
     "core-js": "^3.38.0",

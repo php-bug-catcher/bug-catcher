@@ -3,8 +3,8 @@
     "bug_catcher": {
       "js": [
         "/bundles/bugcatcher/runtime.f29bab85.js",
-        "/bundles/bugcatcher/549.d43346ec.js",
-        "/bundles/bugcatcher/bug_catcher.d29cb281.js"
+        "/bundles/bugcatcher/417.560f3f33.js",
+        "/bundles/bugcatcher/bug_catcher.a4ee6a6f.js"
       ],
       "css": [
         "/bundles/bugcatcher/bug_catcher.e4e77c43.css"
