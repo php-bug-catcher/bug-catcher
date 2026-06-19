@@ -7,6 +7,8 @@ namespace {
 	use BugCatcher\Entity\RecordLogTrace;
 	use BugCatcher\Repository\RecordLogTraceRepository;
     use BugCatcher\Repository\RecordRepositoryInterface;
+	use BugCatcher\Service\BatchRecordDeleteInterface;
+	use BugCatcher\Service\BatchRecordDeleteService;
     use BugCatcher\Service\PingCollector\HttpPingCollector;
 	use BugCatcher\Service\PingCollector\MessengerCollector;
 	use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -35,6 +37,8 @@ namespace {
         $services->set(TransactionManagerInterface::class)
             ->class(TransactionManager::class)
             ->arg('$mr', service('doctrine'));
+
+		$services->alias(BatchRecordDeleteInterface::class, BatchRecordDeleteService::class);
 	};
 
 }

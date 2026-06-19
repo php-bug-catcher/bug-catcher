@@ -6,15 +6,13 @@ use BugCatcher\Controller\AbstractController;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
-use BugCatcher\Repository\RecordRepositoryInterface;
+use BugCatcher\Service\BatchRecordDeleteInterface;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Uid\Uuid;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
-use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
@@ -49,6 +47,7 @@ final class LogList extends AbstractController {
 		private readonly RecordRepository $recordRepo,
 		#[Autowire(service: 'persistent_state.selection.manager.default')]
 		private readonly SelectionManagerInterface $selectionManager,
+		private readonly BatchRecordDeleteInterface $batchDelete,
 		private ManagerRegistry           $registry,
 		private array                     $classes,
 		private array                     $noBugFunnyMessages
@@ -114,33 +113,19 @@ final class LogList extends AbstractController {
 
 
 	#[LiveAction]
-	public function clearAll(
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $from,
-		#[LiveArg] #[MapDateTime(format: "Y-m-d-H-i-s")] DateTimeImmutable $to,
-	) {
+	public function clearAll(): void {
 		$ids = $this->selectionManager->getSelection("main_logs")->getSelectedIdentifiers();
-
-		$ids = array_map(function (string $hexId) {
-			return (new Uuid($hexId))->toBinary();
-		}, $ids);
-
-		$rows = $this->recordRepo->createQueryBuilder("record")
-			->where("record.id IN (:ids)")
-			->setParameter("ids", $ids)
-			->getQuery()->getResult();
-
-
-		foreach ($rows as $record) {
-			/** @var RecordRepositoryInterface $repo */
-			$repo = $this->registry->getRepository($record::class);
-			$repo->setStatus(
-				$record,
-				$from,
-				'resolved',
-				$this->status
-			);
-
+		if (empty($ids)) {
+			return;
 		}
+
+		$binaryIds = array_map(fn(string $hexId) => (new Uuid($hexId))->toBinary(), $ids);
+
+		$projects = $this->project
+			? [$this->project]
+			: $this->getUser()->getActiveProjects()->toArray();
+
+		$this->batchDelete->deleteByIds($binaryIds, $projects);
 		$this->id = uniqid();
 	}
 

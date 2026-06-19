@@ -40,20 +40,17 @@ final class NotifyCalculateListener
 	}
 
 	private function calculateProjectErrors(NotifyCalculateEvent $event, array $projects): void {
-
-
 		$records = $this->recordRepo->createQueryBuilder("record")
-//				->from(Record::class, "record")
+			->select("project, COUNT(record.id) as count")
 			->join("record.project", "project")
-			->addSelect("COUNT(record) as count")
-			->where("record.status like :status")
+			->where("record.status = :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
 			->setParameter('projects', $projects)
-			->groupBy("record.project")
+			->groupBy("project.id")
 			->getQuery()->enableResultCache(10)->getResult();
 		foreach ($records as $record) {
-			$status = new NotifierStatus($record[0]->getProject());
+			$status = new NotifierStatus($record[0]);
 			$event->addStatus($status);
 			$status->incrementImportance(Importance::Normal, $record['count'], $event->notifier->getThreshold());
 		}
@@ -61,20 +58,20 @@ final class NotifyCalculateListener
 
 	private function calculateSameErrors(NotifyCalculateEvent $event, array $projects): void {
 		$records = $this->recordRepo->createQueryBuilder("record")
-//			->from(Record::class, "record")
-			->addSelect("COUNT(record) as count")
-			->where("record.status like :status")
+			->select("project, COUNT(record.id) as count")
+			->join("record.project", "project")
+			->where("record.status = :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
 			->setParameter('projects', $projects)
-			->groupBy("record.project", "record.hash")
+			->groupBy("project.id, record.hash")
 			->getQuery()->enableResultCache(10)->getResult();
 		$statuses = [];
 		foreach ($records as $record) {
-			$key                = $record[0]->getProject()->getId()->__toString();
-			$status             = $statuses[$key]??null;
+			$key    = $record[0]->getId()->__toString();
+			$status = $statuses[$key] ?? null;
 			if (!$status) {
-				$status = new NotifierStatus($record[0]->getProject());
+				$status = new NotifierStatus($record[0]);
 				$statuses[$key] = $status;
 				$event->addStatus($status);
 			}

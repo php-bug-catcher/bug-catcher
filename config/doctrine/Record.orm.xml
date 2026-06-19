@@ -9,7 +9,7 @@
         <indexes>
             <index name="full_idx" columns="project_id,date,status"/>
             <index name="date_idx" columns="status,date"/>
-            <index name="done_idx" columns="project_id,status"/>
+            <index name="done_idx" columns="project_id,status,hash"/>
             <index name="hash_idx" columns="hash,status,date"/>
             <index name="code_idx" columns="status,code,date"/>
         </indexes>

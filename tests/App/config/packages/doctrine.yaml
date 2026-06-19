@@ -8,6 +8,10 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        # MySQL 5.7+ has ONLY_FULL_GROUP_BY enabled by default which breaks GROUP BY queries
+        # that select non-aggregated columns not present in the GROUP BY clause.
+        options:
+            1002: "SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

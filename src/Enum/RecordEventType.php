@@ -12,4 +12,5 @@ enum RecordEventType {
 	case CREATED;
 	case UPDATED;
 	case BATCH_UPDATED;
+	case BATCH_DELETED;
 }

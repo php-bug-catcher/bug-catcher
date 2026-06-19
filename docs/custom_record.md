@@ -85,6 +85,67 @@ bug_catcher:
         - App\Entity\MyRecord
 ```
 
+### Override Batch Delete
+
+The dashboard's "Fix selected" button physically deletes selected records in a single SQL statement.
+The default implementation (`BatchRecordDeleteService`) handles `RecordLog`, `RecordLogTrace` and `RecordPing`.
+
+When you add a custom record type you **must** override the `BatchRecordDeleteInterface` service, otherwise the bundle will throw a `\LogicException` at runtime with a
+descriptive message.
+
+Create your implementation:
+
+```php
+// src/Service/MyBatchRecordDeleteService.php
+namespace App\Service;
+
+use BugCatcher\Entity\Project;
+use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordPing;
+use BugCatcher\Enum\RecordEventType;
+use BugCatcher\Event\RecordEvent;
+use BugCatcher\Service\BatchRecordDeleteInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+class MyBatchRecordDeleteService implements BatchRecordDeleteInterface
+{
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {}
+
+    public function deleteByIds(array $binaryIds, array $projects): void
+    {
+        if (empty($binaryIds)) {
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($binaryIds), '?'));
+        $this->em->getConnection()->executeStatement(
+            'DELETE record_log_trace, record_log, record_ping, my_record, record
+             FROM record
+             LEFT JOIN record_log ON record.id = record_log.id
+             LEFT JOIN record_log_trace ON record_log.id = record_log_trace.id
+             LEFT JOIN record_ping ON record.id = record_ping.id
+             LEFT JOIN my_record ON record.id = my_record.id
+             WHERE record.id IN (' . $placeholders . ')',
+            $binaryIds
+        );
+
+        $this->dispatcher->dispatch(new RecordEvent(null, RecordEventType::BATCH_DELETED, $projects));
+    }
+}
+```
+
+Register it in `services.yaml`:
+
+```yaml
+# config/services.yaml
+BugCatcher\Service\BatchRecordDeleteInterface: '@App\Service\MyBatchRecordDeleteService'
+```
+
 ### Send log to BugCatcher
 
 If you have installed [php-bug-catcher/bug-catcher-reporter-bundle](https://github.com/php-bug-catcher/bug-catcher-reporter-bundle) in your project,
