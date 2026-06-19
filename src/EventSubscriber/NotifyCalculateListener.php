@@ -39,43 +39,64 @@ final class NotifyCalculateListener
 		}
 	}
 
+	/** @return array<string, Project> keyed by binary UUID */
+	private function buildProjectMap(NotifyCalculateEvent $event): array {
+		$map = [];
+		foreach ($event->notifier->getProjects() as $p) {
+			if ($p->isEnabled()) {
+				$map[$p->getId()->toBinary()] = $p;
+			}
+		}
+		return $map;
+	}
+
 	private function calculateProjectErrors(NotifyCalculateEvent $event, array $projects): void {
-		$records = $this->recordRepo->createQueryBuilder("record")
-			->select("project, COUNT(record.id) as count")
-			->join("record.project", "project")
+		$rows = $this->recordRepo->createQueryBuilder("record")
+			->select("IDENTITY(record.project) as projectId, COUNT(record.id) as count")
 			->where("record.status = :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
 			->setParameter('projects', $projects)
-			->groupBy("project.id")
+			->groupBy("record.project")
 			->getQuery()->enableResultCache(10)->getResult();
-		foreach ($records as $record) {
-			$status = new NotifierStatus($record[0]);
+
+		$projectMap = $this->buildProjectMap($event);
+		foreach ($rows as $row) {
+			$project = $projectMap[$row['projectId']] ?? null;
+			if (!$project) {
+				continue;
+			}
+			$status = new NotifierStatus($project);
 			$event->addStatus($status);
-			$status->incrementImportance(Importance::Normal, $record['count'], $event->notifier->getThreshold());
+			$status->incrementImportance(Importance::Normal, $row['count'], $event->notifier->getThreshold());
 		}
 	}
 
 	private function calculateSameErrors(NotifyCalculateEvent $event, array $projects): void {
-		$records = $this->recordRepo->createQueryBuilder("record")
-			->select("project, COUNT(record.id) as count")
-			->join("record.project", "project")
+		$rows = $this->recordRepo->createQueryBuilder("record")
+			->select("IDENTITY(record.project) as projectId, COUNT(record.id) as count")
 			->where("record.status = :status")
 			->andWhere("record.project IN (:projects)")
 			->setParameter("status", 'new')
 			->setParameter('projects', $projects)
-			->groupBy("project.id, record.hash")
+			->groupBy("record.project, record.hash")
 			->getQuery()->enableResultCache(10)->getResult();
-		$statuses = [];
-		foreach ($records as $record) {
-			$key    = $record[0]->getId()->__toString();
+
+		$projectMap = $this->buildProjectMap($event);
+		$statuses   = [];
+		foreach ($rows as $row) {
+			$project = $projectMap[$row['projectId']] ?? null;
+			if (!$project) {
+				continue;
+			}
+			$key = $row['projectId'];
 			$status = $statuses[$key] ?? null;
 			if (!$status) {
-				$status = new NotifierStatus($record[0]);
+				$status = new NotifierStatus($project);
 				$statuses[$key] = $status;
 				$event->addStatus($status);
 			}
-			$status->incrementImportance(Importance::High, $record['count'], $event->notifier->getThreshold());
+			$status->incrementImportance(Importance::High, $row['count'], $event->notifier->getThreshold());
 		}
 	}
 
