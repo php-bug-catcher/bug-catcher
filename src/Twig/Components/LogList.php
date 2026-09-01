@@ -8,6 +8,7 @@ use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Service\BatchRecordDeleteInterface;
 use DateTimeImmutable;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Uid\Uuid;
@@ -62,14 +63,15 @@ final class LogList extends AbstractController {
 		$classMetadata    = $em->getClassMetadata(Record::class);
 		$discriminatorMap = $classMetadata->discriminatorMap;
 		$discriminatorMap = array_flip($discriminatorMap);
-		$keys             = array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes);
+		$keys             = array_values(array_filter(
+			array_map(fn($class) => $discriminatorMap[$class] ?? null, $this->classes)
+		));
 
 		if ($this->project) {
 			$projects = [$this->project];
 		} else {
 			$projects = $this->getUser()->getActiveProjects()->toArray();
 		}
-		/** @var Record[] $records */
 		$qb = $this->recordRepo->createQueryBuilder("record")
 			->where("record.status like :status")
 			->andWhere("record INSTANCE OF :class")
@@ -89,16 +91,30 @@ final class LogList extends AbstractController {
 
 		$this->selectionManager->registerSelection("main_logs", $qb);
 
-		$records = $qb
-			->getQuery()->getResult();
+		// Deferred join: `Record` is a JOINED inheritance root, so any DQL query on it LEFT JOINs
+		// every subtype table. Resolve the 100 ids on the base table alone (HINT_FORCE_PARTIAL_LOAD
+		// strips those joins), then hydrate only those rows.
+		// ids come back as the raw binary column values, like the :projects parameter above
+		$ids = (clone $qb)
+			->select("record.id")
+			->getQuery()
+			->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true)
+			->getSingleColumnResult();
 
-		if ($records === []) {
+		if ($ids === []) {
 			$this->checkMessage();
 			return;
 		}
+
+		/** @var Record[] $records */
+		$records = $this->recordRepo->createQueryBuilder("record")
+			->where("record.id IN (:ids)")
+			->setParameter("ids", $ids)
+			->orderBy("record.date", "DESC")
+			->getQuery()->getResult();
+
 		$this->from = $records[0]->getDate();
 		$this->to   = $records[count($records) - 1]->getDate();
-
 
 		$logs = [];
 		foreach ($records as $row) {
