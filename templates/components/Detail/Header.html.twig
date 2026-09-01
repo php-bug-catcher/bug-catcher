@@ -20,4 +20,26 @@
             label: 'Copy URL'|trans({},"BugCatcher"),
         } only %}
     </span>
+    {% if is_granted('ROLE_DEVELOPER') %}
+        <span class="d-flex align-items-center gap-1 ms-auto ps-2 flex-shrink-0">
+            <form method="post"
+                  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'resolved'}) }}"
+                  {{ stimulus_controller('submit-close') }}
+                  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
+                <input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm" title="{{ 'Fix it'|trans }}">
+                    <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
+                </button>
+            </form>
+            <form method="post"
+                  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'archived'}) }}"
+                  {{ stimulus_controller('submit-close') }}
+                  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
+                <input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
+                <button type="submit" class="btn btn-outline-info btn-sm" title="{{ 'Archive it'|trans }}">
+                    <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
+                </button>
+            </form>
+        </span>
+    {% endif %}
 </header>

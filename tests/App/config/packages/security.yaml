@@ -22,6 +22,11 @@ security:
                 enable_csrf: true
             logout:
                 path: bug_catcher.security.logout
+        # only the detail page, so the rest of the functional tests keep running unsecured
+        main:
+            pattern: ^/detail
+            lazy: true
+            provider: app_user_provider
     access_control:
         - { path: ^/login$, role: PUBLIC_ACCESS }
         - { path: ^/api, roles: PUBLIC_ACCESS }

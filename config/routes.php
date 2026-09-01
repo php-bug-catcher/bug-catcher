@@ -4,6 +4,7 @@ namespace {
 	use BugCatcher\Controller\Admin\DashboardController as AdminDashboardController;
 	use BugCatcher\Controller\DashboardController;
 	use BugCatcher\Controller\HelloController;
+	use BugCatcher\Controller\RecordStatusController;
 	use BugCatcher\Controller\SecurityController;
 	use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -27,7 +28,12 @@ namespace {
 				->methods(['GET'])
 			->add('bug_catcher.dashboard.detail', '/detail/{record}')
 			->controller(DashboardController::class . "::detail")
-				->methods(['GET']);
+				->methods(['GET'])
+			->add('bug_catcher.dashboard.record-status', '/detail/{record}/status/{status}')
+				->controller(RecordStatusController::class . "::changeStatus")
+				->methods(['POST'])
+				// setStatus() interpolates the new status straight into DQL, keep it to known values
+				->requirements(['status' => 'resolved|archived']);
 		$routes
 			->add('bug_catcher.admin', '/admin')
 			->controller(AdminDashboardController::class . "::index")
