@@ -58,5 +58,50 @@ class StackTraceTest extends KernelTestCase {
 		$this->assertSame($first, $rendered->opened);
 	}
 
+	/**
+	 * The gutter number comes from `counter-set: listing N` on the <code> element, which the
+	 * stylesheet then bumps with `counter-increment: listing` on that same element. Since CSS
+	 * applies set before increment, the value has to be seeded one below the real line number.
+	 */
+	public function testCodeGutterIsSeededOneBelowTheLineNumber() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize($this->codeFrames()),
+		]);
+
+		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
+		$styles   = $rendered->crawler()->filter("div.code code")->each(fn($node) => $node->attr('style'));
+
+		$this->assertSame([
+			'counter-set: listing 56;',
+			'counter-set: listing 57;',
+			'counter-set: listing 58;',
+		], $styles);
+	}
+
+	public function testFrameLabelIsRendered() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize($this->codeFrames()),
+		]);
+
+		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
+		$buttons  = $rendered->crawler()->filter("button.accordion-button")->each(fn($node) => $node->text());
+
+		$this->assertStringContainsString('RuntimeException: boom', $buttons[0]);
+		$this->assertStringContainsString('GponRadius->proceed(Object)', $buttons[1]);
+	}
+
+	/**
+	 * @return Codeframe[]
+	 */
+	private function codeFrames(): array {
+		return [
+			new Codeframe('/app/src/Cpe/GponRadius.php', 58, [
+				57 => "\$this->queries = [];\n",
+				58 => "\$this->proceed(\$ont);\n",
+				59 => "\$this->save();\n",
+			], 'RuntimeException: boom'),
+			new Codeframe('/app/src/Runner.php', 12, [], 'GponRadius->proceed(Object)'),
+		];
+	}
 
 }

@@ -11,6 +11,7 @@
                             aria-expanded="{% if opened==key %}true{% else %}false{% endif %}"
                             aria-controls="collapse-{{ key }}">
                         {{ item.file }} (line {{ item.line }})
+                        {% if item.frame %}<small class="text-body-secondary ms-2">{{ item.frame }}</small>{% endif %}
                     </button>
                 </h3>
                 <div id="collapse-{{ key }}" class="accordion-collapse collapse {% if opened==key %}show{% endif %}"
@@ -20,7 +21,7 @@
                         <div class="code">
                             {% for lineNum,line in item.code %}
                                 <code class="{% if item.line==lineNum %}selected{% endif %}"
-                                      style="counter-set: listing {{ lineNum }};">{{ line }}</code>
+                                      style="counter-set: listing {{ lineNum - 1 }};">{{ line }}</code>
                             {% endfor %}
                         </div>
                     </div>
