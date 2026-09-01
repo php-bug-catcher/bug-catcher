@@ -68,7 +68,10 @@ jobs:
             DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
           run: vendor/bin/phpunit --coverage-clover build/reports/clover.xml
 
+      # Only one matrix leg uploads: both would submit to the same Coveralls
+      # build id and the second one gets "build is already closed" (422).
       - name: Upload coverage results to Coveralls
+        if: matrix.php-versions == '8.4'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
