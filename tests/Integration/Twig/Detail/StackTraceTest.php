@@ -141,6 +141,64 @@ class StackTraceTest extends KernelTestCase {
 	}
 
 	/**
+	 * A reporter may append frames that hold a label instead of a path. Those must not collapse the
+	 * common prefix, otherwise every other frame is left with the full deploy path of the server.
+	 */
+	public function testFramesWithoutAPathDoNotDisableShortening() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize([
+				new Codeframe('Caused by: RuntimeException', 0, [], ''),
+				new Codeframe('/var/www2/flexi.sk/releases/28/src/Controller/MailsController.php', 161, [], ''),
+				new Codeframe('/var/www2/flexi.sk/releases/28/vendor/symfony/http-kernel/HttpKernel.php', 183, [], ''),
+			]),
+		]);
+
+		$rendered = $this->mountTwigComponent('Detail:StackTrace', ['record' => $record]);
+
+		$this->assertSame([
+			'Caused by: RuntimeException',
+			'/src/Controller/MailsController.php',
+			'/vendor/symfony/http-kernel/HttpKernel.php',
+		], array_map(fn(Codeframe $item) => $item->getFile(), $rendered->trace));
+	}
+
+	/**
+	 * The frames do not have to be a zero indexed list - a reporter may hand over whatever keys its
+	 * own filtering left behind.
+	 */
+	public function testShorteningDoesNotDependOnZeroIndexedFrames() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize([
+				3 => new Codeframe('/app/src/Runner.php', 12, [], ''),
+				7 => new Codeframe('/app/vendor/symfony/Kernel.php', 30, [], ''),
+			]),
+		]);
+
+		$rendered = $this->mountTwigComponent('Detail:StackTrace', ['record' => $record]);
+
+		$this->assertSame([
+			'/src/Runner.php',
+			'/vendor/symfony/Kernel.php',
+		], array_values(array_map(fn(Codeframe $item) => $item->getFile(), $rendered->trace)));
+	}
+
+	public function testWindowsPathsAreShortenedToo() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize([
+				new Codeframe('C:\\projects\\app\\src\\Runner.php', 12, [], ''),
+				new Codeframe('C:\\projects\\app\\vendor\\symfony\\Kernel.php', 30, [], ''),
+			]),
+		]);
+
+		$rendered = $this->mountTwigComponent('Detail:StackTrace', ['record' => $record]);
+
+		$this->assertSame([
+			'\\src\\Runner.php',
+			'\\vendor\\symfony\\Kernel.php',
+		], array_map(fn(Codeframe $item) => $item->getFile(), $rendered->trace));
+	}
+
+	/**
 	 * @return Codeframe[]
 	 */
 	private function codeFrames(): array {

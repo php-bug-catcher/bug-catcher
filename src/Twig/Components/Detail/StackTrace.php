@@ -50,51 +50,69 @@ final class StackTrace
 	 * Deliberately not the absolute path the record was reported with: that one points inside the
 	 * deploy directory of the production server and does not exist on the developer's machine.
 	 */
-	public function copyPath(int $pos): ?string {
+	public function copyPath(int|string $pos): ?string {
 		if (!isset($this->trace[$pos]) || $this->trace[$pos]->line < 1) {
 			return null;
 		}
 
-		return ltrim($this->trace[$pos]->file, '/') . ':' . $this->trace[$pos]->line;
+		return ltrim($this->trace[$pos]->file, '/\\') . ':' . $this->trace[$pos]->line;
 	}
 
 	private function fixPaths(): void {
 		$prefix = $this->findSimilarPrefix();
-		if ($prefix == '') {
+		// a bare "/" carries no information, there is nothing worth cutting
+		if (strlen($prefix) < 2) {
 			return;
 		}
 		foreach ($this->trace as $frame) {
-			$frame->file = str_replace($prefix, '/', $frame->file);
+			if (str_starts_with($frame->file, $prefix)) {
+				// keep the trailing separator of the prefix, so the path stays rooted
+				$frame->file = substr($frame->file, strlen($prefix) - 1);
+			}
 		}
 	}
 
+	/**
+	 * The deploy directory shared by the frames, cut on a directory boundary.
+	 *
+	 * Frames whose file is not a path are skipped: a reporter may hand over labels such as
+	 * "Caused by: ..." or "[internal function]", and a single one of those would collapse the
+	 * common prefix to nothing and leave every frame with the full deploy path of the server.
+	 */
 	private function findSimilarPrefix(): string {
-		if (count($this->trace) == 0) {
-			return '';
-		}
-		$prefix = $this->trace[0]->file;
+		$prefix = null;
 		foreach ($this->trace as $frame) {
-			$string       = $frame->file;
-			$dlzkaPrefixu = strlen($prefix);
-			$dlzkaStringu = strlen($string);
-
-			if ($dlzkaStringu < $dlzkaPrefixu) {
-				$prefix = substr($prefix, 0, $dlzkaStringu);
+			if (!$this->isPath($frame->file)) {
+				continue;
 			}
-
-			for ($i = 0; $i < $dlzkaPrefixu; $i++) {
-				if ($prefix[$i] != $string[$i]) {
-					$prefix = substr($prefix, 0, $i);
+			if ($prefix === null) {
+				$prefix = $frame->file;
+				continue;
+			}
+			$common = min(strlen($prefix), strlen($frame->file));
+			for ($i = 0; $i < $common; $i++) {
+				if ($prefix[$i] !== $frame->file[$i]) {
 					break;
 				}
 			}
+			$prefix = substr($prefix, 0, $i);
+		}
+		if ($prefix === null) {
+			return '';
 		}
 
 		// cut on a directory boundary, otherwise `/app/src/Foo.php` and `/app/src/Fbar.php` share
 		// the prefix `/app/src/F` and the shortened paths become unusable
-		$lastSlash = strrpos($prefix, '/');
+		$cut = max(
+			($pos = strrpos($prefix, '/')) === false ? -1 : $pos,
+			($pos = strrpos($prefix, '\\')) === false ? -1 : $pos,
+		);
 
-		return $lastSlash === false ? '' : substr($prefix, 0, $lastSlash + 1);
+		return $cut < 0 ? '' : substr($prefix, 0, $cut + 1);
+	}
+
+	private function isPath(string $file): bool {
+		return str_starts_with($file, '/') || preg_match('#^[a-zA-Z]:[\\\\/]#', $file) === 1;
 	}
 
 }
