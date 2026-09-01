@@ -43,6 +43,21 @@ final class StackTrace
 		}
 	}
 
+	/**
+	 * The project relative path with its line number, in the `file:line` form PhpStorm and most
+	 * other editors accept when pasted into their "open file" prompt.
+	 *
+	 * Deliberately not the absolute path the record was reported with: that one points inside the
+	 * deploy directory of the production server and does not exist on the developer's machine.
+	 */
+	public function copyPath(int $pos): ?string {
+		if (!isset($this->trace[$pos]) || $this->trace[$pos]->line < 1) {
+			return null;
+		}
+
+		return ltrim($this->trace[$pos]->file, '/') . ':' . $this->trace[$pos]->line;
+	}
+
 	private function fixPaths(): void {
 		$prefix = $this->findSimilarPrefix();
 		if ($prefix == '') {
@@ -75,7 +90,11 @@ final class StackTrace
 			}
 		}
 
-		return $prefix;
+		// cut on a directory boundary, otherwise `/app/src/Foo.php` and `/app/src/Fbar.php` share
+		// the prefix `/app/src/F` and the shortened paths become unusable
+		$lastSlash = strrpos($prefix, '/');
+
+		return $lastSlash === false ? '' : substr($prefix, 0, $lastSlash + 1);
 	}
 
 }

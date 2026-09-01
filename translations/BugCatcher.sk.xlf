@@ -174,6 +174,22 @@
 			<source>Auto</source>
 			<target>Automatická</target>
 		  </trans-unit>
+		  <trans-unit id="43">
+			<source>Copy path with line</source>
+			<target>Kopírovať cestu s riadkom</target>
+		  </trans-unit>
+		  <trans-unit id="44">
+			<source>Copy error message</source>
+			<target>Kopírovať chybovú správu</target>
+		  </trans-unit>
+		  <trans-unit id="45">
+			<source>Copy URL</source>
+			<target>Kopírovať URL</target>
+		  </trans-unit>
+		  <trans-unit id="46">
+			<source>Open in new tab</source>
+			<target>Otvoriť v novom paneli</target>
+		  </trans-unit>
         </body>
     </file>
 </xliff>

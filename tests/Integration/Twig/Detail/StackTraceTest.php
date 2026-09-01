@@ -91,6 +91,56 @@ class StackTraceTest extends KernelTestCase {
 	}
 
 	/**
+	 * The copied path has to be the project relative one, not the absolute path of the production
+	 * server the record was reported from - that directory does not exist on the developer machine.
+	 */
+	public function testCopyButtonCarriesTheProjectRelativePathWithLine() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize($this->codeFrames()),
+		]);
+
+		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
+		$copied   = $rendered->crawler()
+			->filter("[data-controller='clipboard']")
+			->each(fn($node) => $node->attr('data-clipboard-text-value'));
+
+		$this->assertSame([
+			'Cpe/GponRadius.php:58',
+			'Runner.php:12',
+		], $copied);
+	}
+
+	public function testNoCopyButtonWhenTheTraceCouldNotBeRead() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => "not serialized",
+		]);
+
+		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
+
+		$this->assertCount(0, $rendered->crawler()->filter("[data-controller='clipboard']"));
+	}
+
+	/**
+	 * The common prefix is cut on a directory boundary, otherwise sibling files such as
+	 * `/app/src/Runner.php` and `/app/src/RunnerFactory.php` would lose part of their name.
+	 */
+	public function testPrefixIsStrippedOnlyUpToADirectoryBoundary() {
+		$record = RecordLogTraceFactory::createOne([
+			"stackTrace" => serialize([
+				new Codeframe('/app/src/Runner.php', 12, [], ''),
+				new Codeframe('/app/src/RunnerFactory.php', 30, [], ''),
+			]),
+		]);
+
+		$rendered = $this->mountTwigComponent('Detail:StackTrace', ['record' => $record]);
+
+		$this->assertSame(
+			['/Runner.php', '/RunnerFactory.php'],
+			array_map(fn(Codeframe $item) => $item->getFile(), $rendered->trace)
+		);
+	}
+
+	/**
 	 * @return Codeframe[]
 	 */
 	private function codeFrames(): array {

@@ -1,5 +1,9 @@
 <div{{ attributes.defaults({
-    class:'container-fluid'
+    class:'container-fluid d-flex align-items-start gap-2'
 }) }}>
-    <h4 class=" fw-bold">{{ record.message }}</h4>
+    <h4 class="fw-bold mb-0 text-break">{{ record.message }}</h4>
+    {% include '@BugCatcher/components/_copy_button.html.twig' with {
+        text: record.message,
+        label: 'Copy error message'|trans({},"BugCatcher"),
+    } only %}
 </div>

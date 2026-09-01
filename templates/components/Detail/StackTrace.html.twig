@@ -4,8 +4,8 @@
     <div class="accordion" id="accordionExample">
         {% for key,item in this.trace %}
             <div class="accordion-item">
-                <h3 class="accordion-header" id="heading-{{ key }}">
-                    <button class="accordion-button collapsed text-body"
+                <h3 class="accordion-header d-flex align-items-stretch" id="heading-{{ key }}">
+                    <button class="accordion-button collapsed text-body flex-grow-1"
                             type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapse-{{ key }}"
                             aria-expanded="{% if opened==key %}true{% else %}false{% endif %}"
@@ -13,6 +13,14 @@
                         {{ item.file }} (line {{ item.line }})
                         {% if item.frame %}<small class="text-body-secondary ms-2">{{ item.frame }}</small>{% endif %}
                     </button>
+                    {% if this.copyPath(key) %}
+                        <span class="d-flex align-items-center px-2 flex-shrink-0">
+                            {% include '@BugCatcher/components/_copy_button.html.twig' with {
+                                text: this.copyPath(key),
+                                label: 'Copy path with line'|trans({},"BugCatcher"),
+                            } only %}
+                        </span>
+                    {% endif %}
                 </h3>
                 <div id="collapse-{{ key }}" class="accordion-collapse collapse {% if opened==key %}show{% endif %}"
                      aria-labelledby="heading-{{ key }}"

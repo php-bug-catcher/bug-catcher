@@ -26,5 +26,9 @@ class TitleTest extends KernelTestCase {
 		]);
 		$rendered = $this->renderTwigComponent('Detail:Title', ['record' => $record]);
 		$this->assertSame("Test title", $rendered->crawler()->filter("h4")->text());
+		$this->assertSame(
+			"Test title",
+			$rendered->crawler()->filter("[data-controller='clipboard']")->attr('data-clipboard-text-value')
+		);
 	}
 }
