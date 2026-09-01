@@ -5,9 +5,8 @@
   "description": "Catch all bugs from all your applications in one place",
   "minimum-stability": "stable",
   "require": {
-    "symfony/webpack-encore-bundle": "v2.2.0",
     "php": ">=8.3",
-    "api-platform/core": "^3.3",
+    "api-platform/core": "^4.1.30",
     "easycorp/easyadmin-bundle": "^4.10",
     "kregel/exception-probe": "^1.0",
     "symfony/asset": "7.4.*",
@@ -31,6 +30,7 @@
     "symfony/ux-live-component": "^2.17",
     "symfony/validator": "7.4.*",
     "symfony/web-link": "7.4.*",
+    "symfony/webpack-encore-bundle": "v2.2.0",
     "tito10047/doctrine-transaction": "^0.1.1",
     "tito10047/persistent-state-bundle": "^0.1.2",
     "tito10047/php-sparkline": "^1.0",

@@ -8,7 +8,6 @@
 
 namespace BugCatcher\Tests\Functional;
 
-use ApiPlatform\Api\IriConverterInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use BugCatcher\Entity\User;
 use Zenstruck\Browser\KernelBrowser;
