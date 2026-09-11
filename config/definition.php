@@ -15,6 +15,14 @@ return static function (DefinitionConfigurator $definition): void {
 		->integerNode("refresh_interval")->defaultValue(15)->end()
 		->scalarNode("app_name")->defaultValue("BugCatcher")->end()
 		->booleanNode("clear_stacktrace_on_fixed")->defaultValue(true)->end()
+		->arrayNode("mcp")
+		->addDefaultsIfNotSet()
+		->children()
+		// resolves to null when MCP_ACCESS_TOKEN is not set, and a null token refuses every
+		// request - see McpAccessTokenHandler
+		->scalarNode("access_token")->defaultValue('%env(default::MCP_ACCESS_TOKEN)%')->end()
+		->end()
+		->end()
 		->arrayNode("dashboard_components")
 		->defaultValue([
 			"StatusList",

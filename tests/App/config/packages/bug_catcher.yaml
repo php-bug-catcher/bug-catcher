@@ -1,5 +1,7 @@
 bug_catcher:
     logo: 'default'
+    mcp:
+        access_token: 'test-mcp-token'
     collectors:
         Http: http
         Messenger: messenger

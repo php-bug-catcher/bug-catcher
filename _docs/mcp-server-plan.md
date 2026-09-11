@@ -7,7 +7,7 @@
 | 1 | Závislosti (`symfony/mcp-bundle`, `nyholm/psr7`) + wiring test kernelu | ✅ hotové |
 | 2 | `StackTraceParser` (extrakcia z Twig komponentu) + `StackTraceFormatter` | ✅ hotové |
 | 3 | `RecordFinder` — read servis (search / detail / história) | ⬜ todo |
-| 4 | `McpAccessTokenHandler` + firewall `mcp` | ⬜ todo |
+| 4 | `McpAccessTokenHandler` + firewall `mcp` | ✅ hotové |
 | 5 | Tool `list_projects` | ✅ hotové |
 | 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ⬜ todo |
 | 7 | Funkčné testy — JSON-RPC cez HTTP | ⬜ todo |
@@ -215,6 +215,32 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 4 — autentifikácia (hotové)
+
+**Spravené:**
+- `src/Security/McpAccessTokenHandler.php` — porovnanie cez `hash_equals()`.
+  **Fail closed:** nenastavený alebo prázdny token odmieta *každý* request. Opačné správanie
+  („nič nie je nastavené, takže všetko sedí“) by zverejnilo chyby všetkých projektov v deň, keď
+  niekto zabudne na `MCP_ACCESS_TOKEN`.
+- `UserBadge` si nesie vlastného `InMemoryUser` s rolou `ROLE_MCP`, takže firewall nepotrebuje
+  user providera. Identifikátor je fixný (`mcp`), nie odvodený od tokenu — až fáza 2 ho naviaže
+  na `User` a oscopuje na `getActiveProjects()`.
+- `config/definition.php` → nový node `bug_catcher.mcp.access_token`, default
+  `%env(default::MCP_ACCESS_TOKEN)%` (nenastavená premenná = `null`, nie pád pri boote).
+- Injekcia v `BugCatcherBundle::loadExtension()`, firewall + `access_control` + `ROLE_MCP:
+  ROLE_DEVELOPER` v `tests/App/config/packages/security.yaml`.
+- Testy: `tests/Unit/Security/McpAccessTokenHandlerTest.php` (9, vrátane prefixu tokenu a
+  nenakonfigurovaného servera), `tests/Functional/Mcp/McpAccessTest.php` (3 — bez tokenu 401,
+  zlý token 401, správny token prejde).
+- `tests/Functional/Mcp/McpJsonRpc.php` — trait s JSON-RPC handshakom, aby ho celok 7 nemusel
+  opakovať v každom teste.
+
+**Nespravené:**
+- Firewall v `config/recipes/packages/security.yaml` pre downstream skeleton — celok 8. Zatiaľ to
+  nie je diera: recipe ešte nepridáva ani `mcp` routing, takže v skeletone endpoint neexistuje.
+- Rate limiting na endpointe. `symfony/rate-limiter` je v závislostiach, ale statický token bez
+  throttlingu je stále brute-forcovateľný — treba zvážiť, nie je to však v zadaní.
 
 ### Celok 1 + 5 — bundle beží, `list_projects` (hotové)
 
