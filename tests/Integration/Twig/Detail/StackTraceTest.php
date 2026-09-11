@@ -30,7 +30,7 @@ class StackTraceTest extends KernelTestCase {
 			"stackTrace" => "not serialized",
 		]);
 		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
-		$this->assertSame("Unable to unserialize stacktrace (line 0)", $rendered->crawler()->filter("button.accordion-button")->text());
+		$this->assertSame("Unable to unserialize stacktrace (line 0)", $rendered->crawler()->filter('[data-testid="frame-trigger"]')->text());
 	}
 
 	public function testNormalizePaths() {
@@ -84,7 +84,7 @@ class StackTraceTest extends KernelTestCase {
 		]);
 
 		$rendered = $this->renderTwigComponent('Detail:StackTrace', ['record' => $record]);
-		$buttons  = $rendered->crawler()->filter("button.accordion-button")->each(fn($node) => $node->text());
+		$buttons  = $rendered->crawler()->filter('[data-testid="frame-trigger"]')->each(fn($node) => $node->text());
 
 		$this->assertStringContainsString('RuntimeException: boom', $buttons[0]);
 		$this->assertStringContainsString('GponRadius->proceed(Object)', $buttons[1]);

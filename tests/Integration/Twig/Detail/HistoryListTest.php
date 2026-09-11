@@ -74,7 +74,7 @@ class HistoryListTest extends KernelTestCase {
 
 		$firstDate = $firstDate->modify("+1 day");
 		$expected = $date->format("d.m.Y H:i:s") . " - " . $firstDate->format("d.m.Y H:i:s");
-		$this->assertSame($expected, $rendered->crawler()->filter('button.accordion-button>span')->text());
+		$this->assertSame($expected, $rendered->crawler()->filter('[data-testid="history-range"]')->text());
 	}
 
 	public function testRenderMultiCount() {

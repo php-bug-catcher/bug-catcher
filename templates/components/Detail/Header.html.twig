@@ -1,45 +1,56 @@
+{# The external link must stay the first <a> in this header - HeaderTest reads it positionally. #}
 <header{{ attributes.defaults({
-    class:'pb-1 mb-4 border-bottom d-flex align-items-center'
+	class:'flex flex-wrap items-center gap-2 px-4 py-3'
 }) }}>
-    <img class="p-1" src="{{ asset('/assets/logo/'~logo~'/icon.svg', 'bug_catcher') }}" alt="bug" style="width: 43px;height:43px;"/>
-    <span class="fs-4 text-break">{{ record.requestUri|u.truncate(150, '...') }}</span>
-    <span class="d-flex align-items-center gap-1 ms-2 flex-shrink-0">
-        <a href="{{ record.requestUri }}" target="_blank" rel="noopener noreferrer"
-           class="btn btn-sm btn-link text-body-secondary p-1 lh-1"
-           title="{{ 'Open in new tab'|trans({},"BugCatcher") }}"
-           aria-label="{{ 'Open in new tab'|trans({},"BugCatcher") }}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 3h6v6"/>
-                <path d="M10 14 21 3"/>
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            </svg>
-        </a>
-        {% include '@BugCatcher/components/_copy_button.html.twig' with {
-            text: record.requestUri,
-            label: 'Copy URL'|trans({},"BugCatcher"),
-        } only %}
-    </span>
-    {% if is_granted('ROLE_DEVELOPER') %}
-        <span class="d-flex align-items-center gap-1 ms-auto ps-2 flex-shrink-0">
-            <form method="post"
-                  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'resolved'}) }}"
-                  {{ stimulus_controller('submit-close') }}
-                  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
-                <input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
-                <button type="submit" class="btn btn-outline-secondary btn-sm" title="{{ 'Fix it'|trans }}">
-                    <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
-                </button>
-            </form>
-            <form method="post"
-                  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'archived'}) }}"
-                  {{ stimulus_controller('submit-close') }}
-                  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
-                <input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
-                <button type="submit" class="btn btn-outline-info btn-sm" title="{{ 'Archive it'|trans }}">
-                    <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
-                </button>
-            </form>
-        </span>
-    {% endif %}
+	<img src="{{ asset('/assets/logo/'~logo~'/icon.svg', 'bug_catcher') }}" alt=""
+		 width="36" height="36" class="size-9 shrink-0"/>
+
+	<span data-testid="request-uri" class="min-w-0 break-all text-sm text-muted">
+		{{- record.requestUri|u.truncate(150, '...') -}}
+	</span>
+
+	<span class="flex shrink-0 items-center gap-1">
+		<a href="{{ record.requestUri }}" target="_blank" rel="noopener noreferrer"
+		   class="btn btn-sm btn-icon btn-ghost"
+		   title="{{ 'Open in new tab'|trans({},"BugCatcher") }}"
+		   aria-label="{{ 'Open in new tab'|trans({},"BugCatcher") }}">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+				 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M15 3h6v6"/>
+				<path d="M10 14 21 3"/>
+				<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+			</svg>
+		</a>
+		{% include '@BugCatcher/components/_copy_button.html.twig' with {
+			text: record.requestUri,
+			label: 'Copy URL'|trans({},"BugCatcher"),
+		} only %}
+	</span>
+
+	{% if is_granted('ROLE_DEVELOPER') %}
+		<span class="ml-auto flex shrink-0 items-center gap-1">
+			{# Both forms post through submit-close, which closes the tab the log list opened. #}
+			<form method="post"
+				  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'resolved'}) }}"
+				  {{ stimulus_controller('submit-close') }}
+				  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
+				<input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
+				<button type="submit" class="btn btn-sm btn-ghost btn-ok" title="{{ 'Fix it'|trans }}">
+					<twig:ux:icon name="game-icons:magic-broom" width="16" height="16"/>
+					{{ 'Fix it'|trans }}
+				</button>
+			</form>
+
+			<form method="post"
+				  action="{{ path('bug_catcher.dashboard.record-status',{record:record.id,status:'archived'}) }}"
+				  {{ stimulus_controller('submit-close') }}
+				  {{ stimulus_action('submit-close', 'submit', 'submit') }}>
+				<input type="hidden" name="_token" value="{{ csrf_token('record-status-' ~ record.id) }}">
+				<button type="submit" class="btn btn-sm btn-ghost" title="{{ 'Archive it'|trans }}">
+					<twig:ux:icon name="clarity:archive-line" width="16" height="16"/>
+					{{ 'Archive it'|trans }}
+				</button>
+			</form>
+		</span>
+	{% endif %}
 </header>
