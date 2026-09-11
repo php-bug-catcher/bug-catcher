@@ -15,7 +15,7 @@ export default class extends Controller {
 
 	async copy(event) {
 		event.preventDefault();
-		// the buttons live inside a bootstrap accordion header, a bubbling click would toggle it
+		// the buttons live inside a disclosure trigger, a bubbling click would toggle it
 		event.stopPropagation();
 
 		try {
@@ -49,11 +49,11 @@ export default class extends Controller {
 			return;
 		}
 		this.#clearTimer();
-		this.iconTarget.classList.add('d-none');
-		this.successTarget.classList.remove('d-none');
+		this.iconTarget.classList.add('hidden');
+		this.successTarget.classList.remove('hidden');
 		this.timer = window.setTimeout(() => {
-			this.iconTarget.classList.remove('d-none');
-			this.successTarget.classList.add('d-none');
+			this.iconTarget.classList.remove('hidden');
+			this.successTarget.classList.add('hidden');
 			this.timer = null;
 		}, this.successDurationValue);
 	}

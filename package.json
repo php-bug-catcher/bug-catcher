@@ -3,13 +3,17 @@
     "@babel/core": "^7.17.0",
     "@babel/preset-env": "^7.16.0",
     "@hotwired/stimulus": "^3.0.0",
-    "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
-    "@tito10047/persistent-state-bundle": "file:vendor/tito10047/persistent-state-bundle/assets",
     "@symfony/stimulus-bridge": "^4.0.1",
+    "@symfony/ux-live-component": "file:vendor/symfony/ux-live-component/assets",
     "@symfony/webpack-encore": "^5.0.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tito10047/persistent-state-bundle": "file:vendor/tito10047/persistent-state-bundle/assets",
     "core-js": "^3.38.0",
+    "postcss": "^8.5.28",
+    "postcss-loader": "^8.2.1",
     "regenerator-runtime": "^0.13.9",
     "stimulus": "^3.2.2",
+    "tailwindcss": "^4",
     "webpack": "^5.74.0",
     "webpack-cli": "^5.1.0"
   },
@@ -22,11 +26,7 @@
     "build": "encore production --progress"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3",
     "file-loader": "^6.2.0",
-    "sass": "^1.77.4",
-    "sass-loader": "^16.0.1",
     "stimulus-use": "^0.52.2"
   }
 }
