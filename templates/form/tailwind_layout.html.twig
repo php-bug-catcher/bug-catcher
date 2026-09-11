@@ -1,0 +1,71 @@
+{#
+	Form theme for the design system, replacing EasyAdmin's Bootstrap 5 layout.
+
+	It only overrides the blocks that need our classes and inherits everything else from
+	Symfony's own layout - the structure, accessibility attributes and widget dispatching are
+	already correct there and reimplementing them would only be a chance to get them wrong.
+
+	EasyAdmin is unaffected: its CRUD screens set their own form theme explicitly, so this is
+	the theme for the bundle's own forms (today that is ChangePasswordType).
+#}
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+	{% set row_attr = row_attr|merge({class: ('mb-4 ' ~ row_attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block form_label %}
+	{% set label_attr = label_attr|merge({class: ('mb-1 block text-sm font-medium ' ~ label_attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block form_widget_simple %}
+	{% set attr = attr|merge({class: ('input ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block textarea_widget %}
+	{% set attr = attr|merge({class: ('input ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block choice_widget_collapsed %}
+	{% set attr = attr|merge({class: ('input ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block checkbox_widget %}
+	{% set attr = attr|merge({class: ('size-4 align-middle ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block radio_widget %}
+	{% set attr = attr|merge({class: ('size-4 align-middle ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block button_widget %}
+	{% set attr = attr|merge({class: ('btn ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block submit_widget %}
+	{% set attr = attr|merge({class: ('btn-accent ' ~ attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block form_help %}
+	{% set help_attr = help_attr|merge({class: ('mt-1 text-xs text-muted ' ~ help_attr.class|default(''))|trim}) %}
+	{{- parent() -}}
+{% endblock %}
+
+{% block form_errors %}
+	{% if errors|length > 0 %}
+		<ul class="mt-1 list-none space-y-0.5 p-0 text-xs text-danger">
+			{% for error in errors %}
+				<li>{{ error.message }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+{% endblock %}
