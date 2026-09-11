@@ -32,6 +32,9 @@ see [skeleton/readme.md](https://raw.githubusercontent.com/php-bug-catcher/skele
 - **Easy to use**. Just add a few lines of code to your project and you are ready to go.
 - **Withholding**. You can hide errors until they reach a configured threshold.
 - **Automatic cleanup**. Stack trace is optional and is cleaned up after the error is fixed.
+- **MCP server**. Let an AI assistant working in your project list the errors it reported, read
+  their stack traces and mark them resolved once it has fixed the cause. Served over HTTP at `/mcp`
+  behind a bearer token. See [docs/mcp.md](docs/mcp.md).
 
 ### Roadmap
 
@@ -42,6 +45,8 @@ see [skeleton/readme.md](https://raw.githubusercontent.com/php-bug-catcher/skele
 - [x] Autoconfiguration
 - [x] Create installer
 - [x] Release first version
+- [x] MCP server
+- [ ] Scope MCP tokens to a user and their projects
 - [ ] Email notification component
 - [ ] Ping history graph component
 - [ ] Errors history graph component
