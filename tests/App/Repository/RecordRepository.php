@@ -12,6 +12,7 @@ use BugCatcher\Entity\Record;
 use BugCatcher\Repository\RecordRepositoryInterface;
 use DateTimeInterface;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\ReadableCollection;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
 
@@ -91,7 +92,12 @@ class RecordRepository  implements RecordRepositoryInterface
         return $this->inner->getClassName();
     }
 
-    public function matching(Criteria $criteria)
+    /**
+     * The return type is spelled out because doctrine/collections 3 declares it on
+     * `Selectable::matching()`. Older versions declare none, and adding one where the parent has
+     * none is allowed, so this reads the same on both.
+     */
+    public function matching(Criteria $criteria): ReadableCollection
     {
         return $this->inner->matching($criteria);
     }
