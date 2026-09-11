@@ -2,6 +2,12 @@
                   xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                    https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <!--
+        A copy of config/doctrine/Record.orm.xml with one addition: the RecordCron entry in the
+        discriminator map, which is what the custom record type documentation asks an application to
+        do. Everything else has to stay in step with the bundle's own file, otherwise the test suite
+        runs against a schema no deployment has.
+    -->
     <entity name="BugCatcher\Entity\Record"
             table="record" inheritance-type="JOINED"
             repository-class="BugCatcher\Repository\RecordRepository"
@@ -9,8 +15,9 @@
         <indexes>
             <index name="full_idx" columns="project_id,date,status"/>
             <index name="date_idx" columns="status,date"/>
-            <index name="done_idx" columns="project_id,status"/>
+            <index name="done_idx" columns="project_id,status,hash"/>
             <index name="hash_idx" columns="hash,status,date"/>
+            <index name="code_idx" columns="status,code,date"/>
         </indexes>
         <discriminator-column name="discr" type="string"/>
         <discriminator-map>
@@ -27,6 +34,8 @@
         <field name="date" type="datetime_immutable" nullable="false"/>
         <field name="status" type="string" length="50"/>
         <field name="hash" type="string" length="32" nullable="true"/>
+        <field name="code" type="string" length="15" nullable="true"/>
+        <field name="metadata" type="simple_array" nullable="true"/>
         <many-to-one field="project" target-entity="BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
         </many-to-one>
