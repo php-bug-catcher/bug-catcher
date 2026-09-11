@@ -1,0 +1,20 @@
+{# A chip that copies its own value to the clipboard and briefly replaces the label with a
+   confirmation. Same controller as _copy_button.html.twig, only the skin differs.
+   Params: text (copied value), label (shown value, defaults to text), class (extra chip variants). #}
+<button type="button"
+		class="chip chip-copy {{ class|default('') }}"
+		title="{{ 'Copy to clipboard'|trans }}"
+		{{ stimulus_controller('clipboard', {text: text}) }}
+		{{ stimulus_action('clipboard', 'copy') }}>
+	<span {{ stimulus_target('clipboard', 'icon') }}>{{ label|default(text) }}</span>
+	{# nested span: `hidden` toggles the outer one, the inner keeps the icon/label alignment #}
+	<span {{ stimulus_target('clipboard', 'success') }} class="hidden">
+		<span class="inline-flex items-center gap-1 text-ok">
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+				 stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M20 6 9 17l-5-5"/>
+			</svg>
+			{{ 'Copied'|trans }}
+		</span>
+	</span>
+</button>

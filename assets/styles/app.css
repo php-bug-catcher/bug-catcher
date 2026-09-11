@@ -249,6 +249,20 @@
 		font-size: 0.875rem;
 	}
 
+	/* A chip that is really a button - copy-to-clipboard. Only the affordance differs,
+	   the colour still comes from whichever chip variant sits next to it. */
+	.chip-copy {
+		cursor: pointer;
+		font: inherit;
+		font-size: 0.75rem;
+		transition: border-color 150ms, background-color 150ms;
+	}
+
+	.chip-copy:hover {
+		border-color: color-mix(in oklab, var(--chip) 65%, transparent);
+		background-color: color-mix(in oklab, var(--chip) 22%, var(--color-surface));
+	}
+
 	/* --- buttons --------------------------------------------------------------
 	   Same derivation trick: --btn carries the colour, variants differ in fill only. */
 	.btn {

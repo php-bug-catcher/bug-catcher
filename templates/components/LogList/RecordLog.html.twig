@@ -21,7 +21,10 @@
 		<div class="flex min-w-0 flex-1 items-center gap-1.5">
 			{{ persistent_selection_row_selector("main_logs",log,{class:"mr-1"}) }}
 
-			<span class="chip font-mono">{{ log.date|date('d.m.Y H:i:s') }}</span>
+			{% include '@BugCatcher/components/_copy_chip.html.twig' with {
+				text: log.date|date('d.m.Y H:i:s'),
+				class: 'font-mono',
+			} only %}
 
 			<a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
 			   class="chip chip-info no-underline">{{ log.project.name }}</a>
@@ -29,7 +32,10 @@
 			<span class="{{ tones[tone].chip }} tabular-nums">{{ log.count }}×</span>
 
 			{% if log.code is not empty %}
-				<span class="chip chip-accent font-mono">{{ log.code }}</span>
+				{% include '@BugCatcher/components/_copy_chip.html.twig' with {
+					text: log.code,
+					class: 'chip-accent font-mono',
+				} only %}
 			{% endif %}
 
 			<span class="min-w-0 flex-1 truncate text-sm" title="{{ log.message }}">{{ log.message }}</span>
