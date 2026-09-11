@@ -97,3 +97,55 @@ services:
                 messenger: '@BugCatcher\Service\PingCollector\MessengerCollector'
                 always_ok: '@App\Service\OkPingCollector'
 ```
+
+## Styling your components
+
+The dashboard is built with Tailwind CSS v4 on a small set of design tokens. Bootstrap is not
+available - `btn btn-primary`, `badge`, `row`, `col-*` and friends will not do anything.
+
+Colours are CSS custom properties swapped by theme and exposed to Tailwind, so you write one
+class and it works in both light and dark. Do not pair utilities with `dark:` variants for
+colour; that is what the tokens are for.
+
+| Utility | Use |
+|---|---|
+| `bg-bg`, `bg-surface`, `bg-surface-2` | page, card, raised surfaces |
+| `text-fg`, `text-muted` | body text, secondary text |
+| `border-line` | every border |
+| `text-accent`, `text-ok`, `text-warn`, `text-danger` | status colours |
+
+Component classes, so you do not repeat long class strings:
+
+| Class | What it is |
+|---|---|
+| `.panel` | the card surface. `.panel-glow` adds the neon ring, `.panel-accent` a gradient top edge |
+| `.chip` + `.chip-ok` / `.chip-warn` / `.chip-danger` / `.chip-info` / `.chip-accent` | small labels |
+| `.btn` + `.btn-ghost` / `.btn-accent`, with `.btn-sm` / `.btn-icon` | buttons |
+| `.input` | form controls |
+| `.led` + `.led-ok` / `.led-danger` | pulsing status light |
+| `.code` | the stack trace listing |
+| `.text-glow` | neon text shadow, follows the element's own colour. Dark theme only |
+
+A status list component renders inside a 12 column grid and **must carry its own width**, because
+the component list is configurable and the row cannot know what it will contain:
+
+```twig
+<div{{ attributes.defaults({class:'col-span-3 flex items-center gap-1.5'}) }}>
+    <span class="led led-ok"></span>
+    <span class="truncate text-sm">{{ project.name }}</span>
+</div>
+```
+
+The built-in components use 6 (`ProjectStatus`), 4 (`LogSparkLine`) and 2 (`LogCount`) columns, so
+pick spans that still add up to 12 once yours is in the list.
+
+Two things worth knowing:
+
+- Tailwind only emits classes it can find as literal text. Building a class name from a variable
+  (`text-{{ color }}`) produces nothing - map the full strings in the template instead.
+- Twig templates live outside `assets/`, so they are registered with `@source` in
+  `assets/styles/app.css`. Webpack does not watch them: after editing a template, run `yarn dev`
+  or `yarn build` before expecting new classes to exist.
+
+The dashboard is often shown on a wall monitor that nobody interacts with, so prefer density -
+one line per row, truncate rather than wrap, and keep colour for things that need attention.

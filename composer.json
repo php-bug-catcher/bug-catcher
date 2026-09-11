@@ -1,90 +1,90 @@
 {
-  "name": "php-bug-catcher/bug-catcher",
-  "type": "symfony-bundle",
-  "license": "MIT",
-  "description": "Catch all bugs from all your applications in one place",
-  "minimum-stability": "stable",
-  "require": {
-    "php": ">=8.3",
-    "api-platform/core": "^4.1.30",
-    "easycorp/easyadmin-bundle": "^4.10",
-    "kregel/exception-probe": "^1.0",
-    "nyholm/psr7": "^1.8",
-    "symfony/asset": "7.4.*",
-    "symfony/console": "7.4.*",
-    "symfony/form": "7.4.*",
-    "symfony/framework-bundle": "^7.4",
-    "symfony/http-client": "7.4.*",
-    "symfony/lock": "7.4.*",
-    "symfony/mcp-bundle": "^0.13",
-    "symfony/mime": "7.4.*",
-    "symfony/monolog-bundle": "^3.0",
-    "symfony/orm-pack": "^2.4",
-    "symfony/rate-limiter": "7.4.*",
-    "symfony/security-bundle": "7.4.*",
-    "symfony/serializer": "7.4.*",
-    "symfony/stimulus-bundle": "v2.20.0",
-    "symfony/string": "7.4.*",
-    "symfony/translation": "7.4.*",
-    "symfony/twig-bundle": "7.4.*",
-    "symfony/uid": "7.4.*",
-    "symfony/ux-icons": "^2.17",
-    "symfony/ux-live-component": "^2.17",
-    "symfony/validator": "7.4.*",
-    "symfony/web-link": "7.4.*",
-    "symfony/webpack-encore-bundle": "v2.2.0",
-    "tempest/highlight": "^2.28",
-    "tito10047/doctrine-transaction": "^0.1.1",
-    "tito10047/persistent-state-bundle": "^0.1.2",
-    "tito10047/php-sparkline": "^1.0",
-    "twig/extra-bundle": "^2.12|^3.0",
-    "twig/string-extra": "^3.10",
-    "twig/twig": "^v3.26.0",
-    "zenstruck/browser": "^1.8"
-  },
-  "conflict": {
-    "symfony/asset-mapper": "*"
-  },
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "symfony/runtime": true
+    "name": "php-bug-catcher/bug-catcher",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "description": "Catch all bugs from all your applications in one place",
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.3",
+        "api-platform/core": "^4.1.30",
+        "easycorp/easyadmin-bundle": "^4.10",
+        "kregel/exception-probe": "^1.0",
+        "nyholm/psr7": "^1.8",
+        "symfony/asset": "7.4.*",
+        "symfony/console": "7.4.*",
+        "symfony/form": "7.4.*",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/http-client": "7.4.*",
+        "symfony/lock": "7.4.*",
+        "symfony/mcp-bundle": "^0.13",
+        "symfony/mime": "7.4.*",
+        "symfony/monolog-bundle": "^3.0",
+        "symfony/orm-pack": "^2.4",
+        "symfony/rate-limiter": "7.4.*",
+        "symfony/security-bundle": "7.4.*",
+        "symfony/serializer": "7.4.*",
+        "symfony/stimulus-bundle": "v2.20.0",
+        "symfony/string": "7.4.*",
+        "symfony/translation": "7.4.*",
+        "symfony/twig-bundle": "7.4.*",
+        "symfony/uid": "7.4.*",
+        "symfony/ux-icons": "^2.17",
+        "symfony/ux-live-component": "^2.17",
+        "symfony/validator": "7.4.*",
+        "symfony/web-link": "7.4.*",
+        "symfony/webpack-encore-bundle": "v2.2.0",
+        "tempest/highlight": "^2.28",
+        "tito10047/doctrine-transaction": "^0.1.1",
+        "tito10047/persistent-state-bundle": "^0.1.2",
+        "tito10047/php-sparkline": "^1.0",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/string-extra": "^3.10",
+        "twig/twig": "^v3.26.0",
+        "zenstruck/browser": "^1.8"
+    },
+    "conflict": {
+        "symfony/asset-mapper": "*"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "BugCatcher\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BugCatcher\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "beberlei/doctrineextensions": "^1.5",
+        "dama/doctrine-test-bundle": "^8.2",
+        "phpunit/phpunit": "^9.5",
+        "symfony/css-selector": "7.4.*",
+        "symfony/doctrine-messenger": "7.4.*",
+        "symfony/dom-crawler": "7.4.*",
+        "symfony/dotenv": "7.4.*",
+        "symfony/messenger": "7.4.*",
+        "symfony/phpunit-bridge": "7.4.*",
+        "symfony/routing": "^7.4",
+        "symfony/runtime": "7.4.*",
+        "symfony/var-exporter": "7.4.*",
+        "symfony/yaml": "7.4.*",
+        "zenstruck/foundry": "^2.0"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": "true"
+        }
+    },
+    "scripts": {
+        "phpunit": "vendor/bin/phpunit",
+        "coverage": "vendor/bin/phpunit --coverage-html build/reports/html --coverage-clover build/reports/clover.xml",
+        "csfixer": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     }
-  },
-  "autoload": {
-    "psr-4": {
-      "BugCatcher\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "BugCatcher\\Tests\\": "tests/"
-    }
-  },
-  "require-dev": {
-    "beberlei/doctrineextensions": "^1.5",
-    "dama/doctrine-test-bundle": "^8.2",
-    "phpunit/phpunit": "^9.5",
-    "symfony/css-selector": "7.4.*",
-    "symfony/doctrine-messenger": "7.4.*",
-    "symfony/dom-crawler": "7.4.*",
-    "symfony/dotenv": "7.4.*",
-    "symfony/messenger": "7.4.*",
-    "symfony/phpunit-bridge": "7.4.*",
-    "symfony/routing": "^7.4",
-    "symfony/runtime": "7.4.*",
-    "symfony/var-exporter": "7.4.*",
-    "symfony/yaml": "7.4.*",
-    "zenstruck/foundry": "^2.0"
-  },
-  "extra": {
-    "symfony": {
-      "allow-contrib": "true"
-    }
-  },
-  "scripts": {
-    "phpunit": "vendor/bin/phpunit --display-warnings --display-skipped --display-deprecations --display-errors --display-notices",
-    "coverage": "vendor/bin/phpunit --coverage-html build/reports/html --coverage-clover build/reports/clover.xml",
-    "csfixer": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
-  }
 }
