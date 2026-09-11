@@ -47,6 +47,18 @@
 	--bc-spark-low: var(--bc-ok);
 	--bc-spark-mid: var(--bc-accent);
 	--bc-spark-high: var(--bc-danger);
+
+	/* Syntax highlighting. Kept in the same hue family as the palette so a stack trace reads as
+	   part of the UI rather than as a pasted-in editor screenshot. Light values are darkened for
+	   contrast on a pale surface. */
+	--bc-hl-keyword: #7c2d92;
+	--bc-hl-type: #0e7490;
+	--bc-hl-value: #9a3412;
+	--bc-hl-number: #9a3412;
+	--bc-hl-variable: #1e40af;
+	--bc-hl-property: #155e75;
+	--bc-hl-attribute: #6d28d9;
+	--bc-hl-comment: #6b7280;
 }
 
 [data-theme="dark"] {
@@ -68,6 +80,15 @@
 	/* currentColor, so a danger counter glows red and an ok counter glows green
 	   without needing a glow token per status */
 	--bc-text-glow: 0 0 12px color-mix(in oklab, currentColor 50%, transparent);
+
+	--bc-hl-keyword: #f472b6;
+	--bc-hl-type: #22d3ee;
+	--bc-hl-value: #fdba74;
+	--bc-hl-number: #fdba74;
+	--bc-hl-variable: #a5b4fc;
+	--bc-hl-property: #7dd3fc;
+	--bc-hl-attribute: #c084fc;
+	--bc-hl-comment: #64748b;
 }
 
 @theme inline {
@@ -410,6 +431,26 @@
 	.code code.selected::before {
 		color: var(--color-accent);
 		background-color: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface-2));
+	}
+
+	/* --- syntax highlighting -------------------------------------------------
+	   Class names come from tempest/highlight's CssTheme. They are mapped onto the palette
+	   rather than given their own colours, so the trace follows the theme and stays inside
+	   the same hue family as the rest of the UI. */
+	.code .hl-keyword { color: var(--bc-hl-keyword); }
+	.code .hl-property { color: var(--bc-hl-property); }
+	.code .hl-type { color: var(--bc-hl-type); }
+	.code .hl-value { color: var(--bc-hl-value); }
+	.code .hl-literal { color: var(--bc-hl-value); }
+	.code .hl-number { color: var(--bc-hl-number); }
+	.code .hl-variable { color: var(--bc-hl-variable); }
+	.code .hl-attribute { color: var(--bc-hl-attribute); }
+	.code .hl-generic { color: var(--bc-hl-type); }
+	.code .hl-operator { color: var(--color-muted); }
+
+	.code .hl-comment {
+		color: var(--bc-hl-comment);
+		font-style: italic;
 	}
 
 	/* --- sparkline -----------------------------------------------------------

@@ -37,10 +37,12 @@
 					 class="{{ opened == key ? '' : 'hidden' }} p-2">
 					{# The line numbers are CSS counters seeded by this inline counter-set - see
 					   .code in app.css. StackTraceTest asserts on it; do not render numbers by hand. #}
+					{# `raw` is safe here: CodeHighlighter escapes the source before adding its spans,
+					   and it is unit tested for exactly that. #}
 					<div class="code">
-						{% for lineNum,line in item.code %}
+						{% for lineNum,line in this.code(key) %}
 							<code class="{% if item.line == lineNum %}selected{% endif %}"
-								  style="counter-set: listing {{ lineNum - 1 }};">{{ line }}</code>
+								  style="counter-set: listing {{ lineNum - 1 }};">{{ line|raw }}</code>
 						{% endfor %}
 					</div>
 				</div>
