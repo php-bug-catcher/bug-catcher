@@ -5,7 +5,7 @@
     "description": "Catch all bugs from all your applications in one place",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=8.3",
+        "php": ">=8.4",
         "api-platform/core": "^4.1.30",
         "easycorp/easyadmin-bundle": "^4.10",
         "kregel/exception-probe": "^1.0",
