@@ -57,8 +57,7 @@ final class BugCatcherBundle extends AbstractBundle
 			->public()
 			->tag('controller.service_arguments')
 			->tag('container.service_subscriber')
-			->arg('$logo', $config["logo"])
-			->arg('$appName', $config["app_name"]);
+			->arg('$logo', $config["logo"]);
 		$services->set(Controller\Admin\DashboardController::class)
 			->autowire()
 			->public()

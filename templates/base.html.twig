@@ -59,7 +59,7 @@
 				<img src="{{ asset('/assets/logo/'~logo~'/icon.svg','bug_catcher') }}" alt=""
 					 width="32" height="32" class="size-8">
 				<span class="text-glow text-lg font-semibold uppercase tracking-[0.2em] text-accent">
-					{{ app_name }}
+					{{ app_name|default('Bug Catcher') }}
 				</span>
 			</a>
 

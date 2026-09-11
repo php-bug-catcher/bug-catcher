@@ -1,97 +1,70 @@
-{% extends  '@EasyAdmin/page/login_minimal.html.twig' %}
+{#
+	Standalone login page - it used to extend EasyAdmin's login_minimal, which dragged in
+	EasyAdmin's Bootstrap CSS just for this one screen.
 
-{% block body_class 'page-login' %}
-{% block page_title %}{{ page_title is defined ? page_title|raw : (ea is defined ? ea.dashboardTitle|raw : '') }}{% endblock %}
+	The field names are what the firewall reads (see config/recipes/packages/security.yaml,
+	which relies on Symfony's form_login defaults). They keep their |default() fallbacks so an
+	application that overrides username_parameter and friends can still pass them in.
+#}
+{% extends '@BugCatcher/base.html.twig' %}
 
-{% block wrapper_wrapper %}
-    {% set page_title = block('page_title') %}
-    {% set _username_label = username_label is defined ? username_label|trans : 'login_page.username'|trans({}, 'EasyAdminBundle') %}
-    {% set _password_label = password_label is defined ? password_label|trans : 'login_page.password'|trans({}, 'EasyAdminBundle') %}
-    {% set _forgot_password_label = forgot_password_label is defined ? forgot_password_label|trans : 'login_page.forgot_password'|trans({}, 'EasyAdminBundle') %}
-    {% set _remember_me_label = remember_me_label is defined ? remember_me_label|trans : 'login_page.remember_me'|trans({}, 'EasyAdminBundle') %}
-    {% set _sign_in_label = sign_in_label is defined ? sign_in_label|trans : 'login_page.sign_in'|trans({}, 'EasyAdminBundle') %}
+{% block title %}{{ 'Log in'|trans({},'BugCatcher') }} · {{ app_name|default('Bug Catcher') }}{% endblock %}
 
-    {% include '@EasyAdmin/flash_messages.html.twig' %}
+{# no nav bar: there is nothing to navigate to before logging in #}
+{% block nav %}{% endblock %}
 
-    <div class="login-wrapper">
-        <header class="main-header">
-            <div id="header-logo">
-                {% block header_logo %}
-                    {% if page_title %}
-                            <div class="logo {{ page_title|length > 14 ? 'logo-long' }}">
-                                {{ page_title|raw }}
-                            </div>
-                    {% endif %}
-                {% endblock header_logo %}
-            </div>
-        </header>
+{% block body %}
+	<main class="flex min-h-screen items-center justify-center px-4 py-12">
+		<div class="panel panel-glow panel-accent w-full max-w-sm p-6">
+			<img src="{{ logo_url }}" alt="{{ app_name|default('Bug Catcher') }}" class="mx-auto mb-6 h-20 w-auto">
 
-        <section class="content">
+			{% if error|default(false) %}
+				<div class="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger"
+					 role="alert">
+					{{ error.messageKey|trans(error.messageData, 'security') }}
+				</div>
+			{% endif %}
 
-            {% if error|default(false) %}
-                <div class="w-100 alert alert-danger rounded mb-3">
-                    <i class="fas fa-times-circle mr-1"></i>
-                    {{ error.messageKey|trans(error.messageData, 'security') }}
-                </div>
-            {% endif %}
+			<form method="post" action="{{ action|default('') }}" class="space-y-4">
+				{% if csrf_token_intention|default(false) %}
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token(csrf_token_intention) }}">
+				{% endif %}
 
-            <form method="post" action="{{ action|default('') }}">
-                {% if csrf_token_intention|default(false) %}
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token(csrf_token_intention) }}">
-                {% endif %}
+				<input type="hidden" name="{{ target_path_parameter|default('_target_path') }}"
+					   value="{{ target_path|default('/') }}">
 
-                <input type="hidden" name="{{ target_path_parameter|default('_target_path') }}"
-                       value="/"/>
+				<div>
+					<label class="mb-1 block text-sm font-medium" for="username">
+						{{ 'Your email address'|trans({},'BugCatcher') }}
+					</label>
+					<input type="text" id="username" class="input"
+						   name="{{ username_parameter|default('_username') }}"
+						   value="{{ last_username|default('') }}"
+						   required autofocus autocomplete="username">
+				</div>
 
-                <div class="form-group">
-                    <label class="form-control-label required" for="username">{{ _username_label }}</label>
-                    <div class="form-widget">
-                        <input type="text" id="username" name="{{ username_parameter|default('_username') }}" class="form-control"
-                               value="{{ last_username|default('') }}" required autofocus autocomplete="username">
-                    </div>
-                </div>
+				<div>
+					<label class="mb-1 block text-sm font-medium" for="password">
+						{{ 'Your password'|trans({},'BugCatcher') }}
+					</label>
+					<input type="password" id="password" class="input"
+						   name="{{ password_parameter|default('_password') }}"
+						   required autocomplete="current-password">
+				</div>
 
-                <div class="form-group">
-                    <label class="form-control-label required" for="password">{{ _password_label }}</label>
-                    <div class="form-widget">
-                        <input type="password" id="password" name="{{ password_parameter|default('_password') }}" class="form-control" required
-                               autocomplete="current-password">
-                    </div>
+				{% if remember_me_enabled|default(false) %}
+					<label class="flex items-center gap-2 text-sm text-muted">
+						<input type="checkbox" class="size-4"
+							   name="{{ remember_me_parameter|default('_remember_me') }}"
+							   {{ remember_me_checked|default(false) ? 'checked' }}>
+						{{ 'Remember me'|trans({},'BugCatcher') }}
+					</label>
+				{% endif %}
 
-                    {% if forgot_password_enabled|default(false) %}
-                        <div class="form-text">
-                            <a href="{{ forgot_password_path|default('#') }}">{{ _forgot_password_label }}</a>
-                        </div>
-                    {% endif %}
-                </div>
-
-                {% if remember_me_enabled|default(false) %}
-                    <div class="form-group">
-                        <input class="form-check-input" type="checkbox" id="remember_me"
-                               name="{{ remember_me_parameter|default('_remember_me') }}" {{ remember_me_checked|default(false) ? 'checked' }}>
-                        <label class="form-check-label" for="remember_me">
-                            {{ _remember_me_label }}
-                        </label>
-                    </div>
-                {% endif %}
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">{{ _sign_in_label }}</button>
-                    {#                    <a href="{{ path('app_register') }}" class="btn btn-secondary btn-lg btn-block">Register</a> #}
-                </div>
-            </form>
-
-            <script src="{{ asset('login.js', constant('EasyCorp\\Bundle\\EasyAdminBundle\\Asset\\AssetPackage::PACKAGE_NAME')) }}"></script>
-        </section>
-    </div>
-{% endblock %}
-
-{% block head_favicon %}
-    <link rel="icon" type="image/svg+xml" href="{{ asset('/images/logo/icon.svg','bug_catcher') }}">
-    <link rel="icon" type="image/png" href="{{ asset('/images/logo/icon.png','bug_catcher') }}">
-{% endblock %}
-
-{% block head_stylesheets %}
-    {{ parent() }}
-    {% include '@BugCatcher/admin/_colors.html.twig' %}
+				<button type="submit" class="btn btn-accent w-full">
+					{{ 'Log in'|trans({},'BugCatcher') }}
+				</button>
+			</form>
+		</div>
+	</main>
 {% endblock %}

@@ -20,37 +20,22 @@ final class SecurityController extends AbstractController
 
 	public function __construct(
 		private readonly string $logo,
-		private string          $appName
 	) {}
 
+	/**
+	 * The template owns the markup and the labels now, so this only passes data. The field
+	 * names it used to hand over are Symfony's form_login defaults, which is exactly what the
+	 * firewall is configured with; the template still accepts them as overrides.
+	 */
 	public function login(AuthenticationUtils $authenticationUtils, Packages $assetManager): Response {
-		// get the login error if there is one
-		$error = $authenticationUtils->getLastAuthenticationError();
-
-		// last username entered by the user
-		$lastUsername = $authenticationUtils->getLastUsername();
-		$logoUrl = $assetManager->getUrl("/assets/logo/{$this->logo}/vertical.svg", 'bug_catcher');
 		return $this->render('@BugCatcher/security/login.html.twig', [
-			'error'                   => $error,
-			'last_username'           => $lastUsername,
-			'favicon_path'            => '/favicon-admin.svg',
-			'page_title'              => <<<HTML
-<div class="d-flex justify-content-center  px-5 py-3">
-<img src="$logoUrl"/>
-</div>
-HTML,
-			'csrf_token_intention'    => 'authenticate',
-			'target_path' => $this->generateUrl('bug_catcher.dashboard.index'),
-			'username_label'          => 'Your email address',
-			'password_label'          => 'Your password',
-			'sign_in_label'           => 'Log in',
-			'username_parameter'      => '_username',
-			'password_parameter'      => '_password',
-			'forgot_password_enabled' => false,
-			'forgot_password_label'   => 'Forgot your password?',
-			'remember_me_enabled'     => true,
-			'remember_me_checked'     => true,
-			'remember_me_label'       => 'Remember me',
+			'error'                => $authenticationUtils->getLastAuthenticationError(),
+			'last_username'        => $authenticationUtils->getLastUsername(),
+			'logo_url'             => $assetManager->getUrl("/assets/logo/{$this->logo}/vertical.svg", 'bug_catcher'),
+			'csrf_token_intention' => 'authenticate',
+			'target_path'          => $this->generateUrl('bug_catcher.dashboard.index'),
+			'remember_me_enabled'  => true,
+			'remember_me_checked'  => true,
 		]);
 	}
 
@@ -59,33 +44,28 @@ HTML,
 		UserPasswordHasherInterface $userPasswordHasher,
 		EntityManagerInterface      $entityManager,
 		TranslatorInterface         $translator
-	) {
-
+	): Response {
 		$form = $this->createForm(ChangePasswordType::class);
 		$form->handleRequest($request);
+
 		if ($form->isSubmitted() && $form->isValid()) {
-			$oldPassword = $form->get('oldPassword')->getData();
-			if (!$userPasswordHasher->isPasswordValid($this->getUser(), $oldPassword)) {
-				$form->get('oldPassword')->addError(new FormError($translator->trans('Old password is not valid')));
-
-				return $this->render('security/change_password.html.twig', [
-					'form' => $form->createView(),
-				]);
-			}
 			$user = $this->getUser();
-			$user->setPassword(
-				$userPasswordHasher->hashPassword(
-					$user,
-					$form->get('newPassword')->getData()
-				)
-			);
-			$entityManager->persist($user);
-			$entityManager->flush();
-			$this->addFlash('success', 'Password changed');
 
-			return $this->redirectToRoute('admin');
+			if ($userPasswordHasher->isPasswordValid($user, $form->get('oldPassword')->getData())) {
+				$user->setPassword(
+					$userPasswordHasher->hashPassword($user, $form->get('newPassword')->getData())
+				);
+				$entityManager->persist($user);
+				$entityManager->flush();
+				$this->addFlash('success', $translator->trans('Password changed'));
+
+				return $this->redirectToRoute('bug_catcher.dashboard.index');
+			}
+
+			$form->get('oldPassword')->addError(new FormError($translator->trans('Old password is not valid')));
 		}
 
+		// single exit for both the first visit and a rejected old password
 		return $this->render('@BugCatcher/security/change_password.html.twig', [
 			'form' => $form->createView(),
 		]);
