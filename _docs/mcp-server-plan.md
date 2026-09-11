@@ -10,7 +10,7 @@
 | 4 | `McpAccessTokenHandler` + firewall `mcp` | ✅ hotové |
 | 5 | Tool `list_projects` | ✅ hotové |
 | 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ✅ hotové |
-| 7 | Funkčné testy — JSON-RPC cez HTTP | ⬜ todo |
+| 7 | Funkčné testy — JSON-RPC cez HTTP | ✅ hotové |
 | 8 | Recipe súbory + `docs/mcp.md` | ✅ hotové |
 
 Denník (čo bolo spravené a čo nie) je na konci dokumentu.
@@ -215,6 +215,36 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 7 — funkčné testy cez JSON-RPC (hotové)
+
+**Spravené:**
+- `tests/Functional/Mcp/McpJsonRpc.php` rozšírený o `openSession()`, `rpc()`, `callTool()`
+  a `decode()` (transport odpovedá buď čistým JSON, alebo jedným SSE eventom — trait zvládne oboje).
+- `tests/Functional/Mcp/McpToolsTest.php` (7) — `tools/list`, všetky štyri tools cez HTTP,
+  stack trace po ceste tam a späť, odmietnutie so správou, odmietnutie schémou.
+
+**⚠️ Nájdená chyba v bundle (NIE v MCP kóde, neopravená).**
+Prvá verzia testu naplnila jednu hash skupinu zmiešane — jeden `RecordLog` a jeden
+`RecordLogTrace` s rovnakou správou. Po `set_record_status` ostal `RecordLog` riadok stále `new`.
+
+Príčina: status update sa posiela repozitáru *triedy konkrétneho záznamu*
+(`$registry->getRepository($record::class)`), a `RecordLogTraceRepository::updateQb()` robí
+`$this->createQueryBuilder("l")`, teda UPDATE zakorenený v `RecordLogTrace`. Riadky iných podtypov
+s tou istou `hash` sa nezmenia. Root `RecordRepository` by ich pokryl všetky (`status` je na tabuľke
+`record`), ale `RecordLogTraceRepository` sa zužuje zámerne — potrebuje nulovať `stackTrace`,
+ktorý na inej tabuľke neexistuje.
+
+Hash je `md5(projectId . message)`, takže tá istá správa raz nahlásená s trace a raz bez neho
+skončí v jednej skupine — reálny scenár, nie umelý.
+
+**Týka sa to rovnako dashboardu**: `RecordStatusController::changeStatus()` aj
+`LogList\RecordLog::clearOne()` posielajú update presne tak isto. Čiže tlačidlo „fix it“ má ten
+istý problém.
+
+Neopravoval som to: je to správanie zapisovacej vrstvy bundle, nie MCP, oprava siaha do dashboardu
+a `RecordLogTraceRepository` má vlastné testy. Test seeduje realistický prípad (oba záznamy
+rovnakého typu) a obmedzenie je zdokumentované v jeho docblocku. **Odporúčam riešiť samostatne.**
 
 ### Celok 8 — recipe + dokumentácia (hotové)
 
