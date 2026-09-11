@@ -244,7 +244,11 @@ istý problém.
 
 Neopravoval som to: je to správanie zapisovacej vrstvy bundle, nie MCP, oprava siaha do dashboardu
 a `RecordLogTraceRepository` má vlastné testy. Test seeduje realistický prípad (oba záznamy
-rovnakého typu) a obmedzenie je zdokumentované v jeho docblocku. **Odporúčam riešiť samostatne.**
+rovnakého typu) a obmedzenie je zdokumentované v jeho docblocku.
+
+Založené ako issue → https://github.com/php-bug-catcher/bug-catcher/issues/21 (vrátane návrhu
+opravy: status posunúť cez root `Record` repozitár pre celú hash skupinu, `stackTrace` nulovať
+samostatným príkazom nad `RecordLogTrace`, oboje v jednej transakcii).
 
 ### Celok 8 — recipe + dokumentácia (hotové)
 
@@ -279,10 +283,18 @@ Overené proti reálnym dátam:
   → `claude mcp list` hlási **✔ Connected**, čiže reálny MCP klient (vrátane self-signed certu)
   sa pripojí.
 
-**Neoverené naživo:** `set_record_status`. Je to jediná zapisujúca operácia a inštancia beží nad
-databázou s reálnymi chybami — označenie záznamu za `resolved` navyše pri
-`clear_stacktrace_on_fixed: true` **zmaže stack trace nenávratne**. Čaká na súhlas.
-Integračné testy ju pokrývajú vrátane toho, že sa vyčistí celá hash skupina.
+**Zapisovacia cesta overená na vlastnom jednorazovom zázname** (reálnych dát som sa nedotkol):
+cez ingest API poslaný `RecordLogTrace` s unikátnou správou (teda vlastnou hash skupinou),
+`code: SMOKE1`, projekt `cron`. Postup a výsledok:
+1. `search_records` s `code: SMOKE1` → nájdený, `status: new`, `hasStackTrace: true`.
+2. `get_record_detail` → trace vykreslený aj s kódom a značkou `>` na riadku 42.
+3. `set_record_status` → `{"status":"resolved","previousStatus":"new"}`.
+4. `search_records` `status: new` → 0 výsledkov; `status: resolved` → 1 výsledok.
+5. `get_record_detail` → `stackTrace: null`, `hasStackTrace: false`.
+
+Bod 5 je `clear_stacktrace_on_fixed: true` v praxi — presne ten dôvod, prečo popis toolu hovorí
+prečítať detail *pred* označením za vyriešené. V DB ostal jeden vyriešený záznam so správou
+„MCP smoke test … - safe to delete“.
 
 ### Celok 6 — record tools (hotové)
 
