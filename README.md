@@ -105,6 +105,9 @@ See [docs/custom_record.md](docs/custom_record.md) for more information on how t
 
 See [docs/notifiers.md](docs/notifiers.md) for more information on how to create custom notifiers.
 
+See [docs/mcp.md](docs/mcp.md) for how to let an AI assistant read and resolve the collected errors
+over the Model Context Protocol.
+
 ## Have Ideas, Feedback or an Issue?
 
 If you have suggestions or questions, please feel free to

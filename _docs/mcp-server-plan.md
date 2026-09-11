@@ -11,7 +11,7 @@
 | 5 | Tool `list_projects` | ✅ hotové |
 | 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ✅ hotové |
 | 7 | Funkčné testy — JSON-RPC cez HTTP | ⬜ todo |
-| 8 | Recipe súbory + `docs/mcp.md` | ⬜ todo |
+| 8 | Recipe súbory + `docs/mcp.md` | ✅ hotové |
 
 Denník (čo bolo spravené a čo nie) je na konci dokumentu.
 
@@ -215,6 +215,44 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 8 — recipe + dokumentácia (hotové)
+
+**Spravené:**
+- `config/recipes/packages/mcp.yaml`, `config/recipes/routes/mcp.yaml`, firewall `mcp` +
+  `access_control` + `ROLE_MCP` v `config/recipes/packages/security.yaml`.
+- `docs/mcp.md` + odkaz z `README.md`.
+- `allowed_hosts: '%env(csv:MCP_ALLOWED_HOSTS)%'` — overené, že to prejde validáciou configu
+  (`variableNode` s `validate()` na poli); nenastavená premenná padne nahlas pri boote, čo je
+  lepšie ako tiché 403 na každom requeste.
+
+### Overenie na živej inštancii (bug-catcher-sentinel, https://127.0.0.1:8012)
+
+Bundle je tam symlinknutý cez path repozitár. `composer update php-bug-catcher/bug-catcher`
+dotiahol `symfony/mcp-bundle`, `mcp/sdk` aj `nyholm/psr7`, Flex zaregistroval `McpBundle`
+(config súbory recipe nevytvoril, skopírované ručne).
+
+Overené proti reálnym dátam:
+- `php bin/console debug:mcp` → 4 tools, popisy natiahnuté z docblockov.
+- `debug:router` → `_mcp_endpoint_bug_catcher  GET|POST|DELETE|OPTIONS  /mcp`.
+- POST `/mcp` bez tokenu → **401**; so správnym tokenom → `initialize` prejde, vráti
+  `Mcp-Session-Id` aj `instructions`.
+- `tools/list` → 4 tools so správnymi schémami argumentov.
+- `list_projects` → reálne projekty.
+- `search_records` → zoskupené chyby, `count` / `firstOccurrence` sedia.
+- `get_record_detail` → stack trace sa vykreslí presne ako sa čakalo: skrátené cesty
+  (`/src/Controller/SecurityController.php:37`), kód okolo a značka `>` na nahlásenom riadku.
+- Chybové cesty: neznámy projekt, nečitateľný dátum, nevalidné UUID → `isError: true` so správou.
+  `limit: 5000` a `status: "deleted"` odmietne už JSON schéma na úrovni SDK (`-32602`), PHP
+  kontrola ostáva ako druhá vrstva.
+- `claude mcp add --transport http bug-catcher https://127.0.0.1:8012/mcp --header "Authorization: Bearer ..."`
+  → `claude mcp list` hlási **✔ Connected**, čiže reálny MCP klient (vrátane self-signed certu)
+  sa pripojí.
+
+**Neoverené naživo:** `set_record_status`. Je to jediná zapisujúca operácia a inštancia beží nad
+databázou s reálnymi chybami — označenie záznamu za `resolved` navyše pri
+`clear_stacktrace_on_fixed: true` **zmaže stack trace nenávratne**. Čaká na súhlas.
+Integračné testy ju pokrývajú vrátane toho, že sa vyčistí celá hash skupina.
 
 ### Celok 6 — record tools (hotové)
 
