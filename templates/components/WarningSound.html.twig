@@ -1,5 +1,6 @@
-<div {{ stimulus_controller('warning-sound',{
-    soundUrl:this.sound,
-    id:this.id
-}) }}>
-</div>
+{# Invisible: it only carries the Stimulus controller that plays the alert sound.
+   `hidden` keeps it from taking a cell in the project card's grid. #}
+<div class="hidden" {{ stimulus_controller('warning-sound',{
+	soundUrl:this.sound,
+	id:this.id
+}) }}></div>

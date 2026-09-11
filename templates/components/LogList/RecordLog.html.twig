@@ -1,61 +1,73 @@
 {% if log is null %}
-    <li{{ attributes.defaults({
-        class:'border-bottom-0 list-group-item p-0'
-    }) }}></li>
+	<li{{ attributes.defaults({class:'hidden'}) }}></li>
 {% else %}
-    <li{{ attributes.defaults({
-    class:'list-group-item d-flex justify-content-between align-items-center p-1'
-}) }}>
-        {% if log.count==1 %}
-            {% set status = 'info' %}
-        {% elseif log.count<5 %}
-            {% set status = 'warning' %}
-        {% elseif log.count<10 %}
-            {% set status = 'secondary' %}
-        {% elseif log.count<20 %}
-            {% set status = 'dark' %}
-        {% else %}
-            {% set status = 'danger' %}
-        {% endif %}
-        <div>
-			{{ persistent_selection_row_selector("main_logs",log,{class:"m-1 align-bottom"}) }}
-            <span class="badge border border-secondary-subtle bg-secondary-subtle text-secondary-emphasis">{{ log.date|date('d.m.Y H:i:s') }}</span>
-            <a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
-               class="badge border border-primary-subtle bg-primary-subtle text-primary-emphasis text-decoration-none">{{ log.project.name }}</a>
-            <span class="badge border border-{{ status }}-subtle bg-{{ status }}-subtle text-{{ status }}-emphasis">{{ log.count }}</span>
-            {% if log.code is not empty %}
-                <span class="badge border border-primary-subtle bg-primary-subtle text-primary-emphasis">{{ log.code }}</span>
-            {% endif %}
-            <div class="d-inline text-break">{{ log.message }}</div>
-        </div>
-        {% if is_granted('ROLE_DEVELOPER') %}
-            <div class="text-nowrap">
-                <button type="button" class="btn btn-outline-secondary btn-sm"
-                        data-action="live#action"
-                        data-live-action-param="clearOne"
-                        data-live-status-param="resolved"
-                        data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
-                        title="{{ 'Fix it'|trans }}"
-                >
-                    <twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
-                </button>
-                <a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
-                   class="btn btn-outline-success btn-sm"
-                   target="_blank"
-                   title="{{ 'Detail'|trans }}"
-                >
-                    <twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="20px" height="20px"/>
-                </a>
-                <button type="button" class="btn btn-outline-info btn-sm"
-                        data-action="live#action"
-                        data-live-action-param="clearOne"
-                        data-live-status-param="archived"
-                        data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
-                        title="{{ 'Archive it'|trans }}"
-                >
-                    <twig:ux:icon name="clarity:archive-line" width="20px" height="20px"/>
-                </button>
-            </div>
-        {% endif %}
-</li>
+	{#
+		Severity comes from how often the same error repeated. The old five-step Bootstrap
+		scale (info/warning/secondary/dark/danger) mixed hue and darkness and read as noise;
+		it collapses to three tones plus a left rail whose intensity carries the rest.
+	#}
+	{% set tones = {
+		'info':   {rail: 'border-l-accent', chip: 'chip chip-info'},
+		'warn':   {rail: 'border-l-warn',   chip: 'chip chip-warn'},
+		'danger': {rail: 'border-l-danger', chip: 'chip chip-danger'},
+	} %}
+	{% set tone = log.count == 1 ? 'info' : (log.count < 10 ? 'warn' : 'danger') %}
+
+	<li{{ attributes.defaults({
+		class:'flex items-center justify-between gap-2 border-l-2 py-1 pl-2 pr-1 transition-colors hover:bg-surface-2/60 ' ~ tones[tone].rail
+	}) }}>
+		{# One line per record, message truncated: on a wall monitor, seeing which errors are
+		   there beats reading any single one in full - the detail page has the whole text. #}
+		<div class="flex min-w-0 flex-1 items-center gap-1.5">
+			{{ persistent_selection_row_selector("main_logs",log,{class:"mr-1"}) }}
+
+			<span class="chip font-mono">{{ log.date|date('d.m.Y H:i:s') }}</span>
+
+			<a href="{{ path('bug_catcher.dashboard.index',{project:log.project.id,status:this.status}) }}"
+			   class="chip chip-info no-underline">{{ log.project.name }}</a>
+
+			<span class="{{ tones[tone].chip }} tabular-nums">{{ log.count }}×</span>
+
+			{% if log.code is not empty %}
+				<span class="chip chip-accent font-mono">{{ log.code }}</span>
+			{% endif %}
+
+			<span class="min-w-0 flex-1 truncate text-sm" title="{{ log.message }}">{{ log.message }}</span>
+		</div>
+
+		{% if is_granted('ROLE_DEVELOPER') %}
+			<div class="flex shrink-0 items-center gap-0.5">
+				<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ok"
+						data-action="live#action"
+						data-live-action-param="clearOne"
+						data-live-status-param="resolved"
+						data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
+						title="{{ 'Fix it'|trans }}"
+						aria-label="{{ 'Fix it'|trans }}"
+				>
+					<twig:ux:icon name="game-icons:magic-broom" width="16" height="16"/>
+				</button>
+
+				<a href="{{ path('bug_catcher.dashboard.detail',{"record":log.id}) }}"
+				   class="btn btn-sm btn-icon btn-ghost"
+				   target="_blank"
+				   title="{{ 'Detail'|trans }}"
+				   aria-label="{{ 'Detail'|trans }}"
+				>
+					<twig:ux:icon name="covid:virus-lab-research-magnifier-1" width="16" height="16"/>
+				</a>
+
+				<button type="button" class="btn btn-sm btn-icon btn-ghost"
+						data-action="live#action"
+						data-live-action-param="clearOne"
+						data-live-status-param="archived"
+						data-live-from-param="{{ log.firstOccurrence|date('Y-m-d-H-i-s') }}"
+						title="{{ 'Archive it'|trans }}"
+						aria-label="{{ 'Archive it'|trans }}"
+				>
+					<twig:ux:icon name="clarity:archive-line" width="16" height="16"/>
+				</button>
+			</div>
+		{% endif %}
+	</li>
 {% endif %}

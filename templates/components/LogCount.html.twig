@@ -1,9 +1,20 @@
+{# The last 2 of the row's 12 columns. #}
 <div{{ attributes.defaults({
-    class:'col-2 px-1'
+	class:'col-span-2 text-right'
 }) }}>
-    {% set count = this.count %}
-    {% set color = count==0 ? 'success' : (count<5 ? 'warning' : 'danger') %}
-    <div class="w-100 badge border border-{{ color }}-subtle bg-{{ color }}-subtle text-{{ color }}-emphasis fs-6">
-        <div class="mt-px">{{ count }}</div>
-    </div>
+	{% set count = this.count %}
+	{# Zero is the boring state and stays quiet - on a wall of projects that are mostly fine,
+	   colouring every zero green would drown out the handful that actually need attention.
+	   The class strings are spelled out rather than built from the tone name, so Tailwind
+	   can still find them when it scans this template. #}
+	{% set tones = {
+		'idle':   'text-muted',
+		'warn':   'text-warn',
+		'danger': 'text-danger',
+	} %}
+	{% set tone = count == 0 ? 'idle' : (count < 5 ? 'warn' : 'danger') %}
+
+	<span class="text-glow font-mono text-sm font-semibold tabular-nums {{ tones[tone] }}">
+		{{- count -}}
+	</span>
 </div>

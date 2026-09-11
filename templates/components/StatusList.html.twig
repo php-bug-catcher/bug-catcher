@@ -1,16 +1,23 @@
+{#
+	This grid is read from across an office, on a wall monitor nobody walks up to. Everything
+	has to fit on one screen next to the log list, so each project is a single dense row rather
+	than a card, and the column count keeps climbing with the viewport.
+
+	Each row is a 12-column grid and every status component brings its own span, because the
+	component list is configurable through bug_catcher.status_list_components - the row cannot
+	know what it will be asked to contain.
+#}
 <div{{ attributes.defaults({
-    class:'my-3 p-3 bg-body rounded shadow-s'
-}) }} >
-    <div class="row">
-        {% for project in this.projects %}
-            <div class="col-md-6 col-lg-6 col-xl-4  align-items-start pb-1">
-                <div class="row">
-                    {% for statusComponent in components %}
-                        {{ component(statusComponent, {project: project}) }}
-                    {% endfor %}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-    <twig:Favicon/>
+	class:'space-y-2'
+}) }}>
+	<div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+		{% for project in this.projects %}
+			<div class="grid grid-cols-12 items-center gap-x-2 rounded-md border border-line bg-surface/50 px-2 py-1">
+				{% for statusComponent in components %}
+					{{ component(statusComponent, {project: project}) }}
+				{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
+	<twig:Favicon/>
 </div>
