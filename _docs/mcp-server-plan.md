@@ -9,7 +9,7 @@
 | 3 | `RecordFinder` — read servis (search / detail / história) | ✅ hotové |
 | 4 | `McpAccessTokenHandler` + firewall `mcp` | ✅ hotové |
 | 5 | Tool `list_projects` | ✅ hotové |
-| 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ⬜ todo |
+| 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ✅ hotové |
 | 7 | Funkčné testy — JSON-RPC cez HTTP | ⬜ todo |
 | 8 | Recipe súbory + `docs/mcp.md` | ⬜ todo |
 
@@ -215,6 +215,36 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 6 — record tools (hotové)
+
+**Spravené:**
+- `src/Mcp/Tool/RecordTools.php` — `search_records`, `get_record_detail`, `set_record_status`.
+- `RecordFinder::find()` — dohľadanie záznamu podľa id, vracia konkrétnu podtriedu, aby sa dal
+  odovzdať repozitáru, ktorý o nej vie (`RecordLogTraceRepository` maže stack trace).
+- Testy: `tests/Integration/Mcp/RecordToolsTest.php` (18), `McpRegistrationTest` rozšírený na
+  všetky štyri tools.
+
+**Chybové stavy:** všetko odchádza ako `ToolCallException` — je to jediná výnimka, ktorú SDK
+premení na chybový výsledok so *správou*. Čokoľvek iné skončí ako holé „Error while executing
+tool“ a klient sa nedozvie nič. Kryté: neznámy `projectCode` (so pokynom zavolať `list_projects`),
+nečitateľný dátum, limit mimo rozsahu, nevalidné UUID, neexistujúci záznam, zakázaný status.
+
+**Whitelist statusov je bezpečnostná vec, nie kozmetika.** `RecordRepository::getUpdateStatusQB()`
+vkladá status priamo do DQL (`->set('l.status', "'{$newStatus}'")`). `#[Schema(enum: ...)]` síce
+validuje na strane SDK, ale kontrola je zopakovaná aj v PHP — schéma je popis pre klienta, nie
+bezpečnostná hranica. Test `testAStatusOutsideTheWhitelistIsRefused` skúša aj reťazec
+s uvodzovkou, ktorý by inak prepísal `WHERE`.
+
+**Formát dátumov:** `Y-m-d H:i:s` bez zóny. Stĺpec v DB zónu nenesie, takže pripísať mu `+00:00`
+by bola vymyslená informácia — a testy by záviseli od `date.timezone` stroja. Sú to tie isté časy,
+aké ukazuje dashboard.
+
+**Nespravené / vedomé rozhodnutia:**
+- `get_record_detail` nemá stránkovanie histórie — vracia posledných 50 výskytov ako dashboard.
+- `search_records` nevracia `metadata` (len detail). V zozname by to bol šum.
+- Tools nekontrolujú role samy; stačí `access_control` na `^/mcp`. Keď fáza 2 naviaže token na
+  `User`, bude treba doplniť scoping na jeho projekty — dovtedy token vidí všetky.
 
 ### Celok 3 — `RecordFinder` (hotové)
 

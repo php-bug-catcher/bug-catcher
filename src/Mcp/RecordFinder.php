@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Reads the collected errors. `RecordRepositoryInterface` only writes, and the dashboard builds its
@@ -58,6 +59,15 @@ final class RecordFinder
 		}
 
 		return $found;
+	}
+
+	/**
+	 * The record behind an id handed out by {@see search()}.
+	 *
+	 * Returns the concrete subclass, so a caller can hand it to the repository that knows about it.
+	 */
+	public function find(Uuid $id): ?RecordLog {
+		return $this->em->getRepository(RecordLog::class)->find($id);
 	}
 
 	/**
