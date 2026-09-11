@@ -4,11 +4,11 @@
 
 | # | Celok | Stav |
 |---|---|---|
-| 1 | Závislosti (`symfony/mcp-bundle`, `nyholm/psr7`) + config node `mcp` + wiring test kernelu | ⬜ todo |
+| 1 | Závislosti (`symfony/mcp-bundle`, `nyholm/psr7`) + wiring test kernelu | ✅ hotové |
 | 2 | `StackTraceParser` (extrakcia z Twig komponentu) + `StackTraceFormatter` | ✅ hotové |
 | 3 | `RecordFinder` — read servis (search / detail / história) | ⬜ todo |
 | 4 | `McpAccessTokenHandler` + firewall `mcp` | ⬜ todo |
-| 5 | Tool `list_projects` | ⬜ todo |
+| 5 | Tool `list_projects` | ✅ hotové |
 | 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ⬜ todo |
 | 7 | Funkčné testy — JSON-RPC cez HTTP | ⬜ todo |
 | 8 | Recipe súbory + `docs/mcp.md` | ⬜ todo |
@@ -215,6 +215,38 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 1 + 5 — bundle beží, `list_projects` (hotové)
+
+Spojené do jedného kroku zámerne: `registry` pattern, ktorý nesedí na žiadnu službu, hodí
+`LogicException` pri kompilácii kontajnera, takže bundle sa nedá nakonfigurovať skôr, ako existuje
+prvý tool.
+
+**Spravené:**
+- `composer require symfony/mcp-bundle:^0.13 nyholm/psr7:^1.8` (17 nových balíkov).
+- `src/Mcp/Tool/ProjectTools.php` — `list_projects`, len enabled projekty, zoradené podľa `code`
+  (stabilné poradie medzi volaniami).
+- Test app: `tests/App/config/bundles.php`, `packages/mcp.yaml`, `routes/mcp.yaml`.
+- `tests/Integration/Mcp/ProjectToolsTest.php` (4), `McpRegistrationTest.php` (2).
+
+**Overená obava — funguje `#[McpTool]` vnútri bundle?**
+Áno. Bundle zbiera tools cez tag `mcp.tool`, ktorý pridáva `registerAttributeForAutoconfiguration`,
+a ten sa aplikuje iba na služby s `autoconfigure()`. `config/services.php` načítava celý namespace
+`BugCatcher\` s `->autowire()->autoconfigure()`, takže tag sadne. Overené v skompilovanom
+kontajneri:
+`$instance->addTool(['BugCatcher\Mcp\Tool\ProjectTools', 'listProjects'], 'list_projects', ...)`.
+Nič sa ručne wirovať nemusí. `McpRegistrationTest` to drží zafixované, lebo keby niekto z
+`services.php` odstránil `autoconfigure()`, tools by zmizli potichu.
+
+**Pozor pri čítaní registry v testoch:** `mcp.server.<name>.registry` je po boote prázdna. Tools
+zozbierané pri kompilácii sedia na *builderi* a do registry sa dostanú až keď builder poskladá
+server (`$container->get('mcp.server.bug_catcher')`).
+
+**Nespravené:**
+- Recipe súbory pre downstream skeleton (`config/recipes/packages/mcp.yaml`, `routes/mcp.yaml`) —
+  patria do celku 8, zatiaľ je nakonfigurovaná len testovacia aplikácia.
+- `allowed_hosts` je zatiaľ nechané na SDK defaulte (iba localhost), čo testom stačí. Nasadená
+  inštancia si musí doplniť vlastnú doménu — rieši celok 8.
 
 ### Celok 2 — stack trace (hotové)
 
