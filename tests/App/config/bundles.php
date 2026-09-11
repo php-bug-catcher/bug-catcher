@@ -16,4 +16,5 @@ return [
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['all' => true],
 	Tito10047\PersistentStateBundle\PersistentStateBundle::class => ['all' => true],
+	Symfony\AI\McpBundle\McpBundle::class                 => ['all' => true],
 ];

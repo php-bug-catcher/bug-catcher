@@ -1,0 +1,15 @@
+mcp:
+    servers:
+        bug_catcher:
+            name: 'bug-catcher'
+            description: 'Read and resolve the errors Bug Catcher collected from the client applications.'
+            transports:
+                http: true
+            http:
+                # without this the endpoint would be "/mcp/bug_catcher"
+                path: /mcp
+                # left unset on purpose: the SDK default allows localhost only, which is what the
+                # functional tests request. A deployed instance has to name its own host, see
+                # config/recipes/packages/mcp.yaml
+            registry:
+                tools: ['BugCatcher\Mcp\Tool\']
