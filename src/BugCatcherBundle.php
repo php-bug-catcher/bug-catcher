@@ -13,6 +13,7 @@ use BugCatcher\Controller\SecurityController;
 use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
+use BugCatcher\Security\McpAccessTokenHandler;
 use BugCatcher\Twig\Components\Favicon;
 use BugCatcher\Twig\Components\LogList;
 use BugCatcher\Twig\Components\StatusList;
@@ -108,6 +109,11 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$logo', $config["logo"]);
+
+		$services->set(McpAccessTokenHandler::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$accessToken', $config["mcp"]["access_token"]);
 
         $services->set(RecordRepositoryInterface::class)
             ->autowire()
