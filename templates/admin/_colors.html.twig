@@ -1,10 +1,98 @@
+{#
+	Recolours EasyAdmin to the Bug Catcher palette.
+
+	Only variables are overridden - EasyAdmin's layout and its Bootstrap are vendor code, and
+	rewriting them would break on every upgrade for a cosmetic gain.
+
+	EasyAdmin keeps light values on :root and dark values on .ea-dark-scheme, and runs its own
+	theme switch independently of the dashboard's data-theme. The two sets below therefore mirror
+	the design tokens by hand rather than referencing them.
+#}
 <style>
-    :root {
-        --sidebar-bg: #e3e8eb;
-        --sidebar-border-color: #c1c6c9;
-        --content-top-border-color: #c1c6c9;
-        --form-input-border-color: #c1c6c9;
-        --indigo-500: #204e7a;
-        --color-primary: #204e7a;
-    }
+	:root {
+		--color-primary: #0e7490;
+		--indigo-500: #0e7490;
+		--link-color: #0e7490;
+
+		--body-bg: #f2f5fb;
+		--content-bg: #f2f5fb;
+		--content-panel-bg: #ffffff;
+		--content-top-border-color: #cfd8ee;
+		--content-section-border-color: #cfd8ee;
+
+		--sidebar-bg: #e9eef9;
+		--sidebar-border-color: #cfd8ee;
+		--sidebar-logo-color: #0a0e1c;
+		--sidebar-menu-active-item-bg: #0e7490;
+		--sidebar-menu-active-item-color: #ffffff;
+
+		--form-input-border-color: #cfd8ee;
+		--form-input-hover-border-color: #0e7490;
+
+		--highlight-bg: color-mix(in oklab, #0e7490 18%, transparent);
+		--highlight-color: #0a0e1c;
+
+		/* text that sits on top of --color-primary */
+		--bc-on-primary: #ffffff;
+	}
+
+	.ea-dark-scheme {
+		--color-primary: #22d3ee;
+		--indigo-500: #22d3ee;
+		--link-color: #22d3ee;
+
+		--body-bg: #04050d;
+		--content-bg: #04050d;
+		--content-panel-bg: #0a0e1f;
+		--content-top-border-color: #1f2a55;
+		--content-section-border-color: #1f2a55;
+
+		--sidebar-bg: #0a0e1f;
+		--sidebar-border-color: #1f2a55;
+		--sidebar-logo-color: #22d3ee;
+		--sidebar-menu-color: #c3cdf0;
+		--sidebar-menu-icon-color: #8794bd;
+		--sidebar-menu-active-item-bg: #22d3ee;
+		--sidebar-menu-active-item-color: #04050d;
+
+		--form-input-border-color: #1f2a55;
+		--form-input-hover-border-color: #22d3ee;
+
+		--highlight-bg: color-mix(in oklab, #22d3ee 22%, transparent);
+		--highlight-color: #e4ebff;
+
+		/* neon cyan is far too bright to carry white text */
+		--bc-on-primary: #04050d;
+	}
+
+	/*
+		The primary button is painted by EasyAdmin's own --button-* system, not by Bootstrap's
+		--bs-btn-* (which is still declared but unused here). Its default is a blue gradient, so
+		a flat tint of --color-primary is what replaces it.
+	*/
+	:root,
+	.ea-dark-scheme {
+		--button-primary-bg: var(--color-primary);
+		--button-primary-color: var(--bc-on-primary);
+		--button-primary-icon-color: var(--bc-on-primary);
+		--button-primary-border-color: color-mix(in oklab, var(--color-primary) 70%, black);
+		--button-primary-hover-bg: color-mix(in oklab, var(--color-primary) 85%, black);
+		--button-primary-hover-color: var(--bc-on-primary);
+		--button-primary-hover-border-color: color-mix(in oklab, var(--color-primary) 60%, black);
+		--button-primary-active-bg: color-mix(in oklab, var(--color-primary) 75%, black);
+		--button-primary-active-color: var(--bc-on-primary);
+		--button-primary-active-border-color: color-mix(in oklab, var(--color-primary) 60%, black);
+	}
+
+	/* Bootstrap hardcodes its blue on the checked state, and the boolean toggles in every CRUD
+	   row are the most visible thing left carrying it. */
+	.form-check-input:checked {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
+
+	.form-check-input:focus {
+		border-color: var(--color-primary);
+		box-shadow: 0 0 0 .25rem color-mix(in oklab, var(--color-primary) 25%, transparent);
+	}
 </style>
