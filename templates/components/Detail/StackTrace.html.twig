@@ -1,40 +1,50 @@
+{#
+	singleOpen replicates Bootstrap's data-bs-parent: opening a frame closes the others.
+	Which frame starts open is decided server-side by `opened` and expressed purely through
+	aria-expanded - disclosure_controller reads that on connect, so there is no second flag.
+#}
 <div{{ attributes.defaults({
-    class:'container-fluid py-2'
-}) }}>
-    <div class="accordion" id="accordionExample">
-        {% for key,item in this.trace %}
-            <div class="accordion-item">
-                <h3 class="accordion-header d-flex align-items-stretch" id="heading-{{ key }}">
-                    <button class="accordion-button collapsed text-body flex-grow-1"
-                            type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse-{{ key }}"
-                            aria-expanded="{% if opened==key %}true{% else %}false{% endif %}"
-                            aria-controls="collapse-{{ key }}">
-                        {{ item.file }} (line {{ item.line }})
-                        {% if item.frame %}<small class="text-body-secondary ms-2">{{ item.frame }}</small>{% endif %}
-                    </button>
-                    {% if this.copyPath(key) %}
-                        <span class="d-flex align-items-center px-2 flex-shrink-0">
-                            {% include '@BugCatcher/components/_copy_button.html.twig' with {
-                                text: this.copyPath(key),
-                                label: 'Copy path with line'|trans({},"BugCatcher"),
-                            } only %}
-                        </span>
-                    {% endif %}
-                </h3>
-                <div id="collapse-{{ key }}" class="accordion-collapse collapse {% if opened==key %}show{% endif %}"
-                     aria-labelledby="heading-{{ key }}"
-                     data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <div class="code">
-                            {% for lineNum,line in item.code %}
-                                <code class="{% if item.line==lineNum %}selected{% endif %}"
-                                      style="counter-set: listing {{ lineNum - 1 }};">{{ line }}</code>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+	class:'px-4 py-3'
+}) }} {{ stimulus_controller('disclosure', {singleOpen: true}) }}>
+	<div class="divide-y divide-line overflow-hidden rounded-lg border border-line">
+		{% for key,item in this.trace %}
+			{% set panelId = 'frame-' ~ record.id ~ '-' ~ key %}
+
+			<div>
+				<h3 class="flex items-stretch">
+					<button type="button"
+							data-testid="frame-trigger"
+							class="btn btn-ghost flex-1 justify-start rounded-none border-0 text-left font-mono text-xs"
+							{{ stimulus_target('disclosure','trigger') }}
+							{{ stimulus_action('disclosure','toggle') }}
+							aria-expanded="{{ opened == key ? 'true' : 'false' }}"
+							aria-controls="{{ panelId }}">
+						{{ item.file }} (line {{ item.line }})
+						{% if item.frame %}<small class="ml-2 text-muted">{{ item.frame }}</small>{% endif %}
+					</button>
+
+					{% if this.copyPath(key) %}
+						<span class="flex shrink-0 items-center px-2">
+							{% include '@BugCatcher/components/_copy_button.html.twig' with {
+								text: this.copyPath(key),
+								label: 'Copy path with line'|trans({},"BugCatcher"),
+							} only %}
+						</span>
+					{% endif %}
+				</h3>
+
+				<div id="{{ panelId }}" {{ stimulus_target('disclosure','panel') }}
+					 class="{{ opened == key ? '' : 'hidden' }} p-2">
+					{# The line numbers are CSS counters seeded by this inline counter-set - see
+					   .code in app.css. StackTraceTest asserts on it; do not render numbers by hand. #}
+					<div class="code">
+						{% for lineNum,line in item.code %}
+							<code class="{% if item.line == lineNum %}selected{% endif %}"
+								  style="counter-set: listing {{ lineNum - 1 }};">{{ line }}</code>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
 </div>

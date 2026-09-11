@@ -27,7 +27,7 @@ class HeaderTest extends KernelTestCase {
 		]);
 
 		$rendered = $this->renderTwigComponent('Detail:Header', ['record' => $record]);
-		$this->assertSame(mb_substr($uri, 0, 147) . "...", $rendered->crawler()->filter('.fs-4')->text());
+		$this->assertSame(mb_substr($uri, 0, 147) . "...", $rendered->crawler()->filter('[data-testid="request-uri"]')->text());
 		$this->assertSame($uri, $rendered->crawler()->filter('a')->attr('href'));
 		$this->assertSame('_blank', $rendered->crawler()->filter('a')->attr('target'));
 		$this->assertSame(

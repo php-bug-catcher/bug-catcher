@@ -1,33 +1,39 @@
 <div{{ attributes.defaults({
-    class:'container-fluid py-2'
+	class:'px-4 py-3'
 }) }}>
-    {% set items = this.history %}
-    {% if items|length>1 %}
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                            aria-expanded="false" aria-controls="collapseOne">
-                        <span>{{ items[0].date|date('d.m.Y H:i:s') }} - {{ items[items|length-1].date|date('d.m.Y H:i:s') }}</span>
-                        <small>({{ items|length }}x)</small>
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
+	{% set items = this.history %}
+	{% if items|length > 1 %}
+		{# The panel id is scoped by record: the detail page renders two disclosures and they
+		   used to collide on a shared Bootstrap data-bs-parent id. #}
+		{% set panelId = 'history-' ~ record.id %}
 
-                        <ul class="timeline">
-                            {% for item in this.history %}
-                                <li class="timeline-item">
-                                    <p class="text-muted mb-2 fw-bold">{{ item.date|date('d.m.Y H:i:s') }}
-                                        <small>{% if item.count>0 %}({{ item.count }}x){% endif %}</small></p>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <h3>{{ record.date|date("d.m.Y H:i:s") }}</h3>
-    {% endif %}
+		<div {{ stimulus_controller('disclosure') }}>
+			<button type="button"
+					class="btn btn-sm btn-ghost w-full justify-between"
+					{{ stimulus_target('disclosure','trigger') }}
+					{{ stimulus_action('disclosure','toggle') }}
+					aria-expanded="false"
+					aria-controls="{{ panelId }}">
+				<span data-testid="history-range" class="font-mono text-xs">
+					{{- items[0].date|date('d.m.Y H:i:s') }} - {{ items[items|length-1].date|date('d.m.Y H:i:s') -}}
+				</span>
+				<span class="text-xs text-muted">({{ items|length }}x)</span>
+			</button>
+
+			<div id="{{ panelId }}" {{ stimulus_target('disclosure','panel') }} class="hidden pl-2 pt-3">
+				<ul class="timeline space-y-1.5">
+					{% for item in items %}
+						<li class="timeline-item">
+							<p class="mb-0 font-mono text-xs text-muted">
+								{{ item.date|date('d.m.Y H:i:s') }}
+								{% if item.count > 0 %}<small class="text-accent">({{ item.count }}x)</small>{% endif %}
+							</p>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% else %}
+		<h3 class="font-mono text-sm text-muted">{{ record.date|date("d.m.Y H:i:s") }}</h3>
+	{% endif %}
 </div>

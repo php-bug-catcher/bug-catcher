@@ -1,11 +1,11 @@
 {# Copy-to-clipboard button. Icons are inline SVG on purpose: ux-icons resolves unknown icons
    through the iconify API, which would make every render of this partial network dependent. #}
 <button type="button"
-        class="btn btn-sm btn-link text-body-secondary p-1 lh-1 border-0"
-        title="{{ label }}"
-        aria-label="{{ label }}"
-        {{ stimulus_controller('clipboard', {text: text}) }}
-        {{ stimulus_action('clipboard', 'copy') }}>
+		class="btn btn-sm btn-icon btn-ghost"
+		title="{{ label }}"
+		aria-label="{{ label }}"
+		{{ stimulus_controller('clipboard', {text: text}) }}
+		{{ stimulus_action('clipboard', 'copy') }}>
 	<span {{ stimulus_target('clipboard', 'icon') }}>
 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
 			 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -13,7 +13,7 @@
 			<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
 		</svg>
 	</span>
-	<span {{ stimulus_target('clipboard', 'success') }} class="d-none text-success">
+	<span {{ stimulus_target('clipboard', 'success') }} class="hidden text-ok">
 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
 			 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M20 6 9 17l-5-5"/>
