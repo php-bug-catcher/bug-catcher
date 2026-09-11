@@ -27,7 +27,10 @@ class McpRegistrationTest extends KernelTestCase {
 		// builder, and only reach the registry when the builder assembles the server
 		self::getContainer()->get('mcp.server.bug_catcher');
 
-		$this->assertContains('list_projects', array_keys($registry->getTools()->references));
+		$this->assertEqualsCanonicalizing(
+			['list_projects', 'search_records', 'get_record_detail', 'set_record_status'],
+			array_keys($registry->getTools()->references)
+		);
 	}
 
 	public function testTheServerAnswersOnTheConfiguredPath() {
