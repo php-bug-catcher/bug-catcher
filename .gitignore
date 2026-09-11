@@ -30,3 +30,6 @@ composer.lock
 yarn.lock
 /bin
 /data/
+
+# Playwright MCP scratch output
+/.playwright-mcp/

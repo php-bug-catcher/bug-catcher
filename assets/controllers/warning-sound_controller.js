@@ -27,13 +27,15 @@ export default class extends MyController {
 				console.log(error)
 				// Autoplay was prevented.
 				let div = document.createElement('div');
-				div.innerHTML = 'Please click <button class="btn btn-info btn-sm">here</button> to enable sound';
+				div.innerHTML = 'Please click <button type="button" class="btn btn-sm btn-accent">here</button> to enable sound';
 				div.addEventListener('click', () => {
 					this.audio.play();
 					this.audio.addEventListener('ended', () => {
 						this.audio = null;
 					})
-					div.closest('.toast').remove();
+					// let the toast tear itself down, so the showToast() promise settles
+					div.closest('[data-toast]')
+						?.dispatchEvent(new CustomEvent('toast:dismiss'));
 				});
 				this.showToast('Warning', div)
 					.then();

@@ -65,8 +65,8 @@ Encore
         config.corejs = '3.23';
     })
 
-    // enables Sass/SCSS support
-    .enableSassLoader()
+    // runs app.css through PostCSS so Tailwind v4 (@tailwindcss/postcss) can compile it
+    .enablePostCssLoader()
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()

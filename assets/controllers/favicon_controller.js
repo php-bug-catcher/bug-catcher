@@ -1,20 +1,12 @@
 import {Controller} from '@hotwired/stimulus';
 
-/*
- * This is an example Stimulus controller!
- *
- * Any element with a data-controller="hello" attribute will cause
- * this controller to be executed. The name "hello" comes from the filename:
- * hello_controller.js -> "hello"
- *
- * Delete this file or adapt it for your use!
+/**
+ * Swaps the page favicon to the severity-coloured variant supplied by the Favicon
+ * component, so the tab itself reports the worst current state.
  */
 export default class extends Controller {
 	static values = {
 		icon: String
-	}
-
-	connect() {
 	}
 
 	iconValueChanged() {
