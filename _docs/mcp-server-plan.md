@@ -6,7 +6,7 @@
 |---|---|---|
 | 1 | Závislosti (`symfony/mcp-bundle`, `nyholm/psr7`) + wiring test kernelu | ✅ hotové |
 | 2 | `StackTraceParser` (extrakcia z Twig komponentu) + `StackTraceFormatter` | ✅ hotové |
-| 3 | `RecordFinder` — read servis (search / detail / história) | ⬜ todo |
+| 3 | `RecordFinder` — read servis (search / detail / história) | ✅ hotové |
 | 4 | `McpAccessTokenHandler` + firewall `mcp` | ✅ hotové |
 | 5 | Tool `list_projects` | ✅ hotové |
 | 6 | Tools `search_records`, `get_record_detail`, `set_record_status` | ⬜ todo |
@@ -215,6 +215,45 @@ Plán bol písaný pred overením API. Reálny stav (overené proti zdrojákom
    povolené jeho constraintmi, ale treba o tom vedieť.
 
 ## Denník
+
+### Celok 3 — `RecordFinder` (hotové)
+
+**Spravené:**
+- `src/Mcp/RecordSearchCriteria.php` — VO namiesto metódy so siedmimi voliteľnými parametrami.
+  Validuje limit (1..100) a poradie dátumov, takže nezmyselný vstup padne skôr, ako sa dostane do DQL.
+- `src/Mcp/RecordFinder.php` — `search()` + `history()`.
+- Testy: `tests/Integration/Mcp/RecordFinderTest.php` (17).
+
+**Odchýlka od plánu — grouping v SQL, nie v PHP.**
+Plán hovoril prevziať dvojkrokový pattern z `LogList::init()` (vytiahnuť N riadkov, zoskupiť v PHP).
+Nepoužil som ho, lebo tam `count` znamená „koľko výskytov sa zmestilo do okna“, nie „koľko ich je“.
+Dashboard si to môže dovoliť — človek vidí zoznam. AI ale podľa `count` **prioritizuje**, takže
+okno by ho systematicky klamalo. Namiesto toho:
+1. `GROUP BY hash` s `COUNT/MIN/MAX` a `LIMIT` → skutočný počet a rozsah, a `limit` naozaj znamená
+   „počet rôznych chýb“, nie „počet riadkov“.
+2. Dohydratovanie reprezentanta cez `hash IN (...) AND date IN (...)` → pár riadkov na skupinu,
+   nie celá história.
+
+**Odchýlka od plánu — dotazy stoja na `RecordLog`, nie na `Record`.**
+Tým odpadá `INSTANCE OF` aj `HINT_FORCE_PARTIAL_LOAD` a sprístupní sa `level`/`message`/`requestUri`
+(na `Record` neexistujú). `RecordPing` vypadne sám — je to výsledok pingu, nie chyba v kóde.
+**Dôsledok:** vlastné typy záznamov, ktoré dedia priamo z `Record` a nie z `RecordLog`, MCP tools
+neuvidia. Pre `RecordCron` z testov to platí tiež. Zámerné — tools sľubujú `message` a `level`,
+ktoré takáto trieda nemusí mať.
+
+**Opravené popri tom:** `tests/App/config/doctrine/BugCatcherBundle/Record.orm.xml` bola zastaraná
+kópia — chýbali polia `code` a `metadata` aj index `code_idx`. Testovacia aplikácia teda bežala nad
+schémou, akú žiadne nasadenie nemá, a `SendRecordTest::testMetadata` ani
+`CronRecordTest::testSendPlainRecordWithCode` to neodhalili — overujú len HTTP 201, nie že sa
+hodnota uložila. Zosúladené s `config/doctrine/Record.orm.xml`.
+
+**Pozor (zachytené testom):** `record.project = :project` s entitou ani s `Uuid` objektom nesedí na
+nič — stĺpec je binárny. Bindovať treba `->getId()->toBinary()`, ako to robí `LogList`.
+
+**Nespravené:**
+- `bug_catcher.mcp.max_limit` ako config kľúč (plán ho spomínal). Limit je zatiaľ konštanta
+  `RecordSearchCriteria::MAX_LIMIT`. Konfigurovateľné to nemá kto potrebovať, kým sa neukáže dopyt.
+- Filter podľa `level` stále nemá index (`record_log.level`) — pri `limit ≤ 100` netreba riešiť.
 
 ### Celok 4 — autentifikácia (hotové)
 
