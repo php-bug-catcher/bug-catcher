@@ -9,6 +9,7 @@ namespace BugCatcher\Twig\Components\Detail;
 
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Service\StackTrace\CodeHighlighter;
 use BugCatcher\Service\StackTrace\MalformedStackTraceException;
 use BugCatcher\Service\StackTrace\StackTraceParser;
 use Kregel\ExceptionProbe\Codeframe;
@@ -24,7 +25,10 @@ final class StackTrace
 	public ?array $trace = null;
 	public int $opened = 0;
 
-	public function __construct(private readonly StackTraceParser $parser) {}
+	public function __construct(
+		private readonly StackTraceParser $parser,
+		private readonly CodeHighlighter $highlighter,
+	) {}
 
 	public function mount(Record $record): void {
 		$this->record = $record;
@@ -43,6 +47,20 @@ final class StackTrace
 		}
 
 		$this->opened = $this->firstOwnFrame();
+	}
+
+	/**
+	 * The frame's source, syntax highlighted, keyed by line number.
+	 *
+	 * Highlighting happens here rather than in the template because it needs the whole frame at
+	 * once - see CodeHighlighter. Every frame is highlighted, not just the open one: frames are
+	 * expanded client side with no round trip, so anything skipped here would stay grey forever.
+	 * A full 25 frame trace costs about 20ms and this page does not poll.
+	 */
+	public function code(int|string $pos): array {
+		$frame = $this->trace[$pos] ?? null;
+
+		return $frame === null ? [] : $this->highlighter->highlight($frame->code);
 	}
 
 	/**

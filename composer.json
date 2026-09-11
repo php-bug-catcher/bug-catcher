@@ -33,6 +33,7 @@
     "symfony/validator": "7.4.*",
     "symfony/web-link": "7.4.*",
     "symfony/webpack-encore-bundle": "v2.2.0",
+    "tempest/highlight": "^2.28",
     "tito10047/doctrine-transaction": "^0.1.1",
     "tito10047/persistent-state-bundle": "^0.1.2",
     "tito10047/php-sparkline": "^1.0",
