@@ -1,0 +1,22 @@
+mcp:
+  servers:
+    bug_catcher:
+      name: 'bug-catcher'
+      description: 'Read and resolve the errors Bug Catcher collected from the client applications.'
+      instructions: |
+        Start with list_projects to learn the project codes, then search_records to find the
+        unresolved errors of one of them. Read an error with get_record_detail before fixing it -
+        resolving it afterwards may drop the stack trace for good. Once the cause is fixed in the
+        client application, call set_record_status with "resolved", or with "archived" for an error
+        that needs no fixing.
+      transports:
+        http: true
+      http:
+        # without this the endpoint would be "/mcp/bug_catcher"
+        path: /mcp
+        # DNS rebinding protection. The SDK accepts "localhost" alone by default, so a deployed
+        # instance has to name its own host - set MCP_ALLOWED_HOSTS in .env.local, e.g.
+        # MCP_ALLOWED_HOSTS=bugcatcher.example.com
+        allowed_hosts: '%env(csv:MCP_ALLOWED_HOSTS)%'
+      registry:
+        tools: ['BugCatcher\Mcp\Tool\']

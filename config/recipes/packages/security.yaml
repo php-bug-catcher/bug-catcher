@@ -8,6 +8,11 @@ security:
     api:
       pattern: ^/api/
       stateless: true
+    mcp:
+      pattern: ^/mcp
+      stateless: true
+      access_token:
+        token_handler: BugCatcher\Security\McpAccessTokenHandler
     main:
       provider: app_user_provider
       form_login:
@@ -19,6 +24,7 @@ security:
   access_control:
     - { path: ^/login$, role: PUBLIC_ACCESS }
     - { path: ^/api, roles: PUBLIC_ACCESS }
+    - { path: ^/mcp, roles: ROLE_MCP }
     - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/detail, roles: ROLE_DEVELOPER }
     - { path: ^/_components/LogList/clearAll, roles: ROLE_DEVELOPER }
@@ -28,3 +34,5 @@ security:
     ROLE_ADMIN: ROLE_DEVELOPER
     ROLE_DEVELOPER: ROLE_CUSTOMER
     ROLE_CUSTOMER: ROLE_USER
+    # the MCP client resolves and archives records, which is what a developer may do
+    ROLE_MCP: ROLE_DEVELOPER
