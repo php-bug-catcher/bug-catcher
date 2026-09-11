@@ -1,8 +1,13 @@
+{#
+	The two class names handed to persistent_selection_stimulus_controller are applied to
+	the select buttons by that bundle's JavaScript, so they have to be our class names now
+	that Bootstrap's are gone.
+#}
 <div{{ attributes.defaults({
-	class:'my-3 p-3 bg-body rounded shadow-sm'
+	class:'panel panel-accent p-3'
 }).defaults(persistent_selection_stimulus_controller("main_logs", null,{
-	selectAllClass:'btn-primary',
-	unselectAllClass:'btn-outline-secondary',
+	selectAllClass:'btn-accent',
+	unselectAllClass:'btn-ghost',
 },"default",true)) }}>
 	{{ this.init }}
 	{% set logs = this.logs %}
@@ -11,72 +16,76 @@
 	{% for log in logs %}
 		{% set isCurrentSelected = isCurrentSelected and persistent_selection_is_selected("main_logs",log) %}
 	{% endfor %}
+
 	{% if logs|length or query is not empty %}
-		<div class="nav d-flex justify-content-between pb-1">
-			<div class="d-flex flex-row">
-				<button
-						class="btn btn-{% if isCurrentSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
-						data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage"
-				>
-					<twig:ux:icon name="bi:check" width="20px" height="20px"/>
-					{{ 'Select visible'|trans }}
-				</button>
-				<button
-						class="btn btn-{% if isAllSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap  m-1"
-						data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll"
-				>
-					<twig:ux:icon name="bi:check-all" width="20px" height="20px"/>
-					{{ 'Select all'|trans }}
-				</button>
-				<span class="p-1 text-nowrap align-content-around">Selected {{ persistent_selection_count("main_logs") }} of {{ persistent_selection_total("main_logs") }}</span>
-				<input
-						type="search"
-						data-model="query"
-						class="form-control form-control-sm  m-1"
-						placeholder="{{ 'Error code'|trans }}"
-				>
-			</div>
-			<div>
+		<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
+			<button class="btn btn-sm {{ isCurrentSelected ? 'btn-accent' : 'btn-ghost' }}"
+					data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage"
+			>
+				<twig:ux:icon name="bi:check" width="16" height="16"/>
+				{{ 'Select visible'|trans }}
+			</button>
+
+			<button class="btn btn-sm {{ isAllSelected ? 'btn-accent' : 'btn-ghost' }}"
+					data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll"
+			>
+				<twig:ux:icon name="bi:check-all" width="16" height="16"/>
+				{{ 'Select all'|trans }}
+			</button>
+
+			<span class="text-xs tabular-nums text-muted">
+				{{ persistent_selection_count("main_logs") }} / {{ persistent_selection_total("main_logs") }}
+			</span>
+
+			<input type="search"
+				   data-model="query"
+				   class="input w-48"
+				   placeholder="{{ 'Error code'|trans }}"
+				   aria-label="{{ 'Error code'|trans }}"
+			>
+
+			<div class="ml-auto flex items-center gap-2">
 				{% if app.request.attributes.get("project") is not null %}
-					<a href="{{ path('bug_catcher.dashboard.index') }}" class="btn btn-primary btn-sm mx-1">
-						<twig:ux:icon name="lucide:filter-x" width="20px" height="20px"/>
+					<a href="{{ path('bug_catcher.dashboard.index') }}" class="btn btn-sm btn-ghost">
+						<twig:ux:icon name="lucide:filter-x" width="16" height="16"/>
 						{{ 'Clear filter'|trans }}
 					</a>
 				{% endif %}
-				<button class="btn btn-outline-secondary btn-sm" aria-current="page"
+				<button class="btn btn-sm btn-accent"
 						data-action="live#action"
 						data-live-action-param="clearAll"
 				>
-					<twig:ux:icon name="game-icons:magic-broom" width="20px" height="20px"/>
+					<twig:ux:icon name="game-icons:magic-broom" width="16" height="16"/>
 					{{ 'Fix selected'|trans }}
 				</button>
 			</div>
 		</div>
-		<ul class="list-group">
+
+		<ul class="divide-y divide-line">
 			{% for log in logs %}
 				{{ component(log.componentName, {log: log, status: status, key:log.id}) }}
 			{% endfor %}
 		</ul>
 	{% else %}
-		<div class="empty-state text-center py-5">
-			<div class="mb-3">
-				<twig:ux:icon name="lucide:party-popper" width="68" height="68" class="text-success"/>
-			</div>
-			<h5 class="empty-title mb-2">
+		<div class="flex flex-col items-center gap-3 px-4 py-12 text-center">
+			<twig:ux:icon name="lucide:party-popper" width="48" height="48" class="text-ok"/>
+			<p class="text-glow font-mono text-sm uppercase tracking-[0.35em] text-ok">
 				{{ 'No bugs, hurrah'|trans({},"BugCatcher") }}
-			</h5>
-			<p class="empty-subtitle mb-4 text-body-secondary">
+			</p>
+			<p class="max-w-prose text-sm text-muted">
 				{{ this.funnyMessage|trans({},"BugCatcher") }}
 			</p>
-			<div class="d-flex justify-content-center gap-2">
+			<div class="flex flex-wrap justify-center gap-2 pt-1">
 				{% if app.request.attributes.get("project") is not null %}
-					<a href="/" class="btn btn-primary btn-sm">
-						<twig:ux:icon name="lucide:filter-x" width="18" height="18"/>
-						Zrušiť filter
+					<a href="{{ path('bug_catcher.dashboard.index') }}" class="btn btn-sm btn-ghost">
+						<twig:ux:icon name="lucide:filter-x" width="16" height="16"/>
+						{{ 'Clear filter'|trans }}
 					</a>
 				{% endif %}
-				<button class="btn btn-outline-primary btn-sm" onclick="alert('{{ 'Just funny 🙂'|trans({},"BugCatcher") }}')">
-					<twig:ux:icon name="lucide:bug-off" width="18" height="18"/> {{ 'Generate bug'|trans({},"BugCatcher") }}
+				<button type="button" class="btn btn-sm btn-ghost"
+						onclick="alert('{{ 'Just funny 🙂'|trans({},"BugCatcher") }}')">
+					<twig:ux:icon name="lucide:bug-off" width="16" height="16"/>
+					{{ 'Generate bug'|trans({},"BugCatcher") }}
 				</button>
 			</div>
 		</div>

@@ -1,5 +1,4 @@
-<div {{ stimulus_controller('favicon',{
-    icon:this.icon
-}) }}>
-
-</div>
+{# Invisible: it only carries the Stimulus controller that swaps the favicon. #}
+<div class="hidden" {{ stimulus_controller('favicon',{
+	icon:this.icon
+}) }}></div>

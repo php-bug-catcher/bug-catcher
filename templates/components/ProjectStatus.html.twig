@@ -1,13 +1,17 @@
+{# 6 of the row's 12 columns: LogSparkLine takes 4 and LogCount 2. #}
 <div{{ attributes.defaults({
-    class:'col-4 px-1'
+	class:'col-span-6 flex min-w-0 items-center gap-1.5'
 }) }}>
-    {% set color = this.lastStatus ? 'success' : 'danger' %}
-    <div class="w-100 badge border border-{{ color }}-subtle bg-{{ color }}-subtle text-{{ color }}-emphasis text-start fs-6">
-        {% if this.lastStatus %}
-            <twig:ux:icon name="mdi:success-bold" height="18" width="18"/>
-        {% else %}
-            <twig:ux:icon name="jam:triangle-danger" height="18" width="18"/>
-        {% endif %}
-        {{ project.name }}
-    </div>
+	{# The LED is the calm signal - it is the only thing that moves while everything is fine.
+	   A failing ping additionally recolours the name and adds an icon, so the down state is
+	   readable from a distance and does not rely on colour alone. #}
+	<span class="led {{ this.lastStatus ? 'led-ok' : 'led-danger' }}" aria-hidden="true"></span>
+
+	<span class="truncate text-sm {{ this.lastStatus ? '' : 'font-semibold text-danger' }}"
+		  title="{{ project.name }}">{{ project.name }}</span>
+
+	{% if not this.lastStatus %}
+		<twig:ux:icon name="jam:triangle-danger" height="14" width="14" class="shrink-0 text-danger"/>
+		<span class="sr-only">{{ 'Down'|trans({},"BugCatcher") }}</span>
+	{% endif %}
 </div>

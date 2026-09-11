@@ -40,6 +40,13 @@
 	--bc-glow-strong: 0 0 0 2px color-mix(in oklab, var(--bc-accent) 45%, transparent);
 	--bc-grid: color-mix(in oklab, var(--bc-accent) 8%, transparent);
 	--bc-text-glow: none;
+
+	/* Sparkline gradient stops, low -> high. Declared separately from the status colours
+	   so the chart can be retuned without touching chips and LEDs; they follow the theme
+	   because the values they point at do. */
+	--bc-spark-low: var(--bc-ok);
+	--bc-spark-mid: var(--bc-accent);
+	--bc-spark-high: var(--bc-danger);
 }
 
 [data-theme="dark"] {
@@ -58,7 +65,9 @@
 	--bc-glow: 0 0 18px -6px color-mix(in oklab, var(--bc-accent) 65%, transparent);
 	--bc-glow-strong: 0 0 28px -4px color-mix(in oklab, var(--bc-accent) 80%, transparent);
 	--bc-grid: color-mix(in oklab, var(--bc-accent) 14%, transparent);
-	--bc-text-glow: 0 0 12px color-mix(in oklab, var(--bc-accent) 55%, transparent);
+	/* currentColor, so a danger counter glows red and an ok counter glows green
+	   without needing a glow token per status */
+	--bc-text-glow: 0 0 12px color-mix(in oklab, currentColor 50%, transparent);
 }
 
 @theme inline {
@@ -401,6 +410,24 @@
 	.code code.selected::before {
 		color: var(--color-accent);
 		background-color: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface-2));
+	}
+
+	/* --- sparkline -----------------------------------------------------------
+	   php-sparkline paints the line by masking a gradient-filled rect with a stroked
+	   polyline, and uses the first colour as that stroke. A mask reads luminance, so
+	   the darker the first colour the more transparent the chart - which would make
+	   the light theme fade out. Force the mask to full white and let the gradient
+	   alone carry the colour. */
+	.sparkline mask polyline {
+		stroke: #fff;
+	}
+
+	/* The component swaps the library's fixed width for a viewBox, so the chart fills whatever
+	   column it lands in. Height is capped here to keep the project row on one line. */
+	.sparkline svg {
+		display: block;
+		width: 100%;
+		height: 1.25rem;
 	}
 
 	/* --- timeline ------------------------------------------------------------

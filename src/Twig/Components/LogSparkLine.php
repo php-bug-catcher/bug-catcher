@@ -18,19 +18,40 @@ final class LogSparkLine extends AbsComponent {
 	public int $treshold = 5;
 	public int $graphHours = 24;
 
+	/** Drawing surface of the generated SVG. The rendered size is CSS's job - see stretchToContainer(). */
+	private const WIDTH  = 250;
+	private const HEIGHT = 30;
+
 	public function __construct(
 		private readonly EntityManagerInterface $em
 	) {}
 
-	public function getSparkLine() {
+	public function getSparkLine(): string {
 		$indexed   = $this->getSparkLineIntervals();
 		$sparkLine = SparkLine::new(collect($indexed), Period::MINUTE, $this->minutes)
 			->withMaxItemAmount(($this->graphHours * 60) / $this->minutes)
-			->withDimensions(250, 30)
+			->withDimensions(self::WIDTH, self::HEIGHT)
 			->withMaxValue($this->treshold)
-			->withColors('#4fae00', '#0857fd', '#ff0000');
+			// CSS variables rather than hex: the SVG is inlined into the page, so the
+			// gradient stops resolve against the active theme. See --bc-spark-* in app.css.
+			->withColors('var(--bc-spark-low)', 'var(--bc-spark-mid)', 'var(--bc-spark-high)');
 
-		return $sparkLine->make();
+		return $this->stretchToContainer($sparkLine->make());
+	}
+
+	/**
+	 * The library writes a fixed width onto the <svg>, so the chart stays 250px wide inside a
+	 * project card that is rarely 250px wide. Trading that width for a viewBox hands sizing to
+	 * CSS; preserveAspectRatio="none" is what lets a sparkline stretch to fill rather than
+	 * letterbox, which is the right trade here because the shape carries the trend, not a scale.
+	 */
+	private function stretchToContainer(string $svg): string {
+		return preg_replace(
+			'/^<svg width="(\d+)" height="(\d+)"/',
+			'<svg viewBox="0 0 $1 $2" preserveAspectRatio="none" height="$2"',
+			$svg,
+			1
+		);
 	}
 
 	/**
