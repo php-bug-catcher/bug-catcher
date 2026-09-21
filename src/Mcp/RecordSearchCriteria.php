@@ -10,7 +10,7 @@ use InvalidArgumentException;
  * What the caller of `search_records` asked for.
  *
  * Every filter is optional; a criteria built with no arguments at all means "the unresolved errors
- * of every project, newest first".
+ * of every project and of every searchable record type, newest first".
  */
 final class RecordSearchCriteria
 {
@@ -26,6 +26,7 @@ final class RecordSearchCriteria
 	 * @param DateTimeImmutable|null $from     inclusive
 	 * @param DateTimeImmutable|null $to       inclusive
 	 * @param int                    $limit    number of distinct errors, not of rows
+	 * @param string|null            $type     a single discriminator value, null every searchable type
 	 */
 	public function __construct(
 		public readonly ?Project           $project = null,
@@ -35,6 +36,7 @@ final class RecordSearchCriteria
 		public readonly ?DateTimeImmutable $from = null,
 		public readonly ?DateTimeImmutable $to = null,
 		public readonly int                $limit = self::DEFAULT_LIMIT,
+		public readonly ?string            $type = null,
 	) {
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
 			throw new InvalidArgumentException(sprintf(

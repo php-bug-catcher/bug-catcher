@@ -141,6 +141,34 @@ abstract class Record {
 		return $this;
 	}
 
+	/**
+	 * What a reader - the detail page, an MCP client - gets to read off any record.
+	 *
+	 * `RecordLog` keeps all three in columns of its own. A type that has no such thing answers null,
+	 * and a type that can work one out - a cron run explaining why it is late - overrides with a
+	 * computed value. Not abstract: a subtype that has nothing to say here should not be forced to
+	 * say it.
+	 *
+	 * Deliberately not marked `#[Ignore]`, tempting as it is to keep the nulls out of a subtype's API
+	 * response. The serializer merges attribute metadata down the hierarchy, so ignoring the getter
+	 * here would ignore the *property* `message` in `RecordLog` as well - the ingest API would stop
+	 * reading it off the payload, and every report would fail validation as a blank message.
+	 */
+	public function getMessage(): ?string {
+		return null;
+	}
+
+	/**
+	 * The monolog level, for a record type that has one: 200 info, 300 warning, 400 error, 500 critical.
+	 */
+	public function getLevel(): ?int {
+		return null;
+	}
+
+	public function getRequestUri(): ?string {
+		return null;
+	}
+
 	abstract function calculateHash(): ?string;
 
 	abstract function getComponentName(): string;

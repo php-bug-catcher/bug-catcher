@@ -7,6 +7,7 @@ use BugCatcher\Entity\RecordLog;
 use DateTimeImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Uid\Uuid;
 
@@ -14,10 +15,10 @@ use Symfony\Component\Uid\Uuid;
  * Reads the collected errors. `RecordRepositoryInterface` only writes, and the dashboard builds its
  * queries inside the Twig components, so the MCP tools would have nothing to reuse.
  *
- * Queries are rooted at {@see RecordLog} rather than at {@see Record}: everything the ingest API
- * accepts is a `RecordLog` or a subclass of one, which is also what carries `level`, `message` and
- * `requestUri`. The one other `Record` subtype, `RecordPing`, is the result of an uptime check and
- * is nothing anyone fixes in a code base.
+ * Queries are rooted at {@see Record}, the hierarchy an application extends, and narrowed to the
+ * types {@see RecordTypes} allows. Rooting at {@see RecordLog} instead would be shorter but it would
+ * also mean that a custom record type - a cron run that never finished, say - is collected, shown on
+ * the dashboard, and then invisible to the one reader that could act on it.
  */
 final class RecordFinder
 {
@@ -28,7 +29,10 @@ final class RecordFinder
 	 */
 	private const HISTORY_LIMIT = 50;
 
-	public function __construct(private readonly EntityManagerInterface $em) {}
+	public function __construct(
+		private readonly EntityManagerInterface $em,
+		private readonly RecordTypes            $types,
+	) {}
 
 	/**
 	 * The distinct errors matching the criteria, most recently seen first.
@@ -37,7 +41,7 @@ final class RecordFinder
 	 * result holds one record per hash, the latest occurrence, carrying the size of its group in
 	 * `getCount()` and the oldest occurrence in `getFirstOccurrence()`.
 	 *
-	 * @return RecordLog[]
+	 * @return Record[]
 	 */
 	public function search(RecordSearchCriteria $criteria): array {
 		$groups = $this->groups($criteria);
@@ -66,8 +70,12 @@ final class RecordFinder
 	 *
 	 * Returns the concrete subclass, so a caller can hand it to the repository that knows about it.
 	 */
-	public function find(Uuid $id): ?RecordLog {
-		return $this->em->getRepository(RecordLog::class)->find($id);
+	public function find(Uuid $id): ?Record {
+		$record = $this->em->getRepository(Record::class)->find($id);
+
+		// an id of a type this server does not search is as good as an unknown one: the tools promise
+		// the summary of a searchable record, and a RecordPing cannot even name its own component
+		return $record instanceof Record && $this->types->allows($record) ? $record : null;
 	}
 
 	/**
@@ -76,15 +84,25 @@ final class RecordFinder
 	 * Several reports can share a second, and listing them as separate lines would read as if the
 	 * bug happened at the same instant twice; `getCount()` carries how many there were instead.
 	 *
-	 * @return RecordLog[]
+	 * @return Record[]
 	 */
 	public function history(Record $record): array {
-		/** @var RecordLog[] $occurrences */
-		$occurrences = $this->em->getRepository(RecordLog::class)->findBy(
-			['hash' => $record->getHash(), 'status' => $record->getStatus()],
-			['date' => 'DESC'],
-			self::HISTORY_LIMIT,
-		);
+		// a query builder rather than findBy(), so that the allowlist applies here too. Kept on the
+		// whole allowlist rather than narrowed to this record's own class: the history of a
+		// RecordLogTrace group legitimately mixes "log" and "trace-log" rows, which is what the
+		// dashboard shows as well
+		$qb = $this->em->createQueryBuilder()
+			->select('record')
+			->from(Record::class, 'record')
+			->where('record.hash = :hash')
+			->andWhere('record.status = :status')
+			->setParameter('hash', $record->getHash())
+			->setParameter('status', $record->getStatus())
+			->orderBy('record.date', 'DESC')
+			->setMaxResults(self::HISTORY_LIMIT);
+
+		/** @var Record[] $occurrences */
+		$occurrences = $this->restrictTypes($qb)->getQuery()->getResult();
 
 		$collapsed = [];
 		foreach ($occurrences as $occurrence) {
@@ -114,12 +132,18 @@ final class RecordFinder
 				'MIN(record.date) AS firstOccurrence',
 				'MAX(record.date) AS lastOccurrence',
 			)
-			->from(RecordLog::class, 'record')
+			->from(Record::class, 'record')
 			->groupBy('record.hash')
 			->orderBy('lastOccurrence', 'DESC')
 			->setMaxResults($criteria->limit);
 
-		$rows = $this->applyFilters($qb, $criteria)->getQuery()->getArrayResult();
+		$rows = $this->applyFilters($qb, $criteria)->getQuery()
+			// `Record` is a JOINED inheritance root, so DQL on it LEFT JOINs every subtype table -
+			// joins this aggregate never reads, over the one table it does scan. The hint strips them,
+			// and nothing is hydrated here, so there is no partial entity to leak. The same trick
+			// LogList::init() uses for the same reason.
+			->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true)
+			->getArrayResult();
 
 		$groups = [];
 		foreach ($rows as $row) {
@@ -141,7 +165,7 @@ final class RecordFinder
 	 *
 	 * @param array<string, array{lastOccurrence: DateTimeImmutable}> $groups
 	 *
-	 * @return array<string, RecordLog>
+	 * @return array<string, Record>
 	 */
 	private function representatives(RecordSearchCriteria $criteria, array $groups): array {
 		$dates = [];
@@ -149,9 +173,12 @@ final class RecordFinder
 			$dates[] = $group['lastOccurrence']->format(self::DATE_FORMAT);
 		}
 
+		// deliberately without HINT_FORCE_PARTIAL_LOAD, unlike groups(): these entities are handed to
+		// the tools, which read the subtype's own fields off them, and a partial entity would answer
+		// null to every one of those without saying that it had not read them
 		$qb = $this->em->createQueryBuilder()
 			->select('record')
-			->from(RecordLog::class, 'record')
+			->from(Record::class, 'record')
 			->where('record.hash IN (:hashes)')
 			->andWhere('record.date IN (:dates)')
 			->setParameter('hashes', array_keys($groups), ArrayParameterType::STRING)
@@ -159,7 +186,7 @@ final class RecordFinder
 
 		// the same filters again: a hash is unique per project, but not per status, so without them
 		// a resolved record could stand in for the unresolved group that was asked for
-		/** @var RecordLog[] $candidates */
+		/** @var Record[] $candidates */
 		$candidates = $this->applyFilters($qb, $criteria)->getQuery()->getResult();
 
 		$representatives = [];
@@ -179,6 +206,7 @@ final class RecordFinder
 	}
 
 	private function applyFilters(QueryBuilder $qb, RecordSearchCriteria $criteria): QueryBuilder {
+		$this->restrictTypes($qb, $criteria->type);
 		if ($criteria->project !== null) {
 			// the raw binary column value, the way LogList binds it - handing over the entity or the
 			// Uuid object matches nothing
@@ -194,7 +222,14 @@ final class RecordFinder
 			$qb->andWhere('record.code = :code')->setParameter('code', $criteria->code);
 		}
 		if ($criteria->minLevel !== null) {
-			$qb->andWhere('record.level >= :minLevel')->setParameter('minLevel', $criteria->minLevel);
+			// `level` belongs to RecordLog, and DQL rooted at `Record` cannot reach a subclass field -
+			// Doctrine has no TREAT(). A semi-join to the subclass gets there, and it also says the
+			// right thing: asking for a level floor asks for the records that have a level at all, so a
+			// cron run drops out of a levelled search rather than passing itself off as level 0.
+			$qb->andWhere(sprintf(
+				'record.id IN (SELECT levelled.id FROM %s levelled WHERE levelled.level >= :minLevel)',
+				RecordLog::class,
+			))->setParameter('minLevel', $criteria->minLevel);
 		}
 		if ($criteria->from !== null) {
 			$qb->andWhere('record.date >= :from')->setParameter('from', $criteria->from);
@@ -204,5 +239,17 @@ final class RecordFinder
 		}
 
 		return $qb;
+	}
+
+	/**
+	 * Narrows a query to the searchable record types, or to the single one that was asked for.
+	 *
+	 * @param string|null $type a discriminator value the caller has already been checked against
+	 */
+	private function restrictTypes(QueryBuilder $qb, ?string $type = null): QueryBuilder {
+		// discriminator values, the way LogList binds them: Doctrine expands the parameter into an IN
+		// list against the discriminator column of the root table
+		return $qb->andWhere('record INSTANCE OF :types')
+			->setParameter('types', $type !== null ? [$type] : $this->types->discriminators());
 	}
 }

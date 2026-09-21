@@ -3,16 +3,22 @@
 namespace BugCatcher\Tests\Integration\Mcp;
 
 use BugCatcher\Entity\Project;
+use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordLogTrace;
 use BugCatcher\Mcp\RecordFinder;
 use BugCatcher\Mcp\RecordSearchCriteria;
+use BugCatcher\Mcp\RecordTypes;
+use BugCatcher\Tests\App\Entity\RecordCron;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\Factory\RecordCronFactory;
 use BugCatcher\Tests\App\Factory\RecordLogFactory;
 use BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use BugCatcher\Tests\App\Factory\RecordPingFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Uid\Uuid;
 use Zenstruck\Foundry\Test\Factories;
 
 class RecordFinderTest extends KernelTestCase {
@@ -23,11 +29,22 @@ class RecordFinderTest extends KernelTestCase {
 
 	protected function setUp(): void {
 		self::bootKernel();
-		// built by hand rather than pulled from the container: the finder takes nothing but the
-		// entity manager, and fetching it as a service would only work while some other service
-		// happens to reference it
-		$this->finder  = new RecordFinder(self::getContainer()->get(EntityManagerInterface::class));
+		// built by hand rather than pulled from the container: fetching it as a service would only
+		// work while some other service happens to reference it, and the allowlist is what several
+		// of these tests vary
+		$this->finder  = $this->finderFor(RecordLog::class, RecordCron::class);
 		$this->project = ProjectFactory::createOne(["code" => "shop", "enabled" => true])->_real();
+	}
+
+	/**
+	 * A finder configured with a given allowlist, the way an application's `mcp.record_types` does it.
+	 *
+	 * @param class-string<Record> ...$classes
+	 */
+	private function finderFor(string ...$classes): RecordFinder {
+		$em = self::getContainer()->get(EntityManagerInterface::class);
+
+		return new RecordFinder($em, new RecordTypes($em, $classes));
 	}
 
 	/**
@@ -213,6 +230,152 @@ class RecordFinderTest extends KernelTestCase {
 	}
 
 	/**
+	 * The point of the whole allowlist: a record type an application added is collected and shown on
+	 * the dashboard, so it has to be readable here as well, and not only the types this bundle ships.
+	 */
+	public function testAConfiguredCustomRecordTypeIsFound() {
+		$this->cron('app:import');
+
+		$found = $this->finder->search($this->criteria());
+
+		$this->assertCount(1, $found);
+		$this->assertInstanceOf(RecordCron::class, $found[0]);
+	}
+
+	/**
+	 * The representative is hydrated fully, not partially. A partial entity would answer null to every
+	 * field of the subtype without saying that it had not read them, and the details of the record
+	 * would quietly come out empty.
+	 */
+	public function testTheEntryOfACustomTypeCarriesItsOwnFields() {
+		$this->cron('app:import');
+
+		/** @var RecordCron $found */
+		$found = $this->finder->search($this->criteria())[0];
+
+		$this->assertSame('app:import', $found->getCommand());
+		$this->assertNotNull($found->getLastStart());
+		$this->assertSame(60, $found->getInterval());
+	}
+
+	public function testACustomTypeIsInvisibleToAFinderNotConfiguredForIt() {
+		$this->cron('app:import');
+		$this->record(['hash' => 'real', 'date' => '2026-01-01 10:00:00']);
+
+		$found = $this->finderFor(RecordLog::class)->search($this->criteria());
+
+		$this->assertSame(['real'], array_map(fn(Record $r) => $r->getHash(), $found));
+	}
+
+	/**
+	 * Grouping has to work for a type that is not a RecordLog too - the counting happens on the
+	 * columns of the shared root table, which is exactly why it can.
+	 */
+	public function testTheRunsOfOneCommandCollapseIntoASingleEntry() {
+		$this->cron('app:import', '-3 hours');
+		$this->cron('app:import', '-2 hours');
+		$this->cron('app:other', '-1 hour');
+
+		$found = $this->finder->search($this->criteria());
+
+		$this->assertCount(2, $found);
+		$this->assertSame(1, $found[0]->getCount(), 'app:other ran once and is the most recent');
+		$this->assertSame(2, $found[1]->getCount());
+	}
+
+	/**
+	 * Asking for a level floor asks for the records that carry a level at all. A cron run has none, so
+	 * it drops out rather than passing itself off as level 0.
+	 */
+	public function testTheLevelFloorLeavesOutATypeThatHasNoLevel() {
+		$this->cron('app:import');
+		$this->record(['hash' => 'critical', 'date' => '2026-01-01 10:00:00', 'level' => 500]);
+
+		$found = $this->finder->search($this->criteria(minLevel: 400));
+
+		$this->assertSame(['critical'], array_map(fn(Record $r) => $r->getHash(), $found));
+	}
+
+	public function testOneTypeCanBeAskedForOnItsOwn() {
+		$this->cron('app:import');
+		$this->record(['hash' => 'real', 'date' => '2026-01-01 10:00:00']);
+		RecordLogTraceFactory::createOne([
+			'hash'       => 'traced',
+			'date'       => new DateTimeImmutable('2026-01-01 10:00:00'),
+			'status'     => 'new',
+			'level'      => 500,
+			'project'    => $this->project,
+			'stackTrace' => 'whatever',
+		]);
+
+		$this->assertCount(1, $this->finder->search($this->criteria(type: 'cron')));
+		$this->assertSame(
+			['real'],
+			array_map(fn(Record $r) => $r->getHash(), $this->finder->search($this->criteria(type: 'log'))),
+		);
+	}
+
+	/**
+	 * An id of a type the server does not search is as good as an unknown one. Otherwise a ping id
+	 * would reach get_record_detail, which asks it for a component name it throws on.
+	 */
+	public function testARecordOutsideTheAllowlistCannotBeFetchedById() {
+		$ping = RecordPingFactory::createOne([
+			'hash'    => 'ping',
+			'date'    => new DateTimeImmutable('2026-01-01 10:00:00'),
+			'status'  => 'new',
+			'project' => $this->project,
+		])->_real();
+
+		$this->assertNull($this->finder->find($ping->getId()));
+	}
+
+	public function testAnUnknownIdIsSimplyNotFound() {
+		$this->assertNull($this->finder->find(Uuid::v7()));
+	}
+
+	/**
+	 * The history of a traced bug legitimately mixes the two log types - the same message reported once
+	 * with a trace and once without shares a hash - so the allowlist, not the record's own class, is
+	 * what bounds it.
+	 */
+	public function testTheHistoryOfATracedBugStillIncludesTheUntracedOccurrences() {
+		$this->record(['hash' => 'aaa', 'date' => '2026-01-01 10:00:00']);
+		RecordLogTraceFactory::createOne([
+			'hash'       => 'aaa',
+			'date'       => new DateTimeImmutable('2026-01-02 10:00:00'),
+			'status'     => 'new',
+			'level'      => 500,
+			'project'    => $this->project,
+			'stackTrace' => 'whatever',
+		]);
+
+		$found = $this->finder->search($this->criteria());
+
+		$this->assertInstanceOf(RecordLogTrace::class, $found[0]);
+		$this->assertCount(2, $this->finder->history($found[0]));
+	}
+
+	/**
+	 * `lastEnd` is nullable, and a run that never reported one is precisely the run worth looking at.
+	 * Reading it must not blow up on the way out.
+	 */
+	public function testARunThatNeverReportedAnEndIsStillReadable() {
+		RecordCronFactory::createOne([
+			'project'   => $this->project,
+			'status'    => 'new',
+			'command'   => 'app:stuck',
+			'lastStart' => new DateTimeImmutable('-2 hours'),
+			'lastEnd'   => null,
+		]);
+
+		$found = $this->finder->search($this->criteria());
+
+		$this->assertCount(1, $found);
+		$this->assertStringContainsString('did not finish', $found[0]->getMessage());
+	}
+
+	/**
 	 * The history is what tells the reader whether a bug is still happening or died out on its own.
 	 */
 	public function testTheHistoryListsTheOccurrencesNewestFirst() {
@@ -245,8 +408,25 @@ class RecordFinderTest extends KernelTestCase {
 		?DateTimeImmutable $from = null,
 		?DateTimeImmutable $to = null,
 		int                $limit = 25,
+		?string            $type = null,
 	): RecordSearchCriteria {
-		return new RecordSearchCriteria($this->project, $status, $code, $minLevel, $from, $to, $limit);
+		return new RecordSearchCriteria(
+			$this->project, $status, $code, $minLevel, $from, $to, $limit, $type,
+		);
+	}
+
+	/**
+	 * A finished run of one command, at a date of its own so the ordering is predictable.
+	 */
+	private function cron(string $command, string $ago = '-1 hour'): void {
+		RecordCronFactory::createOne([
+			'project'   => $this->project,
+			'status'    => 'new',
+			'command'   => $command,
+			'date'      => new DateTimeImmutable($ago),
+			'lastStart' => new DateTimeImmutable($ago),
+			'lastEnd'   => new DateTimeImmutable($ago),
+		]);
 	}
 
 	/**

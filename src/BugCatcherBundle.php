@@ -10,6 +10,7 @@ use BugCatcher\Controller\Admin\ProjectCrudController;
 use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
 use BugCatcher\Controller\SecurityController;
+use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
@@ -113,6 +114,13 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$accessToken', $config["mcp"]["access_token"]);
+
+		// RecordFinder and RecordTools pick this up by autowiring; it is the one MCP service that
+		// needs the configuration handed to it
+		$services->set(RecordTypes::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$classes', $config["mcp"]["record_types"]);
 
         $services->set(RecordRepositoryInterface::class)
             ->autowire()

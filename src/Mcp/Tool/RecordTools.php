@@ -4,10 +4,11 @@ namespace BugCatcher\Mcp\Tool;
 
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
-use BugCatcher\Entity\RecordLog;
 use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Mcp\HasMcpDetails;
 use BugCatcher\Mcp\RecordFinder;
 use BugCatcher\Mcp\RecordSearchCriteria;
+use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Mcp\StackTraceFormatter;
 use BugCatcher\Repository\ProjectRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
@@ -24,6 +25,11 @@ use Symfony\Component\Uid\Uuid;
 
 /**
  * Reading and resolving the collected errors.
+ *
+ * Which record types are readable is per instance - an application adds its own, and lists them in
+ * `bug_catcher.mcp.record_types` - so every entry reports the `type` it is, and the error message for
+ * an unknown `type` argument names the ones this instance does have. That message is the only place a
+ * caller can learn them, because the set cannot go in a schema fixed at build time.
  *
  * Every failure leaves here as a {@see ToolCallException}: that is the one exception the SDK turns
  * into an error result carrying its message, so it is the only way the caller is told what went
@@ -51,6 +57,7 @@ final class RecordTools
 		private readonly StackTraceFormatter $stackTraces,
 		private readonly ManagerRegistry     $registry,
 		private readonly EntityManagerInterface $em,
+		private readonly RecordTypes         $types,
 	) {}
 
 	/**
@@ -60,13 +67,19 @@ final class RecordTools
 	 * often it happened in the range, `date` is the latest occurrence and `firstOccurrence` the
 	 * earliest. Pass the `id` of an entry to `get_record_detail` for the stack trace.
 	 *
+	 * Not every entry is a PHP exception. Each one carries the `type` of record it is - "log" and
+	 * "trace-log" are reports from the client application, and an instance can add its own, such as
+	 * "cron" for a scheduled command that did not finish. A type that carries no monolog level reports
+	 * `level` null, and the `message` of such a record is worked out from its own fields.
+	 *
 	 * @param string|null $projectCode the `code` of a project from `list_projects`, omit to search all
 	 * @param string      $status      matched as a prefix: "new" is unresolved, "resolved" and "archived" are dealt with
 	 * @param string|null $code        the error code carried by the record
-	 * @param int|null    $minLevel    monolog level floor: 200 info, 300 warning, 400 error, 500 critical
+	 * @param int|null    $minLevel    monolog level floor: 200 info, 300 warning, 400 error, 500 critical. Only records that carry a level at all, so a type without one is left out when this is given
 	 * @param string|null $dateFrom    ISO 8601, inclusive
 	 * @param string|null $dateTo      ISO 8601, inclusive
 	 * @param int         $limit       number of distinct errors to return
+	 * @param string|null $type        only records of this type, as reported in the `type` field; omit for every type. An unknown value answers with the ones this instance searches
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -81,8 +94,9 @@ final class RecordTools
 		?string $dateTo = null,
 		#[Schema(minimum: 1, maximum: RecordSearchCriteria::MAX_LIMIT)]
 		int     $limit = RecordSearchCriteria::DEFAULT_LIMIT,
+		?string $type = null,
 	): array {
-		$criteria = $this->criteria($projectCode, $status, $code, $minLevel, $dateFrom, $dateTo, $limit);
+		$criteria = $this->criteria($projectCode, $status, $code, $minLevel, $dateFrom, $dateTo, $limit, $type);
 
 		return array_map($this->summarise(...), $this->finder->search($criteria));
 	}
@@ -93,6 +107,10 @@ final class RecordTools
 	 * Worth doing before `set_record_status`: resolving an error may drop its stack trace, and the
 	 * trace is the part that cannot be recovered afterwards.
 	 *
+	 * `details` carries whatever the record type knows beyond the fields every record has - for a cron
+	 * run, the command, its timings and how they compare to what was expected. It is null for a type
+	 * that has nothing to add.
+	 *
 	 * @param string $recordId the `id` of an entry returned by `search_records`
 	 *
 	 * @return array<string, mixed>
@@ -101,7 +119,7 @@ final class RecordTools
 	public function getRecordDetail(string $recordId): array {
 		$record = $this->record($recordId);
 
-		$history = array_map(fn(RecordLog $occurrence) => [
+		$history = array_map(fn(Record $occurrence) => [
 			'date'  => $occurrence->getDate()->format(self::DATE_FORMAT),
 			'count' => $occurrence->getCount(),
 		], $this->finder->history($record));
@@ -111,6 +129,9 @@ final class RecordTools
 				'stackTrace' => $this->stackTraces->format(
 					$record instanceof RecordLogTrace ? $record->getStackTrace() : null,
 				),
+				// the key is always there, the way stackTrace is: a missing key reads as "the tool does
+				// not report this", a null one as "this record has none"
+				'details'    => $record instanceof HasMcpDetails ? $record->getMcpDetails() : null,
 				'history'    => $history,
 			];
 	}
@@ -175,6 +196,7 @@ final class RecordTools
 		?string $dateFrom,
 		?string $dateTo,
 		int     $limit,
+		?string $type = null,
 	): RecordSearchCriteria {
 		try {
 			return new RecordSearchCriteria(
@@ -185,6 +207,7 @@ final class RecordTools
 				$this->date($dateFrom, 'dateFrom'),
 				$this->date($dateTo, 'dateTo'),
 				$limit,
+				$this->type($type),
 			);
 		} catch (InvalidArgumentException $e) {
 			// the value objects's own rules - limit out of range, range ending before it starts
@@ -203,6 +226,23 @@ final class RecordTools
 		return $project;
 	}
 
+	/**
+	 * A discriminator value this server actually searches.
+	 *
+	 * The valid set comes from `bug_catcher.mcp.record_types`, so it cannot be an enum in the argument
+	 * schema - this message is where a caller learns what there is.
+	 */
+	private function type(?string $type): ?string {
+		if ($type === null || in_array($type, $this->types->discriminators(), true)) {
+			return $type;
+		}
+
+		throw new ToolCallException(sprintf(
+			'There is no searchable record type "%s". This server searches: %s.',
+			$type, implode(', ', $this->types->discriminators()),
+		));
+	}
+
 	private function date(?string $value, string $argument): ?DateTimeImmutable {
 		if ($value === null) {
 			return null;
@@ -218,7 +258,7 @@ final class RecordTools
 		}
 	}
 
-	private function record(string $recordId): RecordLog {
+	private function record(string $recordId): Record {
 		if (!Uuid::isValid($recordId)) {
 			throw new ToolCallException(sprintf(
 				'"%s" is not a record id. Use the "id" of an entry returned by search_records.', $recordId,
@@ -236,7 +276,7 @@ final class RecordTools
 	/**
 	 * @return array<string, mixed>
 	 */
-	private function summarise(RecordLog $record): array {
+	private function summarise(Record $record): array {
 		return [
 			'id'              => (string)$record->getId(),
 			'projectCode'     => $record->getProject()?->getCode(),

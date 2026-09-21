@@ -11,18 +11,71 @@ The server speaks HTTP at `/mcp` and is guarded by a bearer token.
 | Tool | What it does |
 |---|---|
 | `list_projects` | The enabled projects and their codes. Everything else is filtered by one of those codes. |
-| `search_records` | The distinct errors of a project. Filter by `status`, `code`, `minLevel` and a date range. |
-| `get_record_detail` | One error in full: metadata, the stack trace as readable text, and the history of its occurrences. |
+| `search_records` | The distinct errors of a project. Filter by `status`, `code`, `minLevel`, `type` and a date range. |
+| `get_record_detail` | One error in full: metadata, the stack trace as readable text, the type's own `details`, and the history of its occurrences. |
 | `set_record_status` | Marks an error and every other occurrence of it as `resolved` or `archived`. |
 
 Occurrences of one error are collapsed into a single entry, keyed by the record hash. `count` is how
 often it happened in the range asked for, `date` is the latest occurrence, `firstOccurrence` the
 earliest.
 
-> `search_records` and `get_record_detail` cover `RecordLog` and its subclasses - everything the
-> ingest API accepts. `RecordPing` is left out: an uptime check result is not a bug in a code base.
-> A custom record type extending `Record` directly is not visible either, because the tools promise
-> a `message` and a `level` such a class need not have.
+### Which record types the tools see
+
+`Record` is a hierarchy an application extends, and what belongs on an MCP server is a decision, not
+a consequence. The searchable types are listed in `bug_catcher.mcp.record_types`:
+
+```yaml
+bug_catcher:
+    mcp:
+        record_types:
+            - BugCatcher\Entity\RecordLog
+            - BugCatcher\Entity\RecordLogTrace
+            - App\Entity\RecordCron       # your own type
+```
+
+The default is `RecordLog` and `RecordLogTrace` - everything the ingest API accepts out of the box.
+Subclasses of a listed class come along, the way `INSTANCE OF RecordLog` would also match a traced
+log. A class that is not in the discriminator map of `Record` is refused with an exception naming the
+ones that are, rather than silently never matching.
+
+`RecordPing` is not listable: an uptime check result is not a bug in a code base, and it has neither
+a hash to group by nor a component name to render.
+
+This is deliberately *not* `dashboard_list_items`. An assistant holding the MCP token can resolve and
+archive what it finds, so adding a type here is a decision to take on its own, not a side effect of
+putting that type on a page.
+
+Every entry reports the `type` it is - the Doctrine discriminator value - and `search_records` takes
+a `type` argument to narrow to one of them. The valid set is per instance, so it cannot be an enum in
+the tool schema; an unknown value is answered with the list this server does search.
+
+A type that carries no monolog level reports `level` null, and `minLevel` leaves it out entirely -
+asking for a level floor asks for the records that have a level at all.
+
+#### Fields of your own
+
+`message` and `requestUri` are answered by `Record` for every type: null unless the subtype overrides
+them, which a computed message (why is this cron run late?) usually does.
+
+Anything beyond that arrives under the `details` key of `get_record_detail`, for a type that
+implements `BugCatcher\Mcp\HasMcpDetails`:
+
+```php
+class RecordCron extends Record implements HasMcpDetails
+{
+    public function getMcpDetails(): array {
+        return [
+            'command'          => $this->command,
+            'lastStart'        => $this->lastStart?->format('Y-m-d H:i:s'),
+            'runtimeSeconds'   => $this->runtimeSeconds(),
+            'estimatedSeconds' => $this->estimated,
+        ];
+    }
+}
+```
+
+Flat and already printable - the client reads JSON. `details` is null for a type that does not
+implement it, and the key is always present. See [custom_record.md](custom_record.md).
 
 ### Installation
 
@@ -76,6 +129,9 @@ security:
 bug_catcher:
   mcp:
     access_token: '%env(default::MCP_ACCESS_TOKEN)%'   # the default
+    record_types:                                      # the default
+      - BugCatcher\Entity\RecordLog
+      - BugCatcher\Entity\RecordLogTrace
 ```
 
 Two environment variables:

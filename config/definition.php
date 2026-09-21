@@ -21,6 +21,20 @@ return static function (DefinitionConfigurator $definition): void {
 		// resolves to null when MCP_ACCESS_TOKEN is not set, and a null token refuses every
 		// request - see McpAccessTokenHandler
 		->scalarNode("access_token")->defaultValue('%env(default::MCP_ACCESS_TOKEN)%')->end()
+		// the record types search_records, get_record_detail and set_record_status work on.
+		// Subclasses of a listed class are included, so RecordLog brings RecordLogTrace. Kept
+		// apart from dashboard_list_items: an AI holding the token can resolve what it finds, so
+		// that is a decision to take, not a side effect of putting a type on a page. RecordPing
+		// cannot be listed at all - it has neither a hash nor a component name. An empty list
+		// would compile to "discr IN ()", hence the guards.
+		->arrayNode("record_types")
+		->defaultValue([
+			RecordLog::class,
+			RecordLogTrace::class,
+		])
+		->requiresAtLeastOneElement()
+		->prototype('scalar')->cannotBeEmpty()->end()
+		->end()
 		->end()
 		->end()
 		->arrayNode("dashboard_components")

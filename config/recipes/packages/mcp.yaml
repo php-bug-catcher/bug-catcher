@@ -5,10 +5,15 @@ mcp:
       description: 'Read and resolve the errors Bug Catcher collected from the client applications.'
       instructions: |
         Start with list_projects to learn the project codes, then search_records to find the
-        unresolved errors of one of them. Read an error with get_record_detail before fixing it -
-        resolving it afterwards may drop the stack trace for good. Once the cause is fixed in the
-        client application, call set_record_status with "resolved", or with "archived" for an error
-        that needs no fixing.
+        unresolved errors of one of them. Not every entry is a PHP exception: each one carries a
+        "type" - "log" and "trace-log" are reports from the client application, and this instance may
+        add its own, such as "cron" for a scheduled command that did not finish. A type that carries
+        no monolog level reports level null and is left out when minLevel is given; pass "type" to
+        search_records to look at one kind only. Read an error with get_record_detail before fixing
+        it - resolving it afterwards may drop the stack trace for good, and the "details" key there
+        carries whatever the record type knows beyond the common fields. Once the cause is fixed in
+        the client application, call set_record_status with "resolved", or with "archived" for an
+        error that needs no fixing.
       transports:
         http: true
       http:

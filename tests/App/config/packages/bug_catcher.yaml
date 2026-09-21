@@ -2,6 +2,12 @@ bug_catcher:
     logo: 'default'
     mcp:
         access_token: 'test-mcp-token'
+        # the custom type is listed so the tools are exercised against a subtype of Record that is
+        # not a RecordLog - which is the case the bundle got wrong before
+        record_types:
+            - BugCatcher\Entity\RecordLog
+            - BugCatcher\Entity\RecordLogTrace
+            - BugCatcher\Tests\App\Entity\RecordCron
     collectors:
         Http: http
         Messenger: messenger
@@ -11,7 +17,7 @@ bug_catcher:
     dashboard_list_items:
         - BugCatcher\Entity\RecordLog
         - BugCatcher\Entity\RecordLogTrace
-        - App\Entity\RecordCron
+        - BugCatcher\Tests\App\Entity\RecordCron
     detail_components:
         BugCatcher\Entity\RecordLogTrace:
             - 'Detail:Header'
@@ -22,7 +28,7 @@ bug_catcher:
             - 'Detail:Header'
             - 'Detail:Title'
             - 'Detail:HistoryList'
-        App\Entity\RecordCron:
+        BugCatcher\Tests\App\Entity\RecordCron:
             - 'Detail:Header'
             - 'Detail:Title'
             - 'Detail:HistoryList'

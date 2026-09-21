@@ -85,6 +85,46 @@ bug_catcher:
         - App\Entity\MyRecord
 ```
 
+### Expose it to the MCP server
+
+The [MCP server](mcp.md) works from an allowlist of its own, so that adding a type to a page does not
+also hand it to an assistant holding the token. List it to make it searchable:
+
+```yaml
+# config/packages/bug_catcher.yaml
+bug_catcher:
+    mcp:
+        record_types:
+            - BugCatcher\Entity\RecordLog
+            - BugCatcher\Entity\RecordLogTrace
+            - App\Entity\MyRecord
+```
+
+`Record` answers `getMessage()`, `getLevel()` and `getRequestUri()` with null, so the tools already
+have a shape for your type. Override the ones you can say something about - a message worked out from
+your own fields is usually the useful one - and implement `BugCatcher\Mcp\HasMcpDetails` to send the
+rest along:
+
+```php
+use BugCatcher\Mcp\HasMcpDetails;
+
+class MyRecord extends Record implements HasMcpDetails
+{
+    public function getMessage(): ?string {
+        return sprintf('%s ran %ds longer than expected', $this->command, $this->overrunSeconds());
+    }
+
+    /** @return array<string, scalar|null> */
+    public function getMcpDetails(): array {
+        return ['command' => $this->command, 'runtimeSeconds' => $this->runtimeSeconds()];
+    }
+}
+```
+
+Those three method names are effectively reserved by `RecordLog`; declaring one with an incompatible
+signature is a fatal error, and the return types have to stay compatible (narrowing `?string` to
+`string` is fine).
+
 ### Override Batch Delete
 
 The dashboard's "Fix selected" button physically deletes selected records in a single SQL statement.

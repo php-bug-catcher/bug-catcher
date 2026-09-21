@@ -4,6 +4,7 @@ namespace BugCatcher\Tests\Functional\Mcp;
 
 use BugCatcher\Entity\Project;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\Factory\RecordCronFactory;
 use BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Tests\Functional\apiTestHelper;
@@ -100,6 +101,40 @@ class McpToolsTest extends KernelTestCase {
 			[],
 			$this->callTool($browser, $session, 'search_records', ['projectCode' => 'shop'])['payload']
 		);
+	}
+
+	/**
+	 * A record type the application added, all the way out to the client: it has to arrive with the
+	 * type it is and with the fields only that type knows, not flattened into the common shape.
+	 */
+	public function testACustomRecordTypeSurvivesTheRoundTripWithItsOwnFields() {
+		$this->project = ProjectFactory::createOne(["code" => "shop", "enabled" => true])->_real();
+		RecordCronFactory::createOne([
+			'project'   => $this->project,
+			'status'    => 'new',
+			'command'   => 'app:import',
+			'date'      => new DateTimeImmutable('-1 hour'),
+			'lastStart' => new DateTimeImmutable('-1 hour'),
+			'lastEnd'   => null,
+		]);
+		[$browser] = $this->browser();
+		$session   = $this->openSession($browser);
+
+		$found = $this->callTool($browser, $session, 'search_records', [
+			'projectCode' => 'shop',
+			'type'        => 'cron',
+		]);
+
+		$this->assertFalse($found['isError'], $found['text']);
+		$this->assertSame('cron', $found['payload'][0]['type']);
+
+		$detail = $this->callTool($browser, $session, 'get_record_detail', [
+			'recordId' => $found['payload'][0]['id'],
+		]);
+
+		$this->assertFalse($detail['isError'], $detail['text']);
+		$this->assertSame('app:import', $detail['payload']['details']['command']);
+		$this->assertNull($detail['payload']['details']['lastEnd']);
 	}
 
 	/**
