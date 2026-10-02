@@ -2,6 +2,7 @@
 
 use BugCatcher\Entity\RecordLog;
 use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordPerformance;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 
 /**
@@ -120,6 +121,9 @@ return static function (DefinitionConfigurator $definition): void {
 		->defaultValue([
 			RecordLog::class,
 			RecordLogTrace::class,
+			// a regression is an error somebody has to look at, so it belongs on the page with
+			// the other errors - unlike the buckets it was found in, which are a chart
+			RecordPerformance::class,
 		])
 		->prototype('scalar')->end()
 		->end()
@@ -153,6 +157,11 @@ return static function (DefinitionConfigurator $definition): void {
 				'Detail:StackTrace',
 			],
 			RecordLog::class      => [
+				'Detail:Header',
+				'Detail:Title',
+				'Detail:HistoryList',
+			],
+			RecordPerformance::class => [
 				'Detail:Header',
 				'Detail:Title',
 				'Detail:HistoryList',

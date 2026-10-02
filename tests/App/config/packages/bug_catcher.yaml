@@ -17,6 +17,7 @@ bug_catcher:
     dashboard_list_items:
         - BugCatcher\Entity\RecordLog
         - BugCatcher\Entity\RecordLogTrace
+        - BugCatcher\Entity\RecordPerformance
         - BugCatcher\Tests\App\Entity\RecordCron
     detail_components:
         BugCatcher\Entity\RecordLogTrace:
@@ -25,6 +26,10 @@ bug_catcher:
             - 'Detail:HistoryList'
             - 'Detail:StackTrace'
         BugCatcher\Entity\RecordLog:
+            - 'Detail:Header'
+            - 'Detail:Title'
+            - 'Detail:HistoryList'
+        BugCatcher\Entity\RecordPerformance:
             - 'Detail:Header'
             - 'Detail:Title'
             - 'Detail:HistoryList'

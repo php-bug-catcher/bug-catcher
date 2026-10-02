@@ -40,6 +40,11 @@ namespace {
             ->arg('$mr', service('doctrine'));
 
 		$services->alias(BatchRecordDeleteInterface::class, BatchRecordDeleteService::class);
+
+		// the two halves of detection an installation is meant to be able to replace: what normal
+		// is, and when a change to it is worth a notification
+		$services->alias(BaselineProviderInterface::class, DayOfWeekBaselineProvider::class);
+		$services->alias(AnomalyPolicyInterface::class, ConjunctiveThresholdPolicy::class);
 	};
 
 }

@@ -3,6 +3,7 @@
 namespace BugCatcher;
 
 use BugCatcher\Api\Processor\PerfBucketBatchProcessor;
+use BugCatcher\Command\PerfDetectCommand;
 use BugCatcher\Command\PerfPurgeCommand;
 use BugCatcher\Command\PerfRollupCommand;
 use BugCatcher\Controller\Admin\NotifierCrudController;
@@ -23,7 +24,11 @@ use BugCatcher\Service\Perf\Detection\Extractor\AvgMetricExtractor;
 use BugCatcher\Service\Perf\Detection\Extractor\ErrorRateMetricExtractor;
 use BugCatcher\Service\Perf\Detection\Extractor\MemMetricExtractor;
 use BugCatcher\Service\Perf\Detection\Extractor\P95MetricExtractor;
+use BugCatcher\Service\Perf\Detection\ConjunctiveThresholdPolicy;
+use BugCatcher\Service\Perf\Detection\DayOfWeekBaselineProvider;
+use BugCatcher\Service\Perf\Detection\DetectionRunner;
 use BugCatcher\Service\Perf\Detection\MetricExtractorRegistry;
+use BugCatcher\Service\Perf\Detection\RegressionDetector;
 use BugCatcher\Service\Perf\Retention\RetentionPolicy;
 use BugCatcher\Service\Perf\Rollup\PathCapEnforcer;
 use BugCatcher\Twig\Components\Favicon;
@@ -32,6 +37,7 @@ use BugCatcher\Twig\Components\StatusList;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -84,7 +90,41 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$retention', $config["perf"]["retention"]);
-		foreach ([PerfRollupCommand::class, PerfPurgeCommand::class] as $class) {
+		$services->set(ConjunctiveThresholdPolicy::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$factor', $config["perf"]["anomaly"]["factor"])
+			->arg('$minAbsoluteMs', $config["perf"]["anomaly"]["min_absolute_ms"])
+			->arg('$minHits', $config["perf"]["anomaly"]["min_hits"]);
+		$services->set(DayOfWeekBaselineProvider::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$lookbackWeeks', $config["perf"]["baseline"]["lookback_weeks"]);
+		$services->set(RegressionDetector::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$metricName', $config["perf"]["anomaly"]["metric"]);
+
+		// the built-in detector, with bug_catcher.perf.detector_services merged over it; an
+		// unknown name in perf.detectors stops the build rather than quietly detecting nothing
+		$detectors = [RegressionDetector::NAME => service(RegressionDetector::class)];
+		foreach ($config["perf"]["detector_services"] as $name => $id) {
+			$detectors[$name] = service($id);
+		}
+		$enabledDetectors = [];
+		foreach ($config["perf"]["detectors"] as $name) {
+			$enabledDetectors[] = $detectors[$name] ?? throw new InvalidArgumentException(sprintf(
+				'bug_catcher.perf.detectors names %s, which is not a detector. Known: %s.',
+				$name,
+				implode(', ', array_keys($detectors)),
+			));
+		}
+		$services->set(DetectionRunner::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$detectors', $enabledDetectors);
+
+		foreach ([PerfRollupCommand::class, PerfPurgeCommand::class, PerfDetectCommand::class] as $class) {
 			$services->set($class)
 				->autowire()
 				->autoconfigure()
