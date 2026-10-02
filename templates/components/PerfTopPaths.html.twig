@@ -1,0 +1,79 @@
+{#
+	The phptop table. Every control is a writable LiveProp, so `data-model` is the whole of the
+	interaction - the server re-reads the report and re-renders the table.
+#}
+{% set report = this.report %}
+{% set unitSuffix = this.perHit ? '/hit' : '' %}
+
+<div{{ attributes.defaults({class:'panel p-3'}) }}>
+	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
+		<span class="text-sm font-semibold text-fg">{{ 'Heaviest routes'|trans }}</span>
+
+		<select data-model="hours" class="input input-sm" aria-label="{{ 'Window'|trans }}">
+			{% for hours, label in this.windows %}
+				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
+			{% endfor %}
+		</select>
+
+		<select data-model="group" class="input input-sm" aria-label="{{ 'Group by'|trans }}">
+			{% for group in this.groups %}
+				<option value="{{ group.value }}" {{ group == this.group ? 'selected' : '' }}>{{ group.label|trans }}</option>
+			{% endfor %}
+		</select>
+
+		<label class="chip chip-info cursor-pointer">
+			<input type="checkbox" data-model="perHit" {{ this.perHit ? 'checked' : '' }} class="mr-1">
+			{{ 'Per hit'|trans }}
+		</label>
+
+		<span class="ml-auto text-xs tabular-nums text-muted">
+			{{ report.window.from|date('d.m. H:i') }} – {{ report.window.to|date('H:i') }}
+		</span>
+	</div>
+
+	{% if report.isEmpty %}
+		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
+	{% else %}
+		<table class="w-full text-sm">
+			<thead>
+			<tr class="border-b border-line text-left text-xs uppercase text-muted">
+				<th class="py-1 pr-2 font-medium">{{ report.group.label|trans }}</th>
+				{% for sort in this.sorts %}
+					<th class="py-1 pl-2 text-right font-medium">
+						{# the header is the sort control: clicking it is the only way to reorder #}
+						<button type="button"
+								data-model="sort"
+								value="{{ sort.value }}"
+								data-action="live#update"
+								class="{{ sort == this.sort ? 'text-accent' : 'hover:text-fg' }}"
+						>{{ sort.label|trans }}</button>
+					</th>
+				{% endfor %}
+			</tr>
+			</thead>
+			<tbody>
+			{% for row in report.rows %}
+				<tr class="border-b border-line/40 last:border-0 hover:bg-surface-2/60">
+					<td class="max-w-0 truncate py-1 pr-2 font-mono" title="{{ row.label }}">{{ row.label }}</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ row.hits }}</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.msPerHit : row.totalMs)|round(1) }} ms{{ unitSuffix }}</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.userMsPerHit : row.userMs)|round(1) }} ms</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.sysMsPerHit : row.sysMs)|round(1) }} ms</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ (row.memPerHit / 1048576)|round(1) }} MiB</td>
+					<td class="py-1 pl-2 text-right tabular-nums">{{ (row.maxMem / 1048576)|round(1) }} MiB</td>
+					<td class="py-1 pl-2 text-right tabular-nums">
+						{{ row.p95Ms is null ? '–' : (row.p95Ms|round(1) ~ ' ms') }}
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+		{% if report.truncated %}
+			{# a table that silently shows the top of a list it cut off reads as the whole list #}
+			<p class="pt-2 text-xs text-muted">
+				{{ 'Showing the %limit% busiest rows of the window.'|trans({'%limit%': this.limit}) }}
+			</p>
+		{% endif %}
+	{% endif %}
+</div>

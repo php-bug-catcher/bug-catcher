@@ -1,0 +1,7 @@
+{# The latency twin of LogSparkLine, so it sits on the same row grid and uses the same
+   .sparkline hook in app.css - one stylesheet rule for both charts. #}
+<div{{ attributes.defaults({
+	class:'sparkline col-span-4'
+}) }} title="{{ 'p95 over the last %hours% hours'|trans({'%hours%': this.graphHours}) }}">
+	{{ this.sparkLine|raw }}
+</div>

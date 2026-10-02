@@ -1,0 +1,6 @@
+# Live components generate their own endpoint URL while rendering, so without this route every
+# test that renders one fails on "route ux_live_component does not exist". A real application
+# gets this file from the symfony/ux-live-component recipe.
+live_component:
+    resource: '@LiveComponentBundle/config/routes.php'
+    prefix: /_components
