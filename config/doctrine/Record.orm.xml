@@ -18,6 +18,7 @@
             <discriminator-mapping value="log" class="BugCatcher\Entity\RecordLog"/>
             <discriminator-mapping value="trace-log" class="BugCatcher\Entity\RecordLogTrace"/>
             <discriminator-mapping value="ping" class="BugCatcher\Entity\RecordPing"/>
+            <discriminator-mapping value="perf" class="BugCatcher\Entity\RecordPerformance"/>
         </discriminator-map>
         <id name="id" type="uuid" column="id">
             <generator strategy="CUSTOM"/>

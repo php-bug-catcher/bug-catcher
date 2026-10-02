@@ -6,6 +6,7 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordLog;
 use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordPerformance;
 use BugCatcher\Entity\RecordPing;
 use BugCatcher\Enum\RecordEventType;
 use BugCatcher\Event\RecordEvent;
@@ -19,6 +20,7 @@ class BatchRecordDeleteService implements BatchRecordDeleteInterface {
 		RecordLog::class,
 		RecordLogTrace::class,
 		RecordPing::class,
+		RecordPerformance::class,
 	];
 
 	public function __construct(
@@ -36,11 +38,12 @@ class BatchRecordDeleteService implements BatchRecordDeleteInterface {
 
 		$placeholders = implode(',', array_fill(0, count($binaryIds), '?'));
 		$this->em->getConnection()->executeStatement(
-			'DELETE record_log_trace, record_log, record_ping, record
+			'DELETE record_log_trace, record_log, record_ping, record_performance, record
              FROM record
              LEFT JOIN record_log ON record.id = record_log.id
              LEFT JOIN record_log_trace ON record_log.id = record_log_trace.id
              LEFT JOIN record_ping ON record.id = record_ping.id
+             LEFT JOIN record_performance ON record.id = record_performance.id
              WHERE record.id IN (' . $placeholders . ')',
 			$binaryIds
 		);

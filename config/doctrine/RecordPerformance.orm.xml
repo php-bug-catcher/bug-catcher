@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+
+    <!--
+        A joined subclass of record, like record_log: the common columns stay in `record` and only
+        what a regression adds is here. `metric` is a string rather than an enum column because an
+        application can register a metric of its own under bug_catcher.perf.metrics, and `unit` is
+        stored so the record still renders as a sentence when that extractor is long gone.
+
+        No index of its own - every read of this table arrives through `record`.
+    -->
+    <entity name="BugCatcher\Entity\RecordPerformance"
+            table="record_performance"
+            repository-class="BugCatcher\Repository\RecordPerformanceRepository"
+    >
+        <field name="path" type="string" length="1024"/>
+        <field name="metric" type="string" length="32"/>
+        <field name="unit" type="string" length="10" enum-type="BugCatcher\Enum\PerfUnit"/>
+        <!-- in the unit of the metric: milliseconds, a ratio or bytes -->
+        <field name="baseline" type="float"/>
+        <field name="observed" type="float"/>
+        <!-- the start of the window the regression was observed in, not when it was recorded -->
+        <field name="windowAt" type="datetime_immutable"/>
+    </entity>
+</doctrine-mapping>
