@@ -42,6 +42,15 @@ final readonly class PerfReportBuilder
 
 	public const int DEFAULT_TOP_PATHS = 20;
 
+	/**
+	 * The windows a panel offers, in hours.
+	 *
+	 * It stops at a week because that is where the series stops being readable *and* affordable:
+	 * seven days of hours is 168 points, and a chart is inline SVG - one bar per point per
+	 * series, in the page.
+	 */
+	public const array WINDOW_HOURS = [1 => '1 h', 6 => '6 h', 24 => '24 h', 168 => '7 d'];
+
 	public function __construct(
 		private PerfBucketRepository $repository,
 		private PercentileEstimator $percentiles,

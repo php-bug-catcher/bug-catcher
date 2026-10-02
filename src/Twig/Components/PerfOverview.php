@@ -94,6 +94,6 @@ final class PerfOverview
 	/** @return array<int, string> the windows the control offers, in hours */
 	public function getWindows(): array
 	{
-		return [1 => '1 h', 6 => '6 h', 24 => '24 h', 168 => '7 d'];
+		return PerfReportBuilder::WINDOW_HOURS;
 	}
 }

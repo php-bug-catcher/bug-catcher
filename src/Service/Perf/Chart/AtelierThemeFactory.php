@@ -60,19 +60,7 @@ final readonly class AtelierThemeFactory
 		return $this->formatter(PerfUnit::Milliseconds);
 	}
 
-	/** Tick labels for an axis of bytes: 2 MiB. */
-	public function bytes(): ValueFormatterInterface
-	{
-		return $this->formatter(PerfUnit::Bytes);
-	}
-
-	/** Tick labels for an axis of shares: 12%. */
-	public function ratio(): ValueFormatterInterface
-	{
-		return $this->formatter(PerfUnit::Ratio);
-	}
-
-	/** The formatter an axis of this unit reads with. */
+	/** Tick labels for an axis of whatever unit the chart is drawn in: 2 MiB, 12%, 3.1 s. */
 	public function forUnit(PerfUnit $unit): ValueFormatterInterface
 	{
 		return $this->formatter($unit);

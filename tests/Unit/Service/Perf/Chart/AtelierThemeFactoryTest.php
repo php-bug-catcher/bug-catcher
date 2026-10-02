@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BugCatcher\Tests\Unit\Service\Perf\Chart;
 
+use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Chart\AtelierThemeFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -88,8 +89,19 @@ class AtelierThemeFactoryTest extends TestCase
 		$this->assertSame('3', $counts->format(2.6));
 	}
 
-	public function testAnAxisOfBytesReadsAsBytes(): void
+	/** @dataProvider units */
+	public function testAnAxisReadsInTheUnitItIsDrawnIn(PerfUnit $unit, float $value, string $expected): void
 	{
-		$this->assertSame('2 MiB', (new AtelierThemeFactory())->bytes()->format(2_097_152.0));
+		$this->assertSame($expected, (new AtelierThemeFactory())->forUnit($unit)->format($value));
+	}
+
+	/** @return array<string, array{PerfUnit, float, string}> */
+	public static function units(): array
+	{
+		return [
+			'bytes'       => [PerfUnit::Bytes, 2_097_152.0, '2 MiB'],
+			'a share'     => [PerfUnit::Ratio, 0.12, '12%'],
+			'a duration'  => [PerfUnit::Milliseconds, 3100.0, '3.1 s'],
+		];
 	}
 }
