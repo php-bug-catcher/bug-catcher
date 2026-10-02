@@ -16,10 +16,13 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class PingCollectorTest extends KernelTestCase
 {
+    use Factories;
+
     //use ResetDatabase;
 
     public function testAlwaysOkCollector()

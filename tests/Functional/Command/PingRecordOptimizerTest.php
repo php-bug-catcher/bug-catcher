@@ -15,9 +15,12 @@ use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\Response;
+use Zenstruck\Foundry\Test\Factories;
 
 class PingRecordOptimizerTest extends KernelTestCase
 {
+    use Factories;
+
     //use ResetDatabase;
     /**
      * @dataProvider logsProvider

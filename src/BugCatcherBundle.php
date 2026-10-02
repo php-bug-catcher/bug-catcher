@@ -3,6 +3,8 @@
 namespace BugCatcher;
 
 use BugCatcher\Api\Processor\PerfBucketBatchProcessor;
+use BugCatcher\Command\PerfPurgeCommand;
+use BugCatcher\Command\PerfRollupCommand;
 use BugCatcher\Controller\Admin\NotifierCrudController;
 use BugCatcher\Controller\Admin\NotifierEmailCrudController;
 use BugCatcher\Controller\Admin\NotifierFaviconCrudController;
@@ -61,6 +63,12 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$retention', $config["perf"]["retention"]);
+		foreach ([PerfRollupCommand::class, PerfPurgeCommand::class] as $class) {
+			$services->set($class)
+				->autowire()
+				->autoconfigure()
+				->arg('$enabled', $config["perf"]["enabled"]);
+		}
 		$services->set(DashboardController::class)
 			->autowire()
 			->autoconfigure()
