@@ -10,7 +10,7 @@ use BugCatcher\Service\Perf\Detection\Extractor\ErrorRateMetricExtractor;
 use BugCatcher\Service\Perf\Detection\Extractor\MemMetricExtractor;
 use BugCatcher\Service\Perf\Detection\Extractor\P95MetricExtractor;
 use BugCatcher\Service\Perf\Detection\MetricExtractorInterface;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\Histogram\PercentileEstimator;
 use PHPUnit\Framework\TestCase;
@@ -98,13 +98,13 @@ class MetricExtractorTest extends TestCase
 		int $clientErrors = 0,
 		int $serverErrors = 0,
 		array $histogram = [],
-	): PathWindowStats {
+	): WindowAggregate {
 		$bins = HistogramBins::empty();
 		foreach ($histogram as $bin => $count) {
 			$bins[$bin] = $count;
 		}
 
-		return new PathWindowStats(
+		return new WindowAggregate(
 			'/checkout',
 			md5('/checkout'),
 			$hits,

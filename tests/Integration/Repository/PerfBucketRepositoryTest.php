@@ -361,7 +361,7 @@ class PerfBucketRepositoryTest extends KernelTestCase
 			array_keys($stats),
 		);
 		$this->assertSame(10, $stats[PerfBucket::hashPath('/user/{id}')]->hits);
-		$this->assertSame('/user/{id}', $stats[PerfBucket::hashPath('/user/{id}')]->path);
+		$this->assertSame('/user/{id}', $stats[PerfBucket::hashPath('/user/{id}')]->label);
 		$this->assertSame(7, $stats[PerfBucket::hashPath('/feed/')]->hits);
 	}
 

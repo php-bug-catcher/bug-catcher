@@ -7,7 +7,7 @@ namespace BugCatcher\Service\Perf\Detection\Extractor;
 use BugCatcher\Enum\PerfMetric;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Detection\MetricExtractorInterface;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Service\Perf\WindowAggregate;
 
 /**
  * Mean wallclock per request.
@@ -28,12 +28,12 @@ final readonly class AvgMetricExtractor implements MetricExtractorInterface
 		return PerfUnit::Milliseconds;
 	}
 
-	public function extract(PathWindowStats $stats): ?float
+	public function extract(WindowAggregate $window): ?float
 	{
-		if ($stats->hits === 0) {
+		if ($window->hits === 0) {
 			return null;
 		}
 
-		return $stats->sumDuration / $stats->hits * 1000;
+		return $window->sumDuration / $window->hits * 1000;
 	}
 }

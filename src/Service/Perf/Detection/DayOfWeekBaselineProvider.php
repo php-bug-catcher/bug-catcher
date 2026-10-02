@@ -8,6 +8,7 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Repository\PerfBucketRepository;
 use BugCatcher\Service\Perf\PerfWindow;
+use BugCatcher\Service\Perf\WindowAggregate;
 use DateInterval;
 
 /**
@@ -34,7 +35,7 @@ use DateInterval;
  */
 final class DayOfWeekBaselineProvider implements BaselineProviderInterface
 {
-	/** @var array<string, array<string, PathWindowStats>> */
+	/** @var array<string, array<string, WindowAggregate>> */
 	private array $weeks = [];
 
 	public function __construct(
@@ -52,12 +53,12 @@ final class DayOfWeekBaselineProvider implements BaselineProviderInterface
 		$samples = [];
 
 		for ($week = 1; $week <= $this->lookbackWeeks; $week++) {
-			$stats = $this->week($project, $window, $week)[$pathHash] ?? null;
-			if ($stats === null) {
+			$route = $this->week($project, $window, $week)[$pathHash] ?? null;
+			if ($route === null) {
 				continue;
 			}
 
-			$value = $metric->extract($stats);
+			$value = $metric->extract($route);
 			if ($value !== null) {
 				$samples[] = $value;
 			}
@@ -70,7 +71,7 @@ final class DayOfWeekBaselineProvider implements BaselineProviderInterface
 	 * The same hour of the day, that many weeks back. Subtracting whole days keeps the clock time
 	 * rather than the elapsed hours, which is what makes it survive a change of daylight saving.
 	 *
-	 * @return array<string, PathWindowStats>
+	 * @return array<string, WindowAggregate>
 	 */
 	private function week(Project $project, PerfWindow $window, int $week): array
 	{

@@ -7,7 +7,7 @@ namespace BugCatcher\Service\Perf\Detection\Extractor;
 use BugCatcher\Enum\PerfMetric;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Detection\MetricExtractorInterface;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Service\Perf\WindowAggregate;
 
 /**
  * Peak memory of the average request.
@@ -27,12 +27,12 @@ final readonly class MemMetricExtractor implements MetricExtractorInterface
 		return PerfUnit::Bytes;
 	}
 
-	public function extract(PathWindowStats $stats): ?float
+	public function extract(WindowAggregate $window): ?float
 	{
-		if ($stats->hits === 0) {
+		if ($window->hits === 0) {
 			return null;
 		}
 
-		return $stats->sumMem / $stats->hits;
+		return $window->sumMem / $window->hits;
 	}
 }

@@ -7,7 +7,7 @@ namespace BugCatcher\Service\Perf\Detection\Extractor;
 use BugCatcher\Enum\PerfMetric;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Detection\MetricExtractorInterface;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Service\Perf\Histogram\PercentileEstimator;
 
 /**
@@ -32,8 +32,8 @@ final readonly class P95MetricExtractor implements MetricExtractorInterface
 		return PerfUnit::Milliseconds;
 	}
 
-	public function extract(PathWindowStats $stats): ?float
+	public function extract(WindowAggregate $window): ?float
 	{
-		return $this->percentiles->p95($stats->durationHistogram);
+		return $this->percentiles->p95($window->durationHistogram);
 	}
 }

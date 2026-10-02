@@ -7,6 +7,7 @@
     "require": {
         "php": ">=8.4",
         "api-platform/core": "^4.1.30",
+        "atelier/chart": "^0.7",
         "easycorp/easyadmin-bundle": "^4.10",
         "kregel/exception-probe": "^1.0",
         "nyholm/psr7": "^1.8",

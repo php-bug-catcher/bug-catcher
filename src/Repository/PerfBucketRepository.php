@@ -9,7 +9,8 @@ use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\PerfBucketExtra;
 use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Enum\PerfTopPathGroup;
+use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\PerfWindow;
 use DateTimeImmutable;
@@ -43,9 +44,6 @@ final class PerfBucketRepository extends ServiceEntityRepository
 {
 	/** One row of a bucket: a route on a machine on a vhost. */
 	private const array PER_BUCKET_ROW = ['serverName', 'host', 'pathHash'];
-
-	/** One route over a window, machines and vhosts folded together. */
-	private const array PER_PATH = ['pathHash'];
 
 	public function __construct(ManagerRegistry $registry)
 	{
@@ -224,27 +222,122 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	 * What every route did over a window, one entry per route.
 	 *
 	 * Machines and vhosts are folded together here, unlike in {@see aggregateInto()}: this feeds
-	 * detection, and "checkout got slower" is a statement about the route. A regression that shows
-	 * on one machine out of three still shows in the total.
+	 * detection, and "checkout got slower" is a statement about the route. A regression that
+	 * shows on one machine out of three still shows in the total.
 	 *
 	 * @param DateTimeImmutable $to exclusive
-	 * @return array<string, PathWindowStats> keyed by path hash
+	 * @param string|null $pathHash one route rather than all of them
+	 * @return array<string, WindowAggregate> keyed by path hash
 	 */
 	public function aggregateByPath(
 		PerfGranularity $granularity,
 		Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
+		?string $pathHash = null,
 	): array {
-		$extra = $this->aggregateExtra(self::PER_PATH, $granularity, $project, $from, $to);
-		$stats = [];
+		return $this->aggregate('pathHash', 'path', $granularity, $project, $from, $to, $pathHash);
+	}
 
-		foreach ($this->aggregateRows(self::PER_PATH, $granularity, $project, $from, $to) as $row) {
-			$pathHash = (string)$row['pathHash'];
+	/**
+	 * The same window sliced by whatever the table on the page is grouped by.
+	 *
+	 * Ordered by traffic and limited in SQL, because the number of distinct routes in a window is
+	 * whatever the monitored application produced and the page shows a screenful. A consequence
+	 * worth knowing: a table sorted by p95 is the slowest **of the busiest** rows, since the
+	 * percentile is estimated from the bins after they have been summed.
+	 *
+	 * @return array<string, WindowAggregate>
+	 */
+	public function aggregateGrouped(
+		PerfTopPathGroup $group,
+		PerfGranularity $granularity,
+		Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		int $limit,
+	): array {
+		return $this->aggregate(
+			$group->field(),
+			$group === PerfTopPathGroup::Path ? 'path' : $group->field(),
+			$granularity,
+			$project,
+			$from,
+			$to,
+			limit: $limit,
+		);
+	}
 
-			$stats[$pathHash] = new PathWindowStats(
-				(string)$row['path'],
-				$pathHash,
+	/**
+	 * One entry per bucket of the window, in order, for the charts.
+	 *
+	 * Buckets nothing happened in are simply absent here; filling the gaps belongs to
+	 * {@see \BugCatcher\Service\Perf\Report\PerfReportBuilder}, which knows which boundaries
+	 * the window has.
+	 *
+	 * @return array<string, WindowAggregate> keyed by `Y-m-d H:i:s` of the bucket
+	 */
+	public function aggregateByBucket(
+		PerfGranularity $granularity,
+		Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		?string $pathHash = null,
+	): array {
+		$type       = Type::getType(Types::DATETIME_IMMUTABLE);
+		$platform   = $this->connection()->getDatabasePlatform();
+		$aggregates = [];
+
+		foreach ($this->aggregate('bucketAt', 'bucketAt', $granularity, $project, $from, $to, $pathHash) as $slice) {
+			$at = $type->convertToPHPValue($slice->label, $platform)->format('Y-m-d H:i:s');
+
+			$aggregates[$at] = new WindowAggregate(
+				$at,
+				$at,
+				$slice->hits,
+				$slice->sumDuration,
+				$slice->sumUser,
+				$slice->sumSys,
+				$slice->maxDuration,
+				$slice->sumMem,
+				$slice->maxMem,
+				$slice->clientErrors,
+				$slice->serverErrors,
+				$slice->durationHistogram,
+				$slice->extra,
+			);
+		}
+
+		ksort($aggregates);
+
+		return $aggregates;
+	}
+
+	/**
+	 * @param string $keyField what identifies a slice
+	 * @param string $labelField what a slice is called
+	 * @return array<string, WindowAggregate>
+	 */
+	private function aggregate(
+		string $keyField,
+		string $labelField,
+		PerfGranularity $granularity,
+		Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		?string $pathHash = null,
+		?int $limit = null,
+	): array {
+		$groupBy    = [$keyField];
+		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash);
+		$aggregates = [];
+
+		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit) as $row) {
+			$key = (string)$row[$keyField];
+
+			$aggregates[$key] = new WindowAggregate(
+				(string)$row[$labelField],
+				$key,
 				(int)$row['hits'],
 				(float)$row['sumDuration'],
 				(float)$row['sumUser'],
@@ -255,11 +348,11 @@ final class PerfBucketRepository extends ServiceEntityRepository
 				(int)$row['clientErrors'],
 				(int)$row['serverErrors'],
 				$this->histogramOf($row),
-				$extra[$this->rowKey(self::PER_PATH, $row)] ?? [],
+				$extra[$key] ?? [],
 			);
 		}
 
-		return $stats;
+		return $aggregates;
 	}
 
 	/**
@@ -277,6 +370,8 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
+		?string $pathHash = null,
+		?int $limit = null,
 	): array {
 		$metadata = $this->bucketMetadata();
 
@@ -297,22 +392,33 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$select[] = sprintf('SUM(%s) AS bin%d', $column, $bin);
 		}
 
+		$params = [$granularity->value, $project->getId(), $from, $to];
+		$types  = [1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE];
+		$where  = '';
+
+		if ($pathHash !== null) {
+			$where    = sprintf(' AND %s = ?', $metadata->getColumnName('pathHash'));
+			$params[] = $pathHash;
+		}
+
 		$sql = sprintf(
-			'SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s >= ? AND %s < ? GROUP BY %s',
+			'SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s >= ? AND %s < ?%s GROUP BY %s',
 			implode(', ', $select),
 			$metadata->getTableName(),
 			$metadata->getColumnName('granularity'),
 			$metadata->getSingleAssociationJoinColumnName('project'),
 			$metadata->getColumnName('bucketAt'),
 			$metadata->getColumnName('bucketAt'),
+			$where,
 			implode(', ', array_map(fn(string $field): string => $metadata->getColumnName($field), $groupBy)),
 		);
 
-		return $this->connection()->fetchAllAssociative(
-			$sql,
-			[$granularity->value, $project->getId(), $from, $to],
-			[1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE],
-		);
+		// busiest first, so that a limit keeps the rows worth looking at
+		if ($limit !== null) {
+			$sql .= sprintf(' ORDER BY SUM(%s) DESC LIMIT %d', $metadata->getColumnName('hits'), $limit);
+		}
+
+		return $this->connection()->fetchAllAssociative($sql, $params, $types);
 	}
 
 	/**
@@ -329,6 +435,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
+		?string $pathHash = null,
 	): array {
 		$bucket = $this->bucketMetadata();
 		$metric = $this->getEntityManager()->getClassMetadata(PerfBucketExtra::class);
@@ -339,10 +446,19 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$groupBy,
 		);
 
+		$params = [$granularity->value, $project->getId(), $from, $to];
+		$types  = [1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE];
+		$route  = '';
+
+		if ($pathHash !== null) {
+			$route    = sprintf(' AND b.%s = ?', $bucket->getColumnName('pathHash'));
+			$params[] = $pathHash;
+		}
+
 		$sql = sprintf(
 			'SELECT %s, e.%s AS name, SUM(e.%s) AS value'
 			. ' FROM %s e INNER JOIN %s b ON b.%s = e.%s'
-			. ' WHERE b.%s = ? AND b.%s = ? AND b.%s >= ? AND b.%s < ?'
+			. ' WHERE b.%s = ? AND b.%s = ? AND b.%s >= ? AND b.%s < ?%s'
 			. ' GROUP BY %s, e.%s',
 			implode(', ', $select),
 			$metric->getColumnName('name'),
@@ -355,16 +471,13 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$bucket->getSingleAssociationJoinColumnName('project'),
 			$bucket->getColumnName('bucketAt'),
 			$bucket->getColumnName('bucketAt'),
+			$route,
 			implode(', ', $keyColumns),
 			$metric->getColumnName('name'),
 		);
 
 		$extra = [];
-		$rows  = $this->connection()->fetchAllAssociative(
-			$sql,
-			[$granularity->value, $project->getId(), $from, $to],
-			[1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE],
-		);
+		$rows  = $this->connection()->fetchAllAssociative($sql, $params, $types);
 
 		foreach ($rows as $row) {
 			$extra[$this->rowKey($groupBy, $row)][(string)$row['name']] = (float)$row['value'];

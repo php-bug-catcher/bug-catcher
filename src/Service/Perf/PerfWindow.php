@@ -39,4 +39,21 @@ final readonly class PerfWindow
 	{
 		return $at >= $this->from && $at < $this->to;
 	}
+
+	/**
+	 * Every bucket boundary in the window, oldest first.
+	 *
+	 * What a chart is drawn along: a series that simply omits the buckets nothing happened in
+	 * draws a line straight across an outage.
+	 *
+	 * @return iterable<DateTimeImmutable>
+	 */
+	public function boundaries(): iterable
+	{
+		$interval = $this->granularity->interval();
+
+		for ($at = $this->granularity->floor($this->from); $at < $this->to; $at = $at->add($interval)) {
+			yield $at;
+		}
+	}
 }

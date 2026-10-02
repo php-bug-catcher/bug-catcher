@@ -47,30 +47,30 @@ final readonly class RegressionDetector implements PerfDetectorInterface
 			$window->to,
 		);
 
-		foreach ($routes as $stats) {
+		foreach ($routes as $route) {
 			// the roll-up's overflow row is not a route: "everything else got slower" is nothing
 			// anybody can open, and the fix for seeing it is a normalisation rule
-			if ($stats->path === PerfBucket::OTHER_PATH) {
+			if ($route->label === PerfBucket::OTHER_PATH) {
 				continue;
 			}
 
-			$observed = $metric->extract($stats);
+			$observed = $metric->extract($route);
 			if ($observed === null) {
 				continue;
 			}
 
-			$baseline = $this->baselines->baselineFor($project, $stats->pathHash, $window, $metric);
+			$baseline = $this->baselines->baselineFor($project, $route->key, $window, $metric);
 			if ($baseline === null) {
 				continue;
 			}
 
-			if (!$this->policy->isAnomalous($baseline, $observed, $stats->hits, $metric->unit())) {
+			if (!$this->policy->isAnomalous($baseline, $observed, $route->hits, $metric->unit())) {
 				continue;
 			}
 
 			yield new AnomalyFinding(
 				$project,
-				$stats->path,
+				$route->label,
 				$metric->name(),
 				$metric->unit(),
 				$baseline,

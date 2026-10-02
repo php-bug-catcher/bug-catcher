@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BugCatcher\Service\Perf\Detection;
 
 use BugCatcher\Enum\PerfUnit;
+use BugCatcher\Service\Perf\WindowAggregate;
 
 /**
  * One number worth watching, pulled out of what a route did over a window.
@@ -26,5 +27,5 @@ interface MetricExtractorInterface
 	public function unit(): PerfUnit;
 
 	/** @return float|null null when the window holds nothing this metric could be computed from */
-	public function extract(PathWindowStats $stats): ?float;
+	public function extract(WindowAggregate $window): ?float;
 }

@@ -7,7 +7,7 @@ namespace BugCatcher\Service\Perf\Detection\Extractor;
 use BugCatcher\Enum\PerfMetric;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Detection\MetricExtractorInterface;
-use BugCatcher\Service\Perf\Detection\PathWindowStats;
+use BugCatcher\Service\Perf\WindowAggregate;
 
 /**
  * The share of requests that answered 4xx or 5xx.
@@ -28,12 +28,12 @@ final readonly class ErrorRateMetricExtractor implements MetricExtractorInterfac
 		return PerfUnit::Ratio;
 	}
 
-	public function extract(PathWindowStats $stats): ?float
+	public function extract(WindowAggregate $window): ?float
 	{
-		if ($stats->hits === 0) {
+		if ($window->hits === 0) {
 			return null;
 		}
 
-		return $stats->errors() / $stats->hits;
+		return $window->errors() / $window->hits;
 	}
 }
