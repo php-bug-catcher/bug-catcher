@@ -158,7 +158,12 @@ bug_catcher:
 ```
 
 The charts are server-rendered SVG with no JavaScript, and they take their colours from the
-`--bc-*` theme tokens, so they follow the light/dark switch like everything else. `PerfOverview`
+`--bc-*` theme tokens, so they follow the light/dark switch like everything else.
+
+**The roll-up is not optional if you want the wider windows.** A window up to two hours is read
+from minute buckets, which the collector ships directly; anything wider reads hours, and hours
+only exist once `app:perf:rollup` has run. Without that cron line the 24 h and 7 d views are
+empty even though the measurements are in the database. `PerfOverview`
 and `PerfTopPaths` read one project at a time - pick one on the dashboard. The detail page of a
 regression draws the route around the time it happened with the baseline across it
 (`Detail:PerfChart`, registered for `RecordPerformance` by default).
