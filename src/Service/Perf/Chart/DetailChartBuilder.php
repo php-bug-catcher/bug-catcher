@@ -68,7 +68,7 @@ final readonly class DetailChartBuilder extends AbstractPerfChartBuilder
 			$this->drawBaseline($document, $model, $report->baseline);
 		}
 
-		return $document->makeResponsive()->setOmitXmlDeclaration(true)->toString();
+		return $this->finishDocument($document);
 	}
 
 	/**

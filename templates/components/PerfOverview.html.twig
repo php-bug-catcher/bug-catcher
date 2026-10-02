@@ -9,7 +9,7 @@
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
 		<span class="text-sm font-semibold text-fg">{{ 'Performance'|trans }}</span>
 
-		<select data-model="hours" class="input input-sm" aria-label="{{ 'Window'|trans }}">
+		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
 			{% for hours, label in this.windows %}
 				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
 			{% endfor %}
@@ -27,10 +27,10 @@
 	{% elseif charts.throughput is empty %}
 		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
 	{% else %}
-		<div class="grid gap-4 pt-3 md:grid-cols-2">
+		<div class="grid gap-4 pt-3">
 			{# throughput and latency are two charts of one width stacked into one cell: the
 			   library has a single scale per chart, and this is the dual axis #}
-			<figure class="bc-chart md:col-span-2">
+			<figure class="bc-chart">
 				<figcaption class="text-xs uppercase text-muted">{{ 'Throughput and latency'|trans }}</figcaption>
 				{{ charts.throughput|raw }}
 				{{ charts.latency|raw }}
@@ -46,7 +46,7 @@
 				{{ charts.cpu|raw }}
 			</figure>
 
-			<figure class="bc-chart md:col-span-2">
+			<figure class="bc-chart">
 				<figcaption class="text-xs uppercase text-muted">{{ 'Status mix'|trans }}</figcaption>
 				{{ charts.status|raw }}
 			</figure>

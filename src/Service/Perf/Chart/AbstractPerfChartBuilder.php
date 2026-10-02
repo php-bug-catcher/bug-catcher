@@ -7,6 +7,7 @@ namespace BugCatcher\Service\Perf\Chart;
 use Atelier\Chart\Chart;
 use Atelier\Chart\Formatter\ValueFormatterInterface;
 use Atelier\Chart\Model\ChartModel;
+use Atelier\Svg\Document;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use LogicException;
 
@@ -39,12 +40,15 @@ abstract readonly class AbstractPerfChartBuilder
 	 */
 	protected function finish(ChartModel $model, ?ValueFormatterInterface $formatter = null): string
 	{
-		$svg = Chart::renderDocument($model, $this->themes->theme(), $formatter, $this->themes->options())
-			->makeResponsive()
-			->setOmitXmlDeclaration(true)
-			->toString();
+		return $this->finishDocument(
+			Chart::renderDocument($model, $this->themes->theme(), $formatter, $this->themes->options()),
+		);
+	}
 
-		return $this->thinLabels($svg);
+	/** The same, for a builder that has something to add to the document first. */
+	protected function finishDocument(Document $document): string
+	{
+		return $this->thinLabels($document->makeResponsive()->setOmitXmlDeclaration(true)->toString());
 	}
 
 	/**

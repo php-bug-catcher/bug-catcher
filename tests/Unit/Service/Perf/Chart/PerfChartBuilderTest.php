@@ -159,6 +159,24 @@ class PerfChartBuilderTest extends TestCase
 		$this->assertSame(8, preg_match_all('/class="atelier-chart__category-label"/', $svg));
 	}
 
+	/** It renders its own document to append the reference line, so it is the one that can miss it. */
+	public function testTheDetailChartThinsItsAxisToo(): void
+	{
+		$report = new PathDetailReport(
+			$this->series(120),
+			'/checkout',
+			'p95',
+			PerfUnit::Milliseconds,
+			210.0,
+			3100.0,
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+		);
+
+		$svg = (new DetailChartBuilder($this->themes))->build($report);
+
+		$this->assertLessThanOrEqual(12, preg_match_all('/class="atelier-chart__category-label"/', $svg));
+	}
+
 	public function testTheDetailChartDrawsWhatNormalWasAcrossTheSpike(): void
 	{
 		$svg = (new DetailChartBuilder($this->themes))->build($this->detail('p95', 210.0));

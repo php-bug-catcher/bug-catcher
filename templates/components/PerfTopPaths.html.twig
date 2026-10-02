@@ -9,13 +9,13 @@
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
 		<span class="text-sm font-semibold text-fg">{{ 'Heaviest routes'|trans }}</span>
 
-		<select data-model="hours" class="input input-sm" aria-label="{{ 'Window'|trans }}">
+		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
 			{% for hours, label in this.windows %}
 				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
 			{% endfor %}
 		</select>
 
-		<select data-model="group" class="input input-sm" aria-label="{{ 'Group by'|trans }}">
+		<select data-model="group" class="input input-sm w-auto" aria-label="{{ 'Group by'|trans }}">
 			{% for group in this.groups %}
 				<option value="{{ group.value }}" {{ group == this.group ? 'selected' : '' }}>{{ group.label|trans }}</option>
 			{% endfor %}
@@ -58,7 +58,9 @@
 			<tbody>
 			{% for row in report.rows %}
 				<tr class="border-b border-line/40 last:border-0 hover:bg-surface-2/60">
-					<td class="max-w-0 truncate py-1 pr-2 font-mono" title="{{ row.label }}">{{ row.label }}</td>
+					<td class="w-2/5 py-1 pr-2" title="{{ row.label }}">
+						<span class="block truncate font-mono">{{ row.label }}</span>
+					</td>
 					<td class="py-1 pl-2 text-right tabular-nums">{{ row.hits }}</td>
 					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.msPerHit : row.totalMs)|round(1) }} ms{{ unitSuffix }}</td>
 					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.userMsPerHit : row.userMs)|round(1) }} ms</td>
