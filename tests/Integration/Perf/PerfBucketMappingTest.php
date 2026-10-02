@@ -6,6 +6,7 @@ namespace BugCatcher\Tests\Integration\Perf;
 
 use BugCatcher\Entity\DurationHistogram;
 use BugCatcher\Entity\PerfBucket;
+use BugCatcher\ApiResource\PerfBucketRow;
 use BugCatcher\Entity\PerfBucketExtra;
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
@@ -15,6 +16,8 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaValidator;
+use ReflectionProperty;
+use Symfony\Component\Validator\Constraints\Length;
 use Zenstruck\Foundry\Test\Factories;
 
 class PerfBucketMappingTest extends KernelTestCase
@@ -123,6 +126,29 @@ class PerfBucketMappingTest extends KernelTestCase
 		}
 
 		$this->assertLessThanOrEqual(3072, $total);
+	}
+
+	/**
+	 * A row arrives over HTTP and goes into the table through DBAL, so a string the validator lets
+	 * through and the column cannot hold is not a 422 but a failed INSERT in the middle of a batch.
+	 * The two numbers are written in two files - the mapping and the API resource - so they are
+	 * compared here rather than trusted.
+	 */
+	public function testTheIngestResourceRefusesStringsTheColumnsCannotHold(): void
+	{
+		$metadata = $this->metadata();
+
+		foreach (['serverName', 'host', 'path'] as $field) {
+			$property   = new ReflectionProperty(PerfBucketRow::class, $field);
+			$attributes = $property->getAttributes(Length::class);
+
+			$this->assertCount(1, $attributes, "PerfBucketRow::\${$field} has no length constraint");
+			$this->assertSame(
+				$metadata->fieldMappings[$field]['length'],
+				$attributes[0]->newInstance()->max,
+				"PerfBucketRow::\${$field} accepts more than perf_bucket.{$field} holds",
+			);
+		}
 	}
 
 	/**

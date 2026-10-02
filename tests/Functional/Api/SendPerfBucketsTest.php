@@ -139,6 +139,12 @@ class SendPerfBucketsTest extends KernelTestCase
 				'projectCode' => 'testProject',
 				'rows'        => [['extra' => ['sq' => 'many']] + $row],
 			]],
+			// the column is indexed and therefore 191 characters, not 255: a longer host has to be
+			// a 422 here rather than a failed INSERT halfway through the batch
+			'host beyond the column' => [[
+				'projectCode' => 'testProject',
+				'rows'        => [['host' => str_repeat('h', 192)] + $row],
+			]],
 		];
 	}
 

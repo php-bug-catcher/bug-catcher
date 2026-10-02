@@ -32,8 +32,8 @@ final readonly class PerfBucketRow
 		#[Assert\Length(max: 64)]
 		public string $serverName = '',
 
-		/** The vhost. Empty for a CLI run. */
-		#[Assert\Length(max: 255)]
+		/** The vhost. Empty for a CLI run. 191 characters is what the indexed column holds. */
+		#[Assert\Length(max: 191)]
 		public string $host = '',
 
 		#[Assert\NotBlank]
