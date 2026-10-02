@@ -37,6 +37,70 @@ return static function (DefinitionConfigurator $definition): void {
 		->end()
 		->end()
 		->end()
+		// performance monitoring - see docs/performance.md. The collector that fills perf_bucket
+		// is a package of its own (php-bug-catcher/perf-collector), installed on the monitored
+		// machine; nothing here runs unless something ships buckets.
+		->arrayNode("perf")
+		->addDefaultsIfNotSet()
+		->children()
+		// false turns the ingest endpoint off with a 503, so a collector keeps its samples
+		// instead of dropping them, and makes the commands and components stand down
+		->booleanNode("enabled")->defaultTrue()->end()
+		// how long each granularity is kept, as anything DateTimeImmutable understands.
+		// app:perf:purge deletes beyond it; minutes roll up into hours and hours into days
+		// exactly, so dropping them loses nothing a long-range chart would have shown
+		->arrayNode("retention")
+		->addDefaultsIfNotSet()
+		->children()
+		->scalarNode("minute")->defaultValue('7 days')->end()
+		->scalarNode("hour")->defaultValue('90 days')->end()
+		->scalarNode("day")->defaultValue('2 years')->end()
+		->end()
+		->end()
+		// beyond this many distinct paths in one bucket the tail folds into '__other__'. It is a
+		// backstop for a pattern PathNormalizer failed to cover, and the log line it writes is
+		// what tells you to go fix the rule
+		->integerNode("rollup_path_cap")->defaultValue(1000)->min(1)->end()
+		// when a window counts as a regression. Deliberately conjunctive: the metric must rise
+		// by at least factor AND exceed min_absolute_ms, so 5 ms becoming 20 ms stays quiet,
+		// and the window needs min_hits before it counts at all
+		->arrayNode("anomaly")
+		->addDefaultsIfNotSet()
+		->children()
+		->scalarNode("metric")->defaultValue('p95')->cannotBeEmpty()->end()
+		->floatNode("factor")->defaultValue(3.0)->min(1.0)->end()
+		->integerNode("min_absolute_ms")->defaultValue(200)->min(0)->end()
+		->integerNode("min_hits")->defaultValue(20)->min(1)->end()
+		->end()
+		->end()
+		// the baseline is the same time of day on previous days, matched on day of week -
+		// Monday morning is not Sunday night
+		->arrayNode("baseline")
+		->addDefaultsIfNotSet()
+		->children()
+		->integerNode("lookback_weeks")->defaultValue(4)->min(1)->end()
+		->end()
+		->end()
+		// name => service id, merged over the built-in p95, avg, error_rate and mem. A name
+		// listed here can be selected as anomaly.metric - see docs/custom_perf_metric.md
+		->arrayNode("metrics")
+		->useAttributeAsKey('name')
+		->defaultValue([])
+		->prototype('scalar')->cannotBeEmpty()->end()
+		->end()
+		// which detectors app:perf:detect runs
+		->arrayNode("detectors")
+		->defaultValue(['regression'])
+		->prototype('scalar')->cannotBeEmpty()->end()
+		->end()
+		// name => service id, merged over the built-in regression detector
+		->arrayNode("detector_services")
+		->useAttributeAsKey('name')
+		->defaultValue([])
+		->prototype('scalar')->cannotBeEmpty()->end()
+		->end()
+		->end()
+		->end()
 		->arrayNode("dashboard_components")
 		->defaultValue([
 			"StatusList",

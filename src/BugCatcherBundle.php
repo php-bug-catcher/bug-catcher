@@ -2,6 +2,7 @@
 
 namespace BugCatcher;
 
+use BugCatcher\Api\Processor\PerfBucketBatchProcessor;
 use BugCatcher\Controller\Admin\NotifierCrudController;
 use BugCatcher\Controller\Admin\NotifierEmailCrudController;
 use BugCatcher\Controller\Admin\NotifierFaviconCrudController;
@@ -62,6 +63,10 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$clearStackTrace', $config["clear_stacktrace_on_fixed"]);
+		$services->set(PerfBucketBatchProcessor::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$enabled', $config["perf"]["enabled"]);
 		$services->set(DashboardController::class)
 			->autowire()
 			->autoconfigure()

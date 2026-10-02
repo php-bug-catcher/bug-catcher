@@ -15,6 +15,7 @@ use BugCatcher\Repository\ProjectRepository;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use Generator;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 /**
  * Resolves `projectCode` to a `Project` the way {@see LogRecordSaveProcessor} does, then hands the
@@ -30,6 +31,7 @@ final readonly class PerfBucketBatchProcessor implements ProcessorInterface
 	public function __construct(
 		private ProjectRepository $projectRepository,
 		private PerfBucketUpserter $upserter,
+		private bool $enabled = true,
 	) {
 	}
 
@@ -37,6 +39,14 @@ final readonly class PerfBucketBatchProcessor implements ProcessorInterface
 	{
 		if (!$data instanceof PerfBucketBatch) {
 			return $data;
+		}
+
+		// 503 rather than 404: the collector advances its cursor only on a 2xx, so refusing this
+		// way leaves the samples on the monitored machine until performance monitoring is turned
+		// back on. The cost of leaving it off is that the local log keeps growing - the fix for
+		// that is to stop the collector's cron, not to accept measurements nothing will read.
+		if (!$this->enabled) {
+			throw new ServiceUnavailableHttpException(message: 'Performance monitoring is disabled.');
 		}
 
 		$project = $this->projectRepository->findOneBy(['code' => $data->projectCode]);
