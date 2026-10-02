@@ -18,7 +18,8 @@
         The index serves the dashboard, which always reads one project's buckets of one
         granularity over a window.
     -->
-    <entity name="BugCatcher\Entity\PerfBucket" table="perf_bucket">
+    <entity name="BugCatcher\Entity\PerfBucket" table="perf_bucket"
+            repository-class="BugCatcher\Repository\PerfBucketRepository">
         <indexes>
             <index name="perf_window_idx" columns="project_id,granularity,bucket_at"/>
         </indexes>
