@@ -1,0 +1,55 @@
+{#
+	Four charts of one window. The SVGs carry a viewBox and no size, so `.bc-chart svg` in
+	app.css decides how wide they end up; the charts' own titles are hidden there too, because
+	each one already has a heading here.
+#}
+{% set charts = this.charts %}
+
+<div{{ attributes.defaults({class:'panel p-3'}) }}>
+	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
+		<span class="text-sm font-semibold text-fg">{{ 'Performance'|trans }}</span>
+
+		<select data-model="hours" class="input input-sm" aria-label="{{ 'Window'|trans }}">
+			{% for hours, label in this.windows %}
+				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
+			{% endfor %}
+		</select>
+
+		{% if this.series %}
+			<span class="ml-auto text-xs tabular-nums text-muted">
+				{{ this.series.hits }} {{ 'requests'|trans }}
+			</span>
+		{% endif %}
+	</div>
+
+	{% if this.project is null %}
+		<p class="py-6 text-center text-sm text-muted">{{ 'Pick a project to see its performance.'|trans }}</p>
+	{% elseif charts.throughput is empty %}
+		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
+	{% else %}
+		<div class="grid gap-4 pt-3 md:grid-cols-2">
+			{# throughput and latency are two charts of one width stacked into one cell: the
+			   library has a single scale per chart, and this is the dual axis #}
+			<figure class="bc-chart md:col-span-2">
+				<figcaption class="text-xs uppercase text-muted">{{ 'Throughput and latency'|trans }}</figcaption>
+				{{ charts.throughput|raw }}
+				{{ charts.latency|raw }}
+			</figure>
+
+			<figure class="bc-chart">
+				<figcaption class="text-xs uppercase text-muted">{{ 'Latency bands'|trans }}</figcaption>
+				{{ charts.bands|raw }}
+			</figure>
+
+			<figure class="bc-chart">
+				<figcaption class="text-xs uppercase text-muted">{{ 'Where the time went'|trans }}</figcaption>
+				{{ charts.cpu|raw }}
+			</figure>
+
+			<figure class="bc-chart md:col-span-2">
+				<figcaption class="text-xs uppercase text-muted">{{ 'Status mix'|trans }}</figcaption>
+				{{ charts.status|raw }}
+			</figure>
+		</div>
+	{% endif %}
+</div>

@@ -165,6 +165,7 @@ return static function (DefinitionConfigurator $definition): void {
 				'Detail:Header',
 				'Detail:Title',
 				'Detail:HistoryList',
+				'Detail:PerfChart',
 			],
 		])
 		->end()

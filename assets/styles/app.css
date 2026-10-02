@@ -48,6 +48,32 @@
 	--bc-spark-mid: var(--bc-accent);
 	--bc-spark-high: var(--bc-danger);
 
+	/* Performance charts. Two families, because the charts ask two different questions.
+	   The series colours below are categorical - throughput against latency, user against
+	   system against waiting - so they are drawn from the palette and have to stay apart
+	   from each other at a glance.
+	   The five latency bands and the three status bands are ordinal: they run from "fine"
+	   to "not fine", so they are a ramp from --bc-ok through --bc-warn to --bc-danger and
+	   read in order even in greyscale. */
+	--bc-perf-hits: color-mix(in oklab, var(--bc-accent) 35%, transparent);
+	--bc-perf-avg: var(--bc-accent);
+	--bc-perf-p95: var(--bc-accent-2);
+	--bc-perf-user: var(--bc-accent);
+	--bc-perf-sys: var(--bc-accent-2);
+	/* the band nothing else explains: the database, the cache, the network */
+	--bc-perf-wait: var(--bc-warn);
+	--bc-perf-baseline: var(--bc-muted);
+
+	--bc-perf-band-1: var(--bc-ok);
+	--bc-perf-band-2: color-mix(in oklab, var(--bc-ok) 45%, var(--bc-warn));
+	--bc-perf-band-3: var(--bc-warn);
+	--bc-perf-band-4: color-mix(in oklab, var(--bc-warn) 45%, var(--bc-danger));
+	--bc-perf-band-5: var(--bc-danger);
+
+	--bc-perf-ok: var(--bc-ok);
+	--bc-perf-4xx: var(--bc-warn);
+	--bc-perf-5xx: var(--bc-danger);
+
 	/* Syntax highlighting. Kept in the same hue family as the palette so a stack trace reads as
 	   part of the UI rather than as a pasted-in editor screenshot. Light values are darkened for
 	   contrast on a pale surface. */
@@ -483,6 +509,32 @@
 		display: block;
 		width: 100%;
 		height: 1.25rem;
+	}
+
+	/* --- performance charts --------------------------------------------------
+	   atelier/chart renders a viewBox and no size, so width is CSS's. The rest of these
+	   rules reach the parts the library does not expose to PHP: the per-point markers of a
+	   line (a chain of beads at 60 buckets), and the title it insists on painting even
+	   though every chart here already has a <figcaption>. */
+	.bc-chart svg {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.bc-chart .atelier-chart__title {
+		display: none;
+	}
+
+	.bc-chart .atelier-chart__point {
+		display: none;
+	}
+
+	/* the stroke is 3px in the viewBox's coordinates, so a chart stretched to twice its
+	   drawing width would otherwise draw a 6px line */
+	.bc-chart .atelier-chart__line,
+	.bc-chart .bc-perf-baseline {
+		vector-effect: non-scaling-stroke;
 	}
 
 	/* --- timeline ------------------------------------------------------------

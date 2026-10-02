@@ -1,0 +1,17 @@
+{# The route around the time it regressed. The dashed line is what normal was. #}
+<div{{ attributes.defaults({class:'px-4 py-3'}) }}>
+	{% if this.chart is empty %}
+		<p class="text-sm text-muted">
+			{{ 'No measurements are kept for this route any more.'|trans }}
+		</p>
+	{% else %}
+		<figure class="bc-chart">
+			{{ this.chart|raw }}
+			<figcaption class="pt-1 text-xs text-muted">
+				{{ 'Dashed: the baseline this was measured against (%baseline%).'|trans({
+					'%baseline%': this.report.unit.format(this.report.baseline)
+				}) }}
+			</figcaption>
+		</figure>
+	{% endif %}
+</div>

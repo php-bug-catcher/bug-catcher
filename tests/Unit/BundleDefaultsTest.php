@@ -36,7 +36,7 @@ class BundleDefaultsTest extends TestCase
 			$config['dashboard_list_items'],
 		);
 		$this->assertSame(
-			['Detail:Header', 'Detail:Title', 'Detail:HistoryList'],
+			['Detail:Header', 'Detail:Title', 'Detail:HistoryList', 'Detail:PerfChart'],
 			$config['detail_components'][RecordPerformance::class],
 		);
 	}

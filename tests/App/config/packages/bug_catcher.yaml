@@ -33,6 +33,7 @@ bug_catcher:
             - 'Detail:Header'
             - 'Detail:Title'
             - 'Detail:HistoryList'
+            - 'Detail:PerfChart'
         BugCatcher\Tests\App\Entity\RecordCron:
             - 'Detail:Header'
             - 'Detail:Title'

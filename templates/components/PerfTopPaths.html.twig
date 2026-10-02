@@ -26,12 +26,16 @@
 			{{ 'Per hit'|trans }}
 		</label>
 
-		<span class="ml-auto text-xs tabular-nums text-muted">
-			{{ report.window.from|date('d.m. H:i') }} – {{ report.window.to|date('H:i') }}
-		</span>
+		{% if report %}
+			<span class="ml-auto text-xs tabular-nums text-muted">
+				{{ report.window.from|date('d.m. H:i') }} – {{ report.window.to|date('H:i') }}
+			</span>
+		{% endif %}
 	</div>
 
-	{% if report.isEmpty %}
+	{% if report is null %}
+		<p class="py-6 text-center text-sm text-muted">{{ 'Pick a project to see its performance.'|trans }}</p>
+	{% elseif report.isEmpty %}
 		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
 	{% else %}
 		<table class="w-full text-sm">
