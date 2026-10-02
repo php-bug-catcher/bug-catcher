@@ -137,6 +137,32 @@ above:
 - `app:perf:purge` drops the buckets past their retention (minutes a week, hours ninety days, days
   two years by default). `--dry-run` counts them without deleting.
 
+**On the dashboard**, four panels are available and none of them is switched on for you - a
+charting panel appearing on everybody's wall monitor after an upgrade is not a default anybody
+chose. Add the ones you want:
+
+```yaml
+# config/packages/bug_catcher.yaml
+bug_catcher:
+    dashboard_components:
+        - StatusList
+        - LogList
+        - PerfOverview      # throughput and latency, latency bands, where the time went, status mix
+        - PerfTopPaths      # the heaviest routes, grouped and sorted like phptop
+    status_list_components:
+        - ProjectStatus
+        - LogCount
+        - LogSparkLine
+        - PerfSparkLine     # a day of p95 next to each project
+        - WarningSound
+```
+
+The charts are server-rendered SVG with no JavaScript, and they take their colours from the
+`--bc-*` theme tokens, so they follow the light/dark switch like everything else. `PerfOverview`
+and `PerfTopPaths` read one project at a time - pick one on the dashboard. The detail page of a
+regression draws the route around the time it happened with the baseline across it
+(`Detail:PerfChart`, registered for `RecordPerformance` by default).
+
 Everything is configured under `bug_catcher.perf` - `enabled`, `retention`, `rollup_path_cap`,
 `anomaly`, `baseline`, `metrics`, `detectors`. The design is in
 [docs/performance.md](_docs/performance.md), and

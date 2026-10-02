@@ -20,6 +20,11 @@ bug_catcher:
         - LogList
 ```
 
+The bundle also ships two performance panels, neither of them switched on by default:
+`PerfOverview` (four charts of one project's window) and `PerfTopPaths` (the heaviest routes, with
+phptop's flags as controls). Both read one project, so they ask you to pick one while the
+dashboard is showing all of them. See the [README](../README.md#performance-monitoring).
+
 ## StatusList component
 
 Your compoment should exend BugCatcher\Twig\Components\AbsComponent.
@@ -31,8 +36,12 @@ bug_catcher:
         - ProjectStatus
         - LogCount
         - LogSparkLine
+        - PerfSparkLine
         - YourStatusComponentName
 ```
+
+`PerfSparkLine` is the latency twin of `LogSparkLine`: a day of p95 per project, also off by
+default.
 
 ## Detail page components
 
@@ -57,6 +66,11 @@ bug_catcher:
             - Detail:Header
             - Detail:Title
             - Detail:HistoryList
+        BugCatcher\Entity\RecordPerformance:
+            - Detail:Header
+            - Detail:Title
+            - Detail:HistoryList
+            - Detail:PerfChart
 ```
 
 ## Custom Ping collector
