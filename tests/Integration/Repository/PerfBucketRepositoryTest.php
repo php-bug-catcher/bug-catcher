@@ -9,6 +9,7 @@ use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Repository\PerfBucketRepository;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
+use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Service\Perf\PerfWindow;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
@@ -332,6 +333,87 @@ class PerfBucketRepositoryTest extends KernelTestCase
 
 		$this->assertCount(1, $rows);
 		$this->assertSame(9, $rows[0]->getHits());
+	}
+
+	/**
+	 * Detection asks about routes, not about machines: a regression that shows on one server out
+	 * of three is still a regression of the route, and the record says so.
+	 */
+	public function testAWindowIsAggregatedPerRouteAcrossMachinesAndVhosts(): void
+	{
+		$project = ProjectFactory::createOne()->_real();
+
+		$this->persist($this->minute($project, '2026-03-10 14:03:00', hits: 5));
+		$this->persist($this->minute($project, '2026-03-10 14:04:00', hits: 3, serverName: 'web-02'));
+		$this->persist($this->minute($project, '2026-03-10 14:05:00', hits: 2, host: 'api.site.com'));
+		$this->persist($this->minute($project, '2026-03-10 14:06:00', path: '/feed/', hits: 7));
+		$this->persist($this->minute($project, '2026-03-10 15:00:00', hits: 100));
+
+		$stats = $this->repository()->aggregateByPath(
+			PerfGranularity::Minute,
+			$project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 15:00:00'),
+		);
+
+		$this->assertSame(
+			[PerfBucket::hashPath('/user/{id}'), PerfBucket::hashPath('/feed/')],
+			array_keys($stats),
+		);
+		$this->assertSame(10, $stats[PerfBucket::hashPath('/user/{id}')]->hits);
+		$this->assertSame('/user/{id}', $stats[PerfBucket::hashPath('/user/{id}')]->path);
+		$this->assertSame(7, $stats[PerfBucket::hashPath('/feed/')]->hits);
+	}
+
+	/** Without this a metric registered under `perf.metrics` has nothing of its own to read. */
+	public function testTheApplicationsOwnMetricsReachTheWindowToo(): void
+	{
+		$project = ProjectFactory::createOne()->_real();
+		$em      = self::getContainer()->get(EntityManagerInterface::class);
+
+		(new PerfBucketUpserter($em))->upsert([
+			new PerfBucket(
+				PerfGranularity::Minute,
+				new DateTimeImmutable('2026-03-10 14:03:00'),
+				$project,
+				'web-01',
+				'www.site.com',
+				'/user/{id}',
+				hits: 2,
+				extra: ['sq' => 10, 'st' => 0.5],
+			),
+			new PerfBucket(
+				PerfGranularity::Minute,
+				new DateTimeImmutable('2026-03-10 14:04:00'),
+				$project,
+				'web-02',
+				'www.site.com',
+				'/user/{id}',
+				hits: 1,
+				extra: ['sq' => 5],
+			),
+		]);
+
+		$stats = $this->repository()->aggregateByPath(
+			PerfGranularity::Minute,
+			$project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 15:00:00'),
+		);
+
+		$this->assertSame(['sq' => 15.0, 'st' => 0.5], $stats[PerfBucket::hashPath('/user/{id}')]->extra);
+	}
+
+	public function testAWindowWithNoTrafficHasNoRoutes(): void
+	{
+		$project = ProjectFactory::createOne()->_real();
+
+		$this->assertSame([], $this->repository()->aggregateByPath(
+			PerfGranularity::Minute,
+			$project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 15:00:00'),
+		));
 	}
 
 	private function bucket(

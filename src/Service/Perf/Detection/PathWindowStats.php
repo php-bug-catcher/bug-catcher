@@ -17,7 +17,13 @@ namespace BugCatcher\Service\Perf\Detection;
  */
 final readonly class PathWindowStats
 {
-	/** @param list<int> $durationHistogram counts per bin of {@see \BugCatcher\Service\Perf\Histogram\HistogramBins} */
+	/**
+	 * @param list<int> $durationHistogram counts per bin of
+	 *     {@see \BugCatcher\Service\Perf\Histogram\HistogramBins}
+	 * @param array<string, float> $extra whatever the monitored application merged into
+	 *     `$GLOBALS['_bcperf_extra']`, summed over the window - the only thing a custom metric
+	 *     extractor has that the built-in four do not
+	 */
 	public function __construct(
 		public string $path,
 		public string $pathHash,
@@ -31,6 +37,7 @@ final readonly class PathWindowStats
 		public int $clientErrors,
 		public int $serverErrors,
 		public array $durationHistogram,
+		public array $extra = [],
 	) {
 	}
 

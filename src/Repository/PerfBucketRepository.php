@@ -9,6 +9,7 @@ use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\PerfBucketExtra;
 use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
+use BugCatcher\Service\Perf\Detection\PathWindowStats;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\PerfWindow;
 use DateTimeImmutable;
@@ -40,6 +41,12 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
  */
 final class PerfBucketRepository extends ServiceEntityRepository
 {
+	/** One row of a bucket: a route on a machine on a vhost. */
+	private const array PER_BUCKET_ROW = ['serverName', 'host', 'pathHash'];
+
+	/** One route over a window, machines and vhosts folded together. */
+	private const array PER_PATH = ['pathHash'];
+
 	public function __construct(ManagerRegistry $registry)
 	{
 		parent::__construct($registry, PerfBucket::class);
@@ -185,15 +192,10 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		$from = $target->floor($bucketAt);
 		$to   = $from->add($target->interval());
 
-		$extra = $this->aggregateExtra($source, $project, $from, $to);
+		$extra = $this->aggregateExtra(self::PER_BUCKET_ROW, $source, $project, $from, $to);
 		$rows  = [];
 
-		foreach ($this->aggregateRows($source, $project, $from, $to) as $row) {
-			$histogram = [];
-			for ($bin = 0; $bin < HistogramBins::COUNT; $bin++) {
-				$histogram[] = (int)$row['bin' . $bin];
-			}
-
+		foreach ($this->aggregateRows(self::PER_BUCKET_ROW, $source, $project, $from, $to) as $row) {
 			$rows[] = new PerfBucket(
 				$target,
 				$from,
@@ -210,12 +212,54 @@ final class PerfBucketRepository extends ServiceEntityRepository
 				maxMem: (int)$row['maxMem'],
 				clientErrors: (int)$row['clientErrors'],
 				serverErrors: (int)$row['serverErrors'],
-				durationHistogram: $histogram,
-				extra: $extra[$this->rowKey($row)] ?? [],
+				durationHistogram: $this->histogramOf($row),
+				extra: $extra[$this->rowKey(self::PER_BUCKET_ROW, $row)] ?? [],
 			);
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * What every route did over a window, one entry per route.
+	 *
+	 * Machines and vhosts are folded together here, unlike in {@see aggregateInto()}: this feeds
+	 * detection, and "checkout got slower" is a statement about the route. A regression that shows
+	 * on one machine out of three still shows in the total.
+	 *
+	 * @param DateTimeImmutable $to exclusive
+	 * @return array<string, PathWindowStats> keyed by path hash
+	 */
+	public function aggregateByPath(
+		PerfGranularity $granularity,
+		Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+	): array {
+		$extra = $this->aggregateExtra(self::PER_PATH, $granularity, $project, $from, $to);
+		$stats = [];
+
+		foreach ($this->aggregateRows(self::PER_PATH, $granularity, $project, $from, $to) as $row) {
+			$pathHash = (string)$row['pathHash'];
+
+			$stats[$pathHash] = new PathWindowStats(
+				(string)$row['path'],
+				$pathHash,
+				(int)$row['hits'],
+				(float)$row['sumDuration'],
+				(float)$row['sumUser'],
+				(float)$row['sumSys'],
+				(float)$row['maxDuration'],
+				(int)$row['sumMem'],
+				(int)$row['maxMem'],
+				(int)$row['clientErrors'],
+				(int)$row['serverErrors'],
+				$this->histogramOf($row),
+				$extra[$this->rowKey(self::PER_PATH, $row)] ?? [],
+			);
+		}
+
+		return $stats;
 	}
 
 	/**
@@ -224,25 +268,23 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	 * from the mapping, because the naming strategy belongs to the application - the same reason
 	 * {@see \BugCatcher\Service\Perf\Ingest\PerfBucketUpserter} builds its statement that way.
 	 *
+	 * @param non-empty-list<string> $groupBy the fields that tell one result row from another
 	 * @return list<array<string, mixed>>
 	 */
 	private function aggregateRows(
-		PerfGranularity $source,
+		array $groupBy,
+		PerfGranularity $granularity,
 		Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 	): array {
 		$metadata = $this->bucketMetadata();
-		$table    = $metadata->getTableName();
+
 		// every column is aliased to the property it belongs to, so what comes back is read by
 		// the same names the entity is built with
-		$select   = [
-			$this->aliased($metadata, 'serverName'),
-			$this->aliased($metadata, 'host'),
-			$this->aliased($metadata, 'pathHash'),
-			// one hash is one path, so any of them is the path
-			sprintf('MIN(%s) AS path', $metadata->getColumnName('path')),
-		];
+		$select = array_map(fn(string $field): string => $this->aliased($metadata, $field), $groupBy);
+		// one hash is one path, so any of them is the path
+		$select[] = sprintf('MIN(%s) AS path', $metadata->getColumnName('path'));
 
 		foreach (['hits', 'sumDuration', 'sumUser', 'sumSys', 'sumMem', 'clientErrors', 'serverErrors'] as $field) {
 			$select[] = sprintf('SUM(%s) AS %s', $metadata->getColumnName($field), $field);
@@ -256,32 +298,34 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		}
 
 		$sql = sprintf(
-			'SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s >= ? AND %s < ? GROUP BY %s, %s, %s',
+			'SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s >= ? AND %s < ? GROUP BY %s',
 			implode(', ', $select),
-			$table,
+			$metadata->getTableName(),
 			$metadata->getColumnName('granularity'),
 			$metadata->getSingleAssociationJoinColumnName('project'),
 			$metadata->getColumnName('bucketAt'),
 			$metadata->getColumnName('bucketAt'),
-			$metadata->getColumnName('serverName'),
-			$metadata->getColumnName('host'),
-			$metadata->getColumnName('pathHash'),
+			implode(', ', array_map(fn(string $field): string => $metadata->getColumnName($field), $groupBy)),
 		);
 
 		return $this->connection()->fetchAllAssociative(
 			$sql,
-			[$source->value, $project->getId(), $from, $to],
+			[$granularity->value, $project->getId(), $from, $to],
 			[1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE],
 		);
 	}
 
 	/**
-	 * The extra metrics of the same window, summed per row and keyed the way the rows are.
+	 * The extra metrics of the same window, summed per result row and keyed the way those rows
+	 * are. Whatever the monitored application put in `$GLOBALS['_bcperf_extra']` reaches a custom
+	 * metric extractor through here.
 	 *
+	 * @param non-empty-list<string> $groupBy
 	 * @return array<string, array<string, float>>
 	 */
 	private function aggregateExtra(
-		PerfGranularity $source,
+		array $groupBy,
+		PerfGranularity $granularity,
 		Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
@@ -289,14 +333,18 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		$bucket = $this->bucketMetadata();
 		$metric = $this->getEntityManager()->getClassMetadata(PerfBucketExtra::class);
 
+		$keyColumns = array_map(fn(string $field): string => 'b.' . $bucket->getColumnName($field), $groupBy);
+		$select     = array_map(
+			fn(string $field): string => sprintf('b.%s AS %s', $bucket->getColumnName($field), $field),
+			$groupBy,
+		);
+
 		$sql = sprintf(
-			'SELECT b.%s AS serverName, b.%s AS host, b.%s AS pathHash, e.%s AS name, SUM(e.%s) AS value'
+			'SELECT %s, e.%s AS name, SUM(e.%s) AS value'
 			. ' FROM %s e INNER JOIN %s b ON b.%s = e.%s'
 			. ' WHERE b.%s = ? AND b.%s = ? AND b.%s >= ? AND b.%s < ?'
-			. ' GROUP BY b.%s, b.%s, b.%s, e.%s',
-			$bucket->getColumnName('serverName'),
-			$bucket->getColumnName('host'),
-			$bucket->getColumnName('pathHash'),
+			. ' GROUP BY %s, e.%s',
+			implode(', ', $select),
 			$metric->getColumnName('name'),
 			$metric->getColumnName('value'),
 			$metric->getTableName(),
@@ -307,31 +355,44 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$bucket->getSingleAssociationJoinColumnName('project'),
 			$bucket->getColumnName('bucketAt'),
 			$bucket->getColumnName('bucketAt'),
-			$bucket->getColumnName('serverName'),
-			$bucket->getColumnName('host'),
-			$bucket->getColumnName('pathHash'),
+			implode(', ', $keyColumns),
 			$metric->getColumnName('name'),
 		);
 
 		$extra = [];
 		$rows  = $this->connection()->fetchAllAssociative(
 			$sql,
-			[$source->value, $project->getId(), $from, $to],
+			[$granularity->value, $project->getId(), $from, $to],
 			[1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE],
 		);
 
 		foreach ($rows as $row) {
-			$extra[$this->rowKey($row)][(string)$row['name']] = (float)$row['value'];
+			$extra[$this->rowKey($groupBy, $row)][(string)$row['name']] = (float)$row['value'];
 		}
 
 		return $extra;
 	}
 
-	/** What tells one aggregated row from another, for both of the queries above. */
-	private function rowKey(array $row): string
+	/** @return list<int> */
+	private function histogramOf(array $row): array
+	{
+		$histogram = [];
+		for ($bin = 0; $bin < HistogramBins::COUNT; $bin++) {
+			$histogram[] = (int)$row['bin' . $bin];
+		}
+
+		return $histogram;
+	}
+
+	/**
+	 * What tells one aggregated row from another, for both of the queries above.
+	 *
+	 * @param non-empty-list<string> $groupBy
+	 */
+	private function rowKey(array $groupBy, array $row): string
 	{
 		// \x1f rather than a printable separator: a vhost is whatever the request said it was
-		return $row['serverName'] . "\x1f" . $row['host'] . "\x1f" . $row['pathHash'];
+		return implode("\x1f", array_map(static fn(string $field): string => (string)$row[$field], $groupBy));
 	}
 
 	private function aliased(ClassMetadata $metadata, string $field): string
