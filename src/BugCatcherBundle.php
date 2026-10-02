@@ -17,7 +17,13 @@ use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
+use BugCatcher\Enum\PerfMetric;
 use BugCatcher\Security\McpAccessTokenHandler;
+use BugCatcher\Service\Perf\Detection\Extractor\AvgMetricExtractor;
+use BugCatcher\Service\Perf\Detection\Extractor\ErrorRateMetricExtractor;
+use BugCatcher\Service\Perf\Detection\Extractor\MemMetricExtractor;
+use BugCatcher\Service\Perf\Detection\Extractor\P95MetricExtractor;
+use BugCatcher\Service\Perf\Detection\MetricExtractorRegistry;
 use BugCatcher\Service\Perf\Retention\RetentionPolicy;
 use BugCatcher\Service\Perf\Rollup\PathCapEnforcer;
 use BugCatcher\Twig\Components\Favicon;
@@ -59,6 +65,21 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$cap', $config["perf"]["rollup_path_cap"]);
+		// the four built-ins, with bug_catcher.perf.metrics merged over them - the same named-map
+		// idiom PingCollectorCommand uses, so a custom metric needs no tag and no compiler pass
+		$metrics = [
+			PerfMetric::P95->value       => service(P95MetricExtractor::class),
+			PerfMetric::Avg->value       => service(AvgMetricExtractor::class),
+			PerfMetric::ErrorRate->value => service(ErrorRateMetricExtractor::class),
+			PerfMetric::Mem->value       => service(MemMetricExtractor::class),
+		];
+		foreach ($config["perf"]["metrics"] as $name => $id) {
+			$metrics[$name] = service($id);
+		}
+		$services->set(MetricExtractorRegistry::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$extractors', $metrics);
 		$services->set(RetentionPolicy::class)
 			->autowire()
 			->autoconfigure()

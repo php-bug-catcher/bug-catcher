@@ -29,7 +29,7 @@ namespace {
 			->load('BugCatcher\\', '../src/')
             ->share()
 			// value objects are not services: they are constructed with measurements, not wired
-			->exclude('../src/{ApiResource,DependencyInjection,DataFixtures,Entity,DTO,Event,Factory,Extension,BugCatcherBundle.php,Service/Perf/PerfWindow.php,Service/Perf/Retention/PurgeResult.php,Service/Perf/Rollup/CappedBuckets.php,Service/Perf/Rollup/RollupResult.php}');
+			->exclude('../src/{ApiResource,DependencyInjection,DataFixtures,Entity,DTO,Event,Factory,Extension,BugCatcherBundle.php,Service/Perf/PerfWindow.php,Service/Perf/Detection/PathWindowStats.php,Service/Perf/Retention/PurgeResult.php,Service/Perf/Rollup/CappedBuckets.php,Service/Perf/Rollup/RollupResult.php}');
 
 		$services->set(PingCollectorCommand::class)->arg('$collectors',[
 			'http'=>service(HttpPingCollector::class),
