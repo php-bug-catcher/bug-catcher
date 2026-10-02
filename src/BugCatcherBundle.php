@@ -16,6 +16,7 @@ use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
 use BugCatcher\Security\McpAccessTokenHandler;
+use BugCatcher\Service\Perf\Retention\RetentionPolicy;
 use BugCatcher\Service\Perf\Rollup\PathCapEnforcer;
 use BugCatcher\Twig\Components\Favicon;
 use BugCatcher\Twig\Components\LogList;
@@ -56,6 +57,10 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$cap', $config["perf"]["rollup_path_cap"]);
+		$services->set(RetentionPolicy::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$retention', $config["perf"]["retention"]);
 		$services->set(DashboardController::class)
 			->autowire()
 			->autoconfigure()

@@ -75,6 +75,22 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	}
 
 	/**
+	 * How many buckets of this granularity are older than the instant - what `app:perf:purge
+	 * --dry-run` reports instead of deleting them.
+	 */
+	public function countOlderThan(PerfGranularity $granularity, DateTimeImmutable $cutoff): int
+	{
+		return (int)$this->createQueryBuilder('b')
+			->select('COUNT(b.id)')
+			->andWhere('b.granularity = :granularity')
+			->andWhere('b.bucketAt < :cutoff')
+			->setParameter('granularity', $granularity->value)
+			->setParameter('cutoff', $cutoff)
+			->getQuery()
+			->getSingleScalarResult();
+	}
+
+	/**
 	 * The projects that measured anything of this granularity in `[$from, $to)`.
 	 *
 	 * The roll-up asks before it works: a project that shipped nothing has no buckets to compute,
