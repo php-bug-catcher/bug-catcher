@@ -86,6 +86,16 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$extractors', $metrics);
+
+		// the detector would otherwise discover this at five in the morning, as a stack trace
+		// out of cron, on the first window it looks at
+		if (!isset($metrics[$config["perf"]["anomaly"]["metric"]])) {
+			throw new InvalidArgumentException(sprintf(
+				'bug_catcher.perf.anomaly.metric is %s, which is not a metric. Known: %s.',
+				$config["perf"]["anomaly"]["metric"],
+				implode(', ', array_keys($metrics)),
+			));
+		}
 		$services->set(RetentionPolicy::class)
 			->autowire()
 			->autoconfigure()
