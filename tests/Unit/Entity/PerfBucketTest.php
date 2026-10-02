@@ -52,7 +52,7 @@ class PerfBucketTest extends TestCase
 		$this->assertSame(1, $bucket->getClientErrors());
 		$this->assertSame(0, $bucket->getServerErrors());
 		$this->assertSame($this->histogram([8 => 4, 9 => 1]), $bucket->getDurationHistogram());
-		$this->assertSame(['sq' => 42, 'st' => 0.08], $bucket->getExtra());
+		$this->assertSame(['sq' => 42.0, 'st' => 0.08], $bucket->getExtra());
 	}
 
 	public function testAFreshBucketHasMeasuredNothingYet(): void
@@ -69,7 +69,7 @@ class PerfBucketTest extends TestCase
 		$this->assertSame(0, $bucket->getClientErrors());
 		$this->assertSame(0, $bucket->getServerErrors());
 		$this->assertSame(HistogramBins::empty(), $bucket->getDurationHistogram());
-		$this->assertNull($bucket->getExtra());
+		$this->assertSame([], $bucket->getExtra());
 	}
 
 	/**
@@ -99,9 +99,20 @@ class PerfBucketTest extends TestCase
 		$this->assertNotSame(PerfBucket::hashPath('/a'), PerfBucket::hashPath('/b'));
 	}
 
-	public function testAnEmptyExtraIsStoredAsNothingAtAll(): void
+	/**
+	 * Extra metrics are rows of `perf_bucket_extra`, so "no extra metrics" is no rows - never a
+	 * stored empty map to tell apart from a missing one.
+	 */
+	public function testABucketWithoutExtraMetricsHasNone(): void
 	{
-		$this->assertNull($this->bucket(extra: [])->getExtra());
+		$this->assertSame([], $this->bucket(extra: [])->getExtra());
+	}
+
+	public function testAnExtraMetricIsAValueOfTheBucketItBelongsTo(): void
+	{
+		$bucket = $this->bucket(extra: ['sq' => 7]);
+
+		$this->assertSame(7.0, $bucket->getExtra()['sq']);
 	}
 
 	public function testAMalformedHistogramIsRefusedRatherThanStored(): void
@@ -121,7 +132,7 @@ class PerfBucketTest extends TestCase
 		?DateTimeImmutable $bucketAt = null,
 		string $path = '/',
 		?array $durationHistogram = null,
-		?array $extra = null,
+		array $extra = [],
 	): PerfBucket {
 		return new PerfBucket(
 			$granularity,

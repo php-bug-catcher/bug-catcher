@@ -126,8 +126,9 @@ class PerfBucketUpserterTest extends KernelTestCase
 	}
 
 	/**
-	 * MySQL does JSON arithmetic in DOUBLE, so without a cast a merged histogram comes back as
-	 * `[2.0, ...]` and every reader that expects counts breaks.
+	 * Sixteen BIGINT columns, so adding bins is exact integer arithmetic and what reads back out is
+	 * still counts. A JSON column would have come back as floats, MySQL doing the arithmetic in
+	 * DOUBLE.
 	 */
 	public function testAMergedHistogramIsStillCountsAndNotFloats(): void
 	{
@@ -151,11 +152,11 @@ class PerfBucketUpserterTest extends KernelTestCase
 	}
 
 	/**
-	 * Unlike the histogram, an extra metric is not cast on the way in: one application's extra key
-	 * counts queries and another's times them, and there is no single cast that is right for both.
-	 * So a merged value reads back as a float, which `extra` is typed for.
+	 * An extra metric is a number, not a count: one application reports a query count under a name
+	 * and another reports the time those queries took. The column is a float and so is what reads
+	 * back out of it.
 	 */
-	public function testAMergedExtraMetricReadsBackAsAFloat(): void
+	public function testAnExtraMetricIsAFloat(): void
 	{
 		$this->upserter()->upsert([$this->bucket(extra: ['sq' => 10])]);
 		$this->upserter()->upsert([$this->bucket(extra: ['sq' => 5])]);
@@ -163,12 +164,26 @@ class PerfBucketUpserterTest extends KernelTestCase
 		$this->assertSame(['sq' => 15.0], $this->stored()->getExtra());
 	}
 
+	/**
+	 * The extra rows hang off the bucket's id, which an upsert does not report. Getting this wrong
+	 * attaches the second batch's metrics to whatever row happened to be inserted last.
+	 */
+	public function testExtraMetricsFindTheirBucketOnTheDuplicatePathToo(): void
+	{
+		$this->upserter()->upsert([$this->bucket(path: '/first', extra: ['sq' => 1])]);
+		$this->upserter()->upsert([$this->bucket(path: '/second', extra: ['sq' => 2])]);
+		$this->upserter()->upsert([$this->bucket(path: '/first', extra: ['sq' => 10])]);
+
+		$this->assertSame(['sq' => 11.0], $this->stored(path: '/first')->getExtra());
+		$this->assertSame(['sq' => 2.0], $this->stored(path: '/second')->getExtra());
+	}
+
 	public function testABatchWithoutExtraLeavesTheStoredExtraAlone(): void
 	{
 		$this->upserter()->upsert([$this->bucket(extra: ['sq' => 10])]);
 		$this->upserter()->upsert([$this->bucket(hits: 1)]);
 
-		$this->assertEquals(['sq' => 10], $this->stored()->getExtra());
+		$this->assertEquals(['sq' => 10.0], $this->stored()->getExtra());
 	}
 
 	public function testAnExtraKeyThatCouldReachIntoTheSqlIsRefused(): void
@@ -226,7 +241,7 @@ class PerfBucketUpserterTest extends KernelTestCase
 		int $clientErrors = 0,
 		int $serverErrors = 0,
 		array $histogram = [],
-		?array $extra = null,
+		array $extra = [],
 	): PerfBucket {
 		return new PerfBucket(
 			$granularity,

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace BugCatcher\Tests\Integration\Perf;
 
+use BugCatcher\Entity\DurationHistogram;
 use BugCatcher\Entity\PerfBucket;
+use BugCatcher\Entity\PerfBucketExtra;
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
@@ -67,6 +69,80 @@ class PerfBucketMappingTest extends KernelTestCase
 
 		$this->assertArrayHasKey('perf_window_idx', $indexes);
 		$this->assertSame(['project_id', 'granularity', 'bucket_at'], $indexes['perf_window_idx']['columns']);
+	}
+
+	/**
+	 * The module has to install on MySQL servers older than 5.7, which have no JSON type at all -
+	 * `schema:create` would fail on the first such column. It is also what keeps histogram
+	 * arithmetic in the upsert exact: integers, not MySQL's DOUBLE-valued JSON maths.
+	 */
+	public function testNothingInTheSchemaNeedsAJsonColumn(): void
+	{
+		foreach ([PerfBucket::class, PerfBucketExtra::class] as $class) {
+			$metadata = $this->entityManager()->getClassMetadata($class);
+
+			foreach ($metadata->fieldMappings as $field => $mapping) {
+				$this->assertNotSame('json', (string)$mapping['type'], "{$class}::\${$field}");
+			}
+		}
+	}
+
+	public function testTheHistogramIsSixteenCountingColumns(): void
+	{
+		$metadata = $this->metadata();
+
+		for ($bin = 0; $bin < HistogramBins::COUNT; $bin++) {
+			$field = 'durationHistogram.' . DurationHistogram::fieldFor($bin);
+
+			$this->assertSame("bin{$bin}", $metadata->getColumnName($field));
+			$this->assertSame('bigint', $metadata->getTypeOfField($field));
+		}
+	}
+
+	/**
+	 * InnoDB before MySQL 5.7 indexes at most 767 bytes of any one column, and the whole key at
+	 * most 3072. A `host` of 255 utf8mb4 characters would be 1020 and the unique constraint - the
+	 * one the upsert depends on - simply would not be created.
+	 */
+	public function testEveryIndexedColumnFitsTheOldInnodbLimits(): void
+	{
+		$metadata = $this->metadata();
+		$columns  = $metadata->table['uniqueConstraints']['perf_bucket_uniq']['columns'];
+		$total    = 0;
+
+		foreach ($columns as $column) {
+			$bytes = 8;
+			foreach ($metadata->fieldMappings as $mapping) {
+				if ($mapping['columnName'] === $column && isset($mapping['length'])) {
+					$bytes = $mapping['length'] * 4;
+				}
+			}
+
+			$this->assertLessThanOrEqual(767, $bytes, $column);
+			$total += $bytes;
+		}
+
+		$this->assertLessThanOrEqual(3072, $total);
+	}
+
+	/**
+	 * `(bucket, name)` and nothing else: a surrogate key would only buy a second index on a table
+	 * that holds a row per metric per bucket. Doctrine puts the association last in the primary
+	 * key whatever order the mapping declares, which is why reads by bucket lean on the foreign
+	 * key's own index rather than on the primary key.
+	 */
+	public function testAnExtraMetricIsIdentifiedByItsBucketAndItsName(): void
+	{
+		$metadata = $this->entityManager()->getClassMetadata(PerfBucketExtra::class);
+
+		$this->assertSame('perf_bucket_extra', $metadata->getTableName());
+		$identifier = $metadata->getIdentifierFieldNames();
+		sort($identifier);
+		$this->assertSame(['bucket', 'name'], $identifier);
+		$this->assertSame(
+			'CASCADE',
+			$metadata->getAssociationMapping('bucket')['joinColumns'][0]['onDelete'],
+		);
 	}
 
 	public function testDeletingAProjectTakesItsBucketsWithIt(): void
@@ -136,7 +212,7 @@ class PerfBucketMappingTest extends KernelTestCase
 		$this->assertSame(1, $stored->getClientErrors());
 		$this->assertSame(0, $stored->getServerErrors());
 		$this->assertSame($histogram, $stored->getDurationHistogram());
-		$this->assertSame(['sq' => 42, 'st' => 0.08], $stored->getExtra());
+		$this->assertSame(['sq' => 42.0, 'st' => 0.08], $stored->getExtra());
 	}
 
 	public function testTheUniqueKeyIsEnforcedByTheDatabaseAndNotOnlyByTheMapping(): void

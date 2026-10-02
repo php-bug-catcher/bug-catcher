@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://raw.githubusercontent.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+
+    <!--
+        One extra metric of one bucket. The identifier is (bucket, name): there is nothing else a
+        row could be identified by, and a surrogate key would only buy a second index. The upsert
+        adds into `value` against that primary key, so a metric the application reports again in
+        the same minute accumulates the way the bucket's own counters do.
+    -->
+    <entity name="BugCatcher\Entity\PerfBucketExtra" table="perf_bucket_extra">
+        <id name="bucket" association-key="true"/>
+        <id name="name" type="string" length="32"/>
+
+        <field name="value" type="float" nullable="false"/>
+
+        <many-to-one field="bucket" target-entity="BugCatcher\Entity\PerfBucket" inversed-by="extra">
+            <join-column name="bucket_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

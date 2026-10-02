@@ -9,11 +9,14 @@
         no inheritance, no UUID.
 
         The unique constraint carries idempotency for ingest *and* roll-up - both write through
-        INSERT ... ON DUPLICATE KEY UPDATE, so a retried batch converges on the same numbers
-        instead of doubling them. `host` is part of it because the collector keys its buckets by
-        host as well; without it two vhosts on one machine would collapse into one row and the
-        stored host would be whichever arrived first. The path is in there as its hash, since a
-        normalised path still runs to a kilobyte.
+        INSERT ... ON DUPLICATE KEY UPDATE, so a bucket completed by a later batch lands on the
+        same row instead of a second one. `host` is part of it because the collector keys its
+        buckets by host as well; without it two vhosts on one machine would collapse into one row
+        and the stored host would be whichever arrived first. The path is in there as its hash,
+        since a normalised path still runs to a kilobyte.
+
+        Every column of that key stays under 767 bytes, which is the per-column index prefix limit
+        of InnoDB before MySQL 5.7 - hence host at 191 characters rather than 255.
 
         The index serves the dashboard, which always reads one project's buckets of one
         granularity over a window.
@@ -39,7 +42,7 @@
         <!-- The machine. -->
         <field name="serverName" type="string" length="64" nullable="false"/>
         <!-- The vhost. -->
-        <field name="host" type="string" length="255" nullable="false"/>
+        <field name="host" type="string" length="191" nullable="false"/>
         <field name="path" type="string" length="1024" nullable="false"/>
         <field name="pathHash" type="string" length="32" nullable="false"/>
 
@@ -55,13 +58,20 @@
         <field name="clientErrors" type="bigint" nullable="false"/>
         <field name="serverErrors" type="bigint" nullable="false"/>
 
-        <!-- Counts per bin of Service\Perf\Histogram\HistogramBins. -->
-        <field name="durationHistogram" type="json" nullable="false"/>
-        <!-- Whatever the application merged into $GLOBALS['_bcperf_extra']. -->
-        <field name="extra" type="json" nullable="true"/>
+        <!-- Sixteen columns bin_0 .. bin_15, one per bin of HistogramBins. -->
+        <embedded name="durationHistogram" class="BugCatcher\Entity\DurationHistogram"
+                  use-column-prefix="false"/>
 
         <many-to-one field="project" target-entity="BugCatcher\Entity\Project">
             <join-column name="project_id" referenced-column-name="id" on-delete="CASCADE" nullable="false"/>
         </many-to-one>
+
+        <one-to-many field="extra" target-entity="BugCatcher\Entity\PerfBucketExtra" mapped-by="bucket"
+                     index-by="name" orphan-removal="true">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-many>
     </entity>
 </doctrine-mapping>

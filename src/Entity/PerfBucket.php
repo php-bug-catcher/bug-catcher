@@ -6,8 +6,9 @@ namespace BugCatcher\Entity;
 
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
-use BugCatcher\Service\Perf\Histogram\HistogramMath;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * What one route cost on one machine over one minute, hour or day.
@@ -36,9 +37,9 @@ final class PerfBucket
 	public const string OTHER_PATH = '__other__';
 
 	/**
-	 * What an {@see self::getExtra()} metric may be called. Names come from the monitored
-	 * application and end up in a JSON path in the upsert statement, so the pattern is enforced
-	 * at the API edge as a 422 and again in the upserter as a last line of defence.
+	 * What an {@see self::getExtra()} metric may be called - and the length of the `name` column
+	 * of `perf_bucket_extra`. The names come from the monitored application, so the pattern is
+	 * enforced at the API edge as a 422 and again in the upserter as a last line of defence.
 	 */
 	public const string EXTRA_NAME_PATTERN = '/^[A-Za-z0-9_][A-Za-z0-9_.\-]{0,31}$/';
 
@@ -46,10 +47,12 @@ final class PerfBucket
 
 	private string $pathHash;
 
-	/** @var list<int> */
-	private array $durationHistogram;
+	private DurationHistogram $durationHistogram;
 
-	/** @param list<int>|null $durationHistogram @param array<string, int|float>|null $extra */
+	/** @var Collection<int, PerfBucketExtra> */
+	private Collection $extra;
+
+	/** @param list<int>|null $durationHistogram @param array<string, int|float> $extra */
 	public function __construct(
 		private PerfGranularity $granularity,
 		private DateTimeImmutable $bucketAt,
@@ -67,14 +70,16 @@ final class PerfBucket
 		private int $clientErrors = 0,
 		private int $serverErrors = 0,
 		?array $durationHistogram = null,
-		private ?array $extra = null,
+		array $extra = [],
 	) {
 		$this->bucketAt          = $granularity->floor($bucketAt);
 		$this->pathHash          = self::hashPath($path);
-		$this->durationHistogram = $durationHistogram === null
-			? HistogramBins::empty()
-			: HistogramMath::normalise($durationHistogram);
-		$this->extra             = $extra === [] ? null : $extra;
+		$this->durationHistogram = DurationHistogram::fromArray($durationHistogram ?? HistogramBins::empty());
+		$this->extra             = new ArrayCollection();
+
+		foreach ($extra as $name => $value) {
+			$this->extra->add(new PerfBucketExtra($this, (string)$name, (float)$value));
+		}
 	}
 
 	/**
@@ -177,20 +182,29 @@ final class PerfBucket
 		return $this->serverErrors;
 	}
 
-	/** @return list<int> counts per bin of {@see HistogramBins} */
+	/**
+	 * @return list<int> counts per bin of {@see HistogramBins}. The sixteen columns behind it are
+	 *     storage, not an interface - see {@see DurationHistogram}.
+	 */
 	public function getDurationHistogram(): array
 	{
-		return $this->durationHistogram;
+		return $this->durationHistogram->toArray();
 	}
 
 	/**
 	 * Whatever the monitored application merged into `$GLOBALS['_bcperf_extra']` — SQL query count
-	 * and time for a Doctrine application, anything numeric for anyone else.
+	 * and time for a Doctrine application, anything numeric for anyone else. Empty when it told us
+	 * nothing of its own.
 	 *
-	 * @return array<string, int|float>|null
+	 * @return array<string, float>
 	 */
-	public function getExtra(): ?array
+	public function getExtra(): array
 	{
-		return $this->extra;
+		$extra = [];
+		foreach ($this->extra as $metric) {
+			$extra[$metric->getName()] = $metric->getValue();
+		}
+
+		return $extra;
 	}
 }
