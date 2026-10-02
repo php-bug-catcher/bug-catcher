@@ -6,8 +6,8 @@ namespace BugCatcher\Api\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use BugCatcher\DTO\PerfBucketBatch;
-use BugCatcher\DTO\PerfBucketRow;
+use BugCatcher\ApiResource\PerfBucketBatch;
+use BugCatcher\ApiResource\PerfBucketRow;
 use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;

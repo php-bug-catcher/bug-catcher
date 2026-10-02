@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BugCatcher\DTO;
+namespace BugCatcher\ApiResource;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * `serverName` sits on the row rather than on the batch: a log directory shared between machines
  * can legitimately produce rows for more than one, and it is part of the bucket key either way.
+ *
+ * It lives in `src/ApiResource` because that is one of the directories API Platform scans in every
+ * registered bundle - so the endpoint exists in a host application with no configuration at all.
  */
 #[ApiResource(
 	operations: [

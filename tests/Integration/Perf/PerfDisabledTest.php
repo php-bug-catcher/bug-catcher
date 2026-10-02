@@ -6,7 +6,7 @@ namespace BugCatcher\Tests\Integration\Perf;
 
 use ApiPlatform\Metadata\Post;
 use BugCatcher\Api\Processor\PerfBucketBatchProcessor;
-use BugCatcher\DTO\PerfBucketBatch;
+use BugCatcher\ApiResource\PerfBucketBatch;
 use BugCatcher\Repository\ProjectRepository;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Tests\App\Factory\ProjectFactory;

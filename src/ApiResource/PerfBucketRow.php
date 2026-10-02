@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BugCatcher\DTO;
+namespace BugCatcher\ApiResource;
 
 use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
