@@ -35,6 +35,9 @@ see [skeleton/readme.md](https://raw.githubusercontent.com/php-bug-catcher/skele
 - **MCP server**. Let an AI assistant working in your project list the errors it reported, read
   their stack traces and mark them resolved once it has fixed the cause. Served over HTTP at `/mcp`
   behind a bearer token. See [docs/mcp.md](docs/mcp.md).
+- **Performance monitoring**. Wallclock, CPU and memory per request, collected with one
+  `auto_prepend_file` line and no PHP extension, and reported as a record when a route regresses.
+  See [Performance monitoring](#performance-monitoring).
 
 ### Roadmap
 
@@ -50,6 +53,9 @@ see [skeleton/readme.md](https://raw.githubusercontent.com/php-bug-catcher/skele
 - [ ] Email notification component
 - [ ] Ping history graph component
 - [ ] Errors history graph component
+- [ ] Performance monitoring. The collector, the ingest endpoint, the roll-up, the retention purge
+  and the regression records are in; charting it on the dashboard is not. See
+  [Performance monitoring](#performance-monitoring).
 
 
 ## First Run
@@ -102,6 +108,41 @@ See package [php-bug-catcher/bug-catcher-reporter-bundle](https://github.com/php
 
 See package [php-bug-catcher/bug-catcher-curl-reporter](https://github.com/php-bug-catcher/bug-catcher-curl-reporter)
 
+## Performance monitoring
+
+Bug Catcher collects what went wrong; this collects what went *slow*. Every request of a monitored
+application contributes its wallclock, user and system CPU, peak memory and HTTP status, and when a
+route gets measurably worse than it used to be, a record appears next to the errors - with the
+notifications, the detail page and the MCP tools that every record gets.
+
+**On the monitored machine**: install
+[php-bug-catcher/perf-collector](https://github.com/php-bug-catcher/perf-collector), point
+`auto_prepend_file` at its hook and run `bc-perf-aggregate` from cron every minute. No PHP
+extension, no daemon; the hook appends one line to a local file and the network call happens in the
+cron run. Its README has the installation and the options.
+
+**On this server**, three commands keep the measurements useful. Add them next to the cron lines
+above:
+
+```
+*/5 * * * *  php bin/console app:perf:detect
+17   * * * *  php bin/console app:perf:rollup --granularity=hour
+23   4 * * *  php bin/console app:perf:rollup --granularity=day && php bin/console app:perf:purge
+```
+
+- `app:perf:detect` looks at the minutes that have just finished - `--window` defaults to five and
+  has to match the cron interval - and records the routes that regressed.
+- `app:perf:rollup` computes hour buckets out of minutes and day buckets out of hours. Running it
+  again over a window it has already done is a no-op, so a missed night is caught up with `--from`.
+- `app:perf:purge` drops the buckets past their retention (minutes a week, hours ninety days, days
+  two years by default). `--dry-run` counts them without deleting.
+
+Everything is configured under `bug_catcher.perf` - `enabled`, `retention`, `rollup_path_cap`,
+`anomaly`, `baseline`, `metrics`, `detectors`. The design is in
+[docs/performance.md](_docs/performance.md), and
+[docs/custom_perf_metric.md](docs/custom_perf_metric.md) is the step-by-step for detecting
+regressions on a metric of your own.
+
 ## Modifications
 
 See [docs/extending.md](docs/extending.md) for more information on how to extend the dashboard.
@@ -112,6 +153,9 @@ See [docs/notifiers.md](docs/notifiers.md) for more information on how to create
 
 See [docs/mcp.md](docs/mcp.md) for how to let an AI assistant read and resolve the collected errors
 over the Model Context Protocol.
+
+See [docs/custom_perf_metric.md](docs/custom_perf_metric.md) for how to detect performance
+regressions on a metric of your own.
 
 ## Have Ideas, Feedback or an Issue?
 

@@ -128,7 +128,8 @@ signature is a fatal error, and the return types have to stay compatible (narrow
 ### Override Batch Delete
 
 The dashboard's "Fix selected" button physically deletes selected records in a single SQL statement.
-The default implementation (`BatchRecordDeleteService`) handles `RecordLog`, `RecordLogTrace` and `RecordPing`.
+The default implementation (`BatchRecordDeleteService`) handles `RecordLog`, `RecordLogTrace`, `RecordPing`
+and `RecordPerformance`.
 
 When you add a custom record type you **must** override the `BatchRecordDeleteInterface` service, otherwise the bundle will throw a `\LogicException` at runtime with a
 descriptive message.
@@ -142,6 +143,7 @@ namespace App\Service;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\RecordLog;
 use BugCatcher\Entity\RecordLogTrace;
+use BugCatcher\Entity\RecordPerformance;
 use BugCatcher\Entity\RecordPing;
 use BugCatcher\Enum\RecordEventType;
 use BugCatcher\Event\RecordEvent;
@@ -164,11 +166,12 @@ class MyBatchRecordDeleteService implements BatchRecordDeleteInterface
 
         $placeholders = implode(',', array_fill(0, count($binaryIds), '?'));
         $this->em->getConnection()->executeStatement(
-            'DELETE record_log_trace, record_log, record_ping, my_record, record
+            'DELETE record_log_trace, record_log, record_ping, record_performance, my_record, record
              FROM record
              LEFT JOIN record_log ON record.id = record_log.id
              LEFT JOIN record_log_trace ON record_log.id = record_log_trace.id
              LEFT JOIN record_ping ON record.id = record_ping.id
+             LEFT JOIN record_performance ON record.id = record_performance.id
              LEFT JOIN my_record ON record.id = my_record.id
              WHERE record.id IN (' . $placeholders . ')',
             $binaryIds
@@ -185,6 +188,14 @@ Register it in `services.yaml`:
 # config/services.yaml
 BugCatcher\Service\BatchRecordDeleteInterface: '@App\Service\MyBatchRecordDeleteService'
 ```
+
+Every subtype table of the hierarchy has to be named, including the ones the bundle adds in a later
+version - a joined subclass writes a row into each table of its ancestry, so a table missing from the
+statement leaves its rows behind. `BugCatcher\Service\BatchRecordDeleteService` is the reference to
+copy from, and this repository carries a worked example of exactly this procedure: the test
+application has a `RecordCron` of its own and overrides the service in
+[tests/App/Service/CronBatchRecordDeleteService.php](../tests/App/Service/CronBatchRecordDeleteService.php),
+so the documented recipe is executed on every test run rather than only read.
 
 ### Send log to BugCatcher
 
