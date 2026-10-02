@@ -35,6 +35,13 @@ final class PerfBucket
 	/** Where the roll-up folds the tail beyond `perf.rollup_path_cap` distinct paths. */
 	public const string OTHER_PATH = '__other__';
 
+	/**
+	 * What an {@see self::getExtra()} metric may be called. Names come from the monitored
+	 * application and end up in a JSON path in the upsert statement, so the pattern is enforced
+	 * at the API edge as a 422 and again in the upserter as a last line of defence.
+	 */
+	public const string EXTRA_NAME_PATTERN = '/^[A-Za-z0-9_][A-Za-z0-9_.\-]{0,31}$/';
+
 	private ?int $id = null;
 
 	private string $pathHash;

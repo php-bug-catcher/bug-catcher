@@ -53,9 +53,6 @@ final class PerfBucketUpserter
 	 */
 	private const array GREATEST = ['maxDuration', 'maxMem'];
 
-	/** An extra metric name that can be put in a JSON path without quoting trouble. */
-	private const string SAFE_EXTRA_KEY = '/^[A-Za-z0-9_][A-Za-z0-9_.\-]{0,31}$/';
-
 	private ?string $baseSql = null;
 
 	public function __construct(private readonly EntityManagerInterface $em)
@@ -229,7 +226,7 @@ final class PerfBucketUpserter
 		$extra = $bucket->getExtra() ?? [];
 
 		foreach (array_keys($extra) as $name) {
-			if (!is_string($name) || preg_match(self::SAFE_EXTRA_KEY, $name) !== 1) {
+			if (!is_string($name) || preg_match(PerfBucket::EXTRA_NAME_PATTERN, $name) !== 1) {
 				throw new InvalidArgumentException(sprintf(
 					'Extra metric name %s is not usable: letters, digits, underscore, dot and dash, up to 32 characters.',
 					var_export($name, true),

@@ -38,6 +38,22 @@ final class BugCatcherBundle extends AbstractBundle
 		$definition->import('../config/definition.php');
 	}
 
+	/**
+	 * The API resources of the bundle that are not entities live in `src/DTO`, which an
+	 * application has no reason to know about. Registering the path here rather than asking every
+	 * installation to add it to `api_platform.mapping.paths` keeps the ingest endpoint working out
+	 * of the box; the application's own paths are merged with this one, not replaced.
+	 */
+	public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void {
+		if (!$builder->hasExtension('api_platform')) {
+			return;
+		}
+
+		$container->extension('api_platform', [
+			'mapping' => ['paths' => [__DIR__ . '/DTO']],
+		]);
+	}
+
 	public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void {
 		$container->import('../config/services.php');
 		$services = $container->services();
