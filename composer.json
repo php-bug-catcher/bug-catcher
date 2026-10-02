@@ -11,6 +11,7 @@
         "kregel/exception-probe": "^1.0",
         "nyholm/psr7": "^1.8",
         "symfony/asset": "7.4.*",
+        "symfony/clock": "7.4.*",
         "symfony/console": "7.4.*",
         "symfony/form": "7.4.*",
         "symfony/framework-bundle": "^7.4",

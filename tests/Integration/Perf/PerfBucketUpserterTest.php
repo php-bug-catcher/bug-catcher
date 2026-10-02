@@ -10,6 +10,7 @@ use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Repository\PerfBucketRepository;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
+use BugCatcher\Service\Perf\Ingest\UpsertMode;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use DateTimeImmutable;
@@ -224,6 +225,66 @@ class PerfBucketUpserterTest extends KernelTestCase
 	public function testAnEmptyBatchIsNotAQuery(): void
 	{
 		$this->assertSame(0, $this->upserter()->upsert([]));
+	}
+
+	/**
+	 * The roll-up recomputes a whole hour out of its minutes every time it runs, so what it writes
+	 * is the answer and not a contribution to one. Adding here would mean a second run over the
+	 * same window doubles the hour - and re-running a roll-up is the normal way to pick up minutes
+	 * that arrived late.
+	 */
+	public function testARecomputedBucketReplacesWhatWasThereRatherThanAddingToIt(): void
+	{
+		$bucket = fn(): PerfBucket => $this->bucket(
+			granularity: PerfGranularity::Hour,
+			hits: 8,
+			sumDuration: 4.0,
+			sumUser: 3.0,
+			sumSys: 0.5,
+			sumMem: 150,
+			clientErrors: 3,
+			serverErrors: 1,
+			histogram: [8 => 8],
+			extra: ['sq' => 15],
+		);
+
+		$this->upserter()->upsert([$bucket()], UpsertMode::Replace);
+		$this->upserter()->upsert([$bucket()], UpsertMode::Replace);
+
+		$stored = $this->stored(PerfGranularity::Hour);
+		$this->assertSame(8, $stored->getHits());
+		$this->assertSame(4.0, $stored->getSumDuration());
+		$this->assertSame(3.0, $stored->getSumUser());
+		$this->assertSame(0.5, $stored->getSumSys());
+		$this->assertSame(150, $stored->getSumMem());
+		$this->assertSame(3, $stored->getClientErrors());
+		$this->assertSame(1, $stored->getServerErrors());
+		$this->assertSame($this->histogram([8 => 8]), $stored->getDurationHistogram());
+		$this->assertSame(['sq' => 15.0], $stored->getExtra());
+	}
+
+	/**
+	 * A recomputed maximum is authoritative, including downwards: the only way the peak of an hour
+	 * falls is that the minute holding it was never really there, and `GREATEST` would keep a
+	 * number nothing measured for as long as the row lives.
+	 */
+	public function testARecomputedMaximumMayAlsoBeLowerThanTheStoredOne(): void
+	{
+		$this->upserter()->upsert([$this->bucket(maxDuration: 9.0, maxMem: 9000)], UpsertMode::Replace);
+		$this->upserter()->upsert([$this->bucket(maxDuration: 1.5, maxMem: 1500)], UpsertMode::Replace);
+
+		$stored = $this->stored();
+		$this->assertSame(1.5, $stored->getMaxDuration());
+		$this->assertSame(1500, $stored->getMaxMem());
+	}
+
+	/** Ingest keeps adding whatever the roll-up does to the hour rows next to it. */
+	public function testTheModeBelongsToTheCallerAndNotToTheRow(): void
+	{
+		$this->upserter()->upsert([$this->bucket(hits: 5)], UpsertMode::Replace);
+		$this->upserter()->upsert([$this->bucket(hits: 3)]);
+
+		$this->assertSame(8, $this->stored()->getHits());
 	}
 
 	private function bucket(

@@ -20,11 +20,12 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 /**
  * The only thing that writes `perf_bucket`, for ingest and for roll-up alike.
  *
- * `INSERT ... ON DUPLICATE KEY UPDATE` against the unique key, with counters adding, maxima taking
- * `GREATEST` and histogram bins adding one by one. That is what lets a bucket be completed by a
- * later batch: the hook writes its line in shutdown, so a request that started inside a minute can
- * be logged after that minute was already shipped, and a roll-up that runs twice over the same
- * window has to land on the same row rather than a second one.
+ * `INSERT ... ON DUPLICATE KEY UPDATE` against the unique key, so a second write for a bucket
+ * lands on the row that is already there rather than opening another one. What that second write
+ * *means* is the caller's to say, and {@see UpsertMode} is where it says it: ingest only ever
+ * holds part of a minute and therefore adds, while the roll-up rebuilds a whole hour out of every
+ * minute in it and therefore overwrites. Adding is what lets a line the hook wrote in shutdown
+ * reach the minute it started in; overwriting is what makes a repeated roll-up a no-op.
  *
  * **The known limit of adding:** if the server commits a batch and the 2xx never reaches the
  * collector, the collector's cursor does not move and the batch is sent again - and then the
@@ -60,28 +61,31 @@ final class PerfBucketUpserter
 	 */
 	private const array GREATEST = ['maxDuration', 'maxMem'];
 
-	private ?string $bucketSql = null;
+	/** @var array<string, string> the statement per {@see UpsertMode}, built once */
+	private array $bucketSql = [];
 
-	private ?string $extraSql = null;
+	/** @var array<string, string> */
+	private array $extraSql = [];
 
 	public function __construct(private readonly EntityManagerInterface $em)
 	{
 	}
 
 	/**
-	 * @param iterable<PerfBucket> $buckets rows to add into the table, in any order
+	 * @param iterable<PerfBucket> $buckets rows to write into the table, in any order
+	 * @param UpsertMode $mode what a row already there means - see the enum
 	 * @return int how many rows were written
 	 */
-	public function upsert(iterable $buckets): int
+	public function upsert(iterable $buckets, UpsertMode $mode = UpsertMode::Add): int
 	{
 		$connection = $this->em->getConnection();
 		$this->assertMysql($connection);
 
-		return $connection->transactional(function (Connection $connection) use ($buckets): int {
+		return $connection->transactional(function (Connection $connection) use ($buckets, $mode): int {
 			$written = 0;
 			foreach ($buckets as $bucket) {
-				$this->upsertBucket($connection, $bucket);
-				$this->upsertExtra($connection, $bucket);
+				$this->upsertBucket($connection, $bucket, $mode);
+				$this->upsertExtra($connection, $bucket, $mode);
 				$written++;
 			}
 
@@ -89,7 +93,7 @@ final class PerfBucketUpserter
 		});
 	}
 
-	private function upsertBucket(Connection $connection, PerfBucket $bucket): void
+	private function upsertBucket(Connection $connection, PerfBucket $bucket, UpsertMode $mode): void
 	{
 		$params = [
 			$bucket->getGranularity()->value,
@@ -111,7 +115,7 @@ final class PerfBucketUpserter
 		// rather than using VALUES() keeps the statement off a MySQL extension that 8.0.20
 		// deprecated and whose replacement MariaDB does not have.
 		$connection->executeStatement(
-			$this->bucketSql ??= $this->buildBucketSql(),
+			$this->bucketSql[$mode->name] ??= $this->buildBucketSql($mode),
 			[...$params, ...$measurements, ...$measurements],
 			$types,
 		);
@@ -123,7 +127,7 @@ final class PerfBucketUpserter
 	 * UPDATE half is the standard MySQL answer: on the insert path `lastInsertId()` is the new
 	 * auto-increment, on the duplicate path it is the id of the row that was already there.
 	 */
-	private function upsertExtra(Connection $connection, PerfBucket $bucket): void
+	private function upsertExtra(Connection $connection, PerfBucket $bucket, UpsertMode $mode): void
 	{
 		$extra = $this->extraOf($bucket);
 		if ($extra === []) {
@@ -131,14 +135,14 @@ final class PerfBucketUpserter
 		}
 
 		$bucketId = (int)$connection->lastInsertId();
-		$sql      = $this->extraSql ??= $this->buildExtraSql();
+		$sql      = $this->extraSql[$mode->name] ??= $this->buildExtraSql($mode);
 
 		foreach ($extra as $name => $value) {
 			$connection->executeStatement($sql, [$bucketId, $name, $value, $value]);
 		}
 	}
 
-	private function buildBucketSql(): string
+	private function buildBucketSql(UpsertMode $mode): string
 	{
 		$metadata = $this->em->getClassMetadata(PerfBucket::class);
 
@@ -153,20 +157,23 @@ final class PerfBucketUpserter
 		];
 		$update = [];
 
+		$add      = $mode === UpsertMode::Add;
+		$additive = $add ? '%1$s = %1$s + ?' : '%1$s = ?';
+
 		foreach (self::ADDITIVE as $field) {
 			$column   = $this->column($metadata, $field);
 			$insert[] = $column;
-			$update[] = sprintf('%1$s = %1$s + ?', $column);
+			$update[] = sprintf($additive, $column);
 		}
 		foreach (self::GREATEST as $field) {
 			$column   = $this->column($metadata, $field);
 			$insert[] = $column;
-			$update[] = sprintf('%1$s = GREATEST(%1$s, ?)', $column);
+			$update[] = sprintf($add ? '%1$s = GREATEST(%1$s, ?)' : '%1$s = ?', $column);
 		}
 		for ($bin = 0; $bin < HistogramBins::COUNT; $bin++) {
 			$column   = $this->column($metadata, 'durationHistogram.' . DurationHistogram::fieldFor($bin));
 			$insert[] = $column;
-			$update[] = sprintf('%1$s = %1$s + ?', $column);
+			$update[] = sprintf($additive, $column);
 		}
 
 		// `path` is deliberately not updated: the key holds its hash, so an existing row already
@@ -183,19 +190,20 @@ final class PerfBucketUpserter
 		);
 	}
 
-	private function buildExtraSql(): string
+	private function buildExtraSql(UpsertMode $mode): string
 	{
 		$metadata = $this->em->getClassMetadata(PerfBucketExtra::class);
 		$value    = $this->column($metadata, 'value');
 
 		return sprintf(
-			'INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE %s = %s + ?',
+			'INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE %s',
 			$metadata->getTableName(),
 			$metadata->getSingleAssociationJoinColumnName('bucket'),
 			$this->column($metadata, 'name'),
 			$value,
-			$value,
-			$value,
+			$mode === UpsertMode::Add
+				? sprintf('%1$s = %1$s + ?', $value)
+				: sprintf('%s = ?', $value),
 		);
 	}
 
