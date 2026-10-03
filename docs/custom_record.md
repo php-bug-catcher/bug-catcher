@@ -197,6 +197,10 @@ application has a `RecordCron` of its own and overrides the service in
 [tests/App/Service/CronBatchRecordDeleteService.php](../tests/App/Service/CronBatchRecordDeleteService.php),
 so the documented recipe is executed on every test run rather than only read.
 
+"Fix selected" is not the only caller: deleting a project in the admin deletes that project's
+records a chunk at a time through the same service, so a custom type registered here is covered
+there as well, with nothing more to write.
+
 ### Send log to BugCatcher
 
 If you have installed [php-bug-catcher/bug-catcher-reporter-bundle](https://github.com/php-bug-catcher/bug-catcher-reporter-bundle) in your project,

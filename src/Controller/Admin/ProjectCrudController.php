@@ -2,18 +2,15 @@
 
 namespace BugCatcher\Controller\Admin;
 
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use BugCatcher\Entity\Project;
-use BugCatcher\Form\NotifierType;
+use BugCatcher\Service\ProjectDeleteService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class ProjectCrudController extends AbstractCrudController
@@ -21,16 +18,27 @@ final class ProjectCrudController extends AbstractCrudController
 
 
 	public function __construct(
-		private readonly array $collectors,
+		private readonly array                $collectors,
+		private readonly ProjectDeleteService $projectDelete,
 	) {}
 
 	public static function getEntityFqcn(): string {
 		return Project::class;
 	}
 
-	public function configureActions(Actions $actions): Actions {
-		return parent::configureActions($actions)
-			->remove(Crud::PAGE_INDEX, Action::DELETE);
+	/**
+	 * A project is the parent of every record, perf bucket and withholder collected under it, and
+	 * none of that is reachable once it is gone - so the delete takes them with it. Letting
+	 * EasyAdmin call `remove()` instead would be refused by the withholder foreign key.
+	 */
+	public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void {
+		if (!$entityInstance instanceof Project) {
+			parent::deleteEntity($entityManager, $entityInstance);
+
+			return;
+		}
+
+		$this->projectDelete->delete($entityInstance);
 	}
 
 
