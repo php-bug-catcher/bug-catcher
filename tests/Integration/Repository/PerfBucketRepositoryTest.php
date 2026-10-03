@@ -7,10 +7,12 @@ namespace BugCatcher\Tests\Integration\Repository;
 use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
+use BugCatcher\Enum\PerfTopPathGroup;
 use BugCatcher\Repository\PerfBucketRepository;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Service\Perf\PerfWindow;
+use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use DateTimeImmutable;
@@ -402,6 +404,57 @@ class PerfBucketRepositoryTest extends KernelTestCase
 		);
 
 		$this->assertSame(['sq' => 15.0, 'st' => 0.5], $stats[PerfBucket::hashPath('/user/{id}')]->extra);
+	}
+
+	/**
+	 * The dashboard shows every project until somebody picks one, and the charts have to show
+	 * something then too: one series over everything the server monitors.
+	 */
+	public function testWithoutAProjectEveryProjectIsAddedUp(): void
+	{
+		$project = ProjectFactory::createOne()->_real();
+		$other   = ProjectFactory::createOne()->_real();
+
+		$this->persist($this->minute($project, '2026-03-10 14:03:00', hits: 5));
+		$this->persist($this->minute($other, '2026-03-10 14:03:00', hits: 7));
+
+		$buckets = $this->repository()->aggregateByBucket(
+			PerfGranularity::Minute,
+			null,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 15:00:00'),
+		);
+
+		$this->assertCount(1, $buckets);
+		$this->assertSame(12, reset($buckets)->hits);
+	}
+
+	/**
+	 * A table across projects has to say which application a row belongs to: two of them both
+	 * have a `/login`, and merging those would be a row about nothing.
+	 */
+	public function testWithoutAProjectEveryRowSaysWhichProjectItIs(): void
+	{
+		$project = ProjectFactory::createOne(['code' => 'alpha'])->_real();
+		$other   = ProjectFactory::createOne(['code' => 'beta'])->_real();
+
+		$this->persist($this->minute($project, '2026-03-10 14:03:00', path: '/login', hits: 5));
+		$this->persist($this->minute($other, '2026-03-10 14:04:00', path: '/login', hits: 7));
+
+		$rows = $this->repository()->aggregateGrouped(
+			PerfTopPathGroup::Path,
+			PerfGranularity::Minute,
+			null,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 15:00:00'),
+			10,
+		);
+
+		$labels = array_map(static fn(WindowAggregate $row): string => $row->label, array_values($rows));
+		sort($labels);
+
+		$this->assertSame(['alpha /login', 'beta /login'], $labels);
+		$this->assertCount(2, $rows);
 	}
 
 	public function testAWindowWithNoTrafficHasNoRoutes(): void

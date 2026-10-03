@@ -61,15 +61,20 @@ class PerfOverviewTest extends KernelTestCase
 	}
 
 	/**
-	 * The dashboard shows every project until somebody picks one, and a chart of several
-	 * projects' routes added together would be a chart of nothing.
+	 * The dashboard shows every project until somebody picks one, so that is the view it has to
+	 * answer first: one set of charts over everything the server watches.
 	 */
-	public function testWithoutAProjectItAsksForOne(): void
+	public function testWithoutAProjectItChartsThemAll(): void
 	{
-		$html = (string)$this->renderTwigComponent('PerfOverview', []);
+		$this->measured();
+		$other = ProjectFactory::createOne()->_real();
+		$this->measuredFor($other, hits: 4);
 
-		$this->assertStringContainsString('Pick a project', $html);
-		$this->assertStringNotContainsString('<svg', $html);
+		$component = $this->mountTwigComponent('PerfOverview', []);
+		$this->assertInstanceOf(PerfOverview::class, $component);
+
+		$this->assertSame(14, $component->getSeries()->hits());
+		$this->assertStringContainsString('<svg', (string)$this->renderTwigComponent('PerfOverview', []));
 	}
 
 	public function testTheWindowIsAControl(): void
@@ -96,23 +101,28 @@ class PerfOverviewTest extends KernelTestCase
 
 	private function measured(): void
 	{
+		$this->measuredFor($this->project, 10);
+	}
+
+	private function measuredFor(Project $project, int $hits): void
+	{
 		$histogram                               = HistogramBins::empty();
-		$histogram[HistogramBins::binFor(300.0)] = 10;
+		$histogram[HistogramBins::binFor(300.0)] = $hits;
 
 		(new PerfBucketUpserter(self::getContainer()->get(EntityManagerInterface::class)))->upsert([
 			new PerfBucket(
 				PerfGranularity::Minute,
 				new DateTimeImmutable('-10 minutes'),
-				$this->project,
+				$project,
 				'web-01',
 				'www.site.com',
 				'/checkout',
-				hits: 10,
-				sumDuration: 3.0,
-				sumUser: 1.2,
-				sumSys: 0.3,
+				hits: $hits,
+				sumDuration: 0.3 * $hits,
+				sumUser: 0.12 * $hits,
+				sumSys: 0.03 * $hits,
 				maxDuration: 0.4,
-				sumMem: 10_485_760,
+				sumMem: 1_048_576 * $hits,
 				maxMem: 2_097_152,
 				clientErrors: 1,
 				serverErrors: 1,

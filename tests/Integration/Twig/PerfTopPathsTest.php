@@ -91,15 +91,17 @@ class PerfTopPathsTest extends KernelTestCase
 	}
 
 	/**
-	 * The dashboard lists every project until somebody picks one, and two applications both
-	 * have a `/login`.
+	 * The dashboard lists every project until somebody picks one. Two applications both have a
+	 * `/login`, so each row says which one it is.
 	 */
-	public function testWithoutAProjectItAsksForOne(): void
+	public function testWithoutAProjectEveryRowNamesItsProject(): void
 	{
+		$this->bucket('/login', hits: 10, msPerHit: 50);
+
 		$html = (string)$this->renderTwigComponent('PerfTopPaths', []);
 
-		$this->assertStringContainsString('Pick a project', $html);
-		$this->assertStringNotContainsString('<tbody', $html);
+		$this->assertStringContainsString('<tbody', $html);
+		$this->assertStringContainsString($this->project->getCode() . ' /login', $html);
 	}
 
 	/** The window is a control too, and the report decides the bucket width from its width. */

@@ -61,10 +61,12 @@ final readonly class PerfReportBuilder
 	/**
 	 * One point per bucket between the two instants, quiet buckets included.
 	 *
+	 * @param Project|null $project null is every project at once - what the dashboard shows
+	 *     until somebody picks one
 	 * @param string|null $path one route rather than the whole project
 	 */
 	public function timeSeries(
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $path = null,
@@ -72,9 +74,14 @@ final readonly class PerfReportBuilder
 		return $this->seriesOver($this->granularity->window($from, $to), $project, $path);
 	}
 
-	/** The heaviest rows of the window, grouped and sorted the way the page asked. */
+	/**
+	 * The heaviest rows of the window, grouped and sorted the way the page asked.
+	 *
+	 * Without a project every row is named after the one it belongs to, because two
+	 * applications both have a `/login` and one merged row would be a row about nothing.
+	 */
 	public function topPaths(
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		PerfTopPathGroup $group = PerfTopPathGroup::Path,
@@ -139,7 +146,7 @@ final readonly class PerfReportBuilder
 		);
 	}
 
-	private function seriesOver(PerfWindow $window, Project $project, ?string $path): PerfTimeSeries
+	private function seriesOver(PerfWindow $window, ?Project $project, ?string $path): PerfTimeSeries
 	{
 		$aggregates = $this->repository->aggregateByBucket(
 			$window->granularity,

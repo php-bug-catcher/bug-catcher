@@ -252,7 +252,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	public function aggregateGrouped(
 		PerfTopPathGroup $group,
 		PerfGranularity $granularity,
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		int $limit,
@@ -265,6 +265,9 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$from,
 			$to,
 			limit: $limit,
+			// across projects every row has to say which application it belongs to: two of them
+			// both have a `/login`, and one merged row would be a row about nothing
+			splitByProject: $project === null,
 		);
 	}
 
@@ -279,7 +282,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	 */
 	public function aggregateByBucket(
 		PerfGranularity $granularity,
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
@@ -322,21 +325,23 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		string $keyField,
 		string $labelField,
 		PerfGranularity $granularity,
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
 		?int $limit = null,
+		bool $splitByProject = false,
 	): array {
 		$groupBy    = [$keyField];
 		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash);
 		$aggregates = [];
 
-		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit) as $row) {
-			$key = (string)$row[$keyField];
+		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit, $splitByProject) as $row) {
+			$code = $splitByProject ? (string)$row['projectCode'] : '';
+			$key  = $code === '' ? (string)$row[$keyField] : $code . "\x1f" . $row[$keyField];
 
 			$aggregates[$key] = new WindowAggregate(
-				(string)$row[$labelField],
+				$code === '' ? (string)$row[$labelField] : $code . ' ' . $row[$labelField],
 				$key,
 				(int)$row['hits'],
 				(float)$row['sumDuration'],
@@ -348,7 +353,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 				(int)$row['clientErrors'],
 				(int)$row['serverErrors'],
 				$this->histogramOf($row),
-				$extra[$key] ?? [],
+				$extra[(string)$row[$keyField]] ?? [],
 			);
 		}
 
@@ -367,55 +372,76 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	private function aggregateRows(
 		array $groupBy,
 		PerfGranularity $granularity,
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
 		?int $limit = null,
+		bool $splitByProject = false,
 	): array {
 		$metadata = $this->bucketMetadata();
 
 		// every column is aliased to the property it belongs to, so what comes back is read by
 		// the same names the entity is built with
-		$select = array_map(fn(string $field): string => $this->aliased($metadata, $field), $groupBy);
+		$select  = array_map(fn(string $field): string => 'b.' . $this->aliased($metadata, $field), $groupBy);
+		$grouped = array_map(fn(string $field): string => 'b.' . $metadata->getColumnName($field), $groupBy);
 		// one hash is one path, so any of them is the path
-		$select[] = sprintf('MIN(%s) AS path', $metadata->getColumnName('path'));
+		$select[] = sprintf('MIN(b.%s) AS path', $metadata->getColumnName('path'));
 
 		foreach (['hits', 'sumDuration', 'sumUser', 'sumSys', 'sumMem', 'clientErrors', 'serverErrors'] as $field) {
-			$select[] = sprintf('SUM(%s) AS %s', $metadata->getColumnName($field), $field);
+			$select[] = sprintf('SUM(b.%s) AS %s', $metadata->getColumnName($field), $field);
 		}
 		foreach (['maxDuration', 'maxMem'] as $field) {
-			$select[] = sprintf('MAX(%s) AS %s', $metadata->getColumnName($field), $field);
+			$select[] = sprintf('MAX(b.%s) AS %s', $metadata->getColumnName($field), $field);
 		}
 		for ($bin = 0; $bin < HistogramBins::COUNT; $bin++) {
 			$column   = $metadata->getColumnName('durationHistogram.' . DurationHistogram::fieldFor($bin));
-			$select[] = sprintf('SUM(%s) AS bin%d', $column, $bin);
+			$select[] = sprintf('SUM(b.%s) AS bin%d', $column, $bin);
 		}
 
-		$params = [$granularity->value, $project->getId(), $from, $to];
-		$types  = [1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE];
+		$params = [$granularity->value, $from, $to];
+		$types  = [1 => Types::DATETIME_IMMUTABLE, 2 => Types::DATETIME_IMMUTABLE];
 		$where  = '';
+		$join   = '';
+
+		if ($project !== null) {
+			$where    = sprintf(' AND b.%s = ?', $metadata->getSingleAssociationJoinColumnName('project'));
+			$params[] = $project->getId();
+			$types[count($params) - 1] = UuidType::NAME;
+		} elseif ($splitByProject) {
+			// the code rather than the id: it is what a reader of the table recognises, and it
+			// saves turning sixteen binary bytes back into a project
+			$projects = $this->getEntityManager()->getClassMetadata(Project::class);
+			$join     = sprintf(
+				' INNER JOIN %s p ON p.%s = b.%s',
+				$projects->getTableName(),
+				$projects->getColumnName('id'),
+				$metadata->getSingleAssociationJoinColumnName('project'),
+			);
+			$select[]  = sprintf('p.%s AS projectCode', $projects->getColumnName('code'));
+			$grouped[] = sprintf('p.%s', $projects->getColumnName('code'));
+		}
 
 		if ($pathHash !== null) {
-			$where    = sprintf(' AND %s = ?', $metadata->getColumnName('pathHash'));
-			$params[] = $pathHash;
+			$where    .= sprintf(' AND b.%s = ?', $metadata->getColumnName('pathHash'));
+			$params[]  = $pathHash;
 		}
 
 		$sql = sprintf(
-			'SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s >= ? AND %s < ?%s GROUP BY %s',
+			'SELECT %s FROM %s b%s WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s GROUP BY %s',
 			implode(', ', $select),
 			$metadata->getTableName(),
+			$join,
 			$metadata->getColumnName('granularity'),
-			$metadata->getSingleAssociationJoinColumnName('project'),
 			$metadata->getColumnName('bucketAt'),
 			$metadata->getColumnName('bucketAt'),
 			$where,
-			implode(', ', array_map(fn(string $field): string => $metadata->getColumnName($field), $groupBy)),
+			implode(', ', $grouped),
 		);
 
 		// busiest first, so that a limit keeps the rows worth looking at
 		if ($limit !== null) {
-			$sql .= sprintf(' ORDER BY SUM(%s) DESC LIMIT %d', $metadata->getColumnName('hits'), $limit);
+			$sql .= sprintf(' ORDER BY SUM(b.%s) DESC LIMIT %d', $metadata->getColumnName('hits'), $limit);
 		}
 
 		return $this->connection()->fetchAllAssociative($sql, $params, $types);
@@ -432,7 +458,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	private function aggregateExtra(
 		array $groupBy,
 		PerfGranularity $granularity,
-		Project $project,
+		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
@@ -446,19 +472,25 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$groupBy,
 		);
 
-		$params = [$granularity->value, $project->getId(), $from, $to];
-		$types  = [1 => UuidType::NAME, 2 => Types::DATETIME_IMMUTABLE, 3 => Types::DATETIME_IMMUTABLE];
+		$params = [$granularity->value, $from, $to];
+		$types  = [1 => Types::DATETIME_IMMUTABLE, 2 => Types::DATETIME_IMMUTABLE];
 		$route  = '';
 
+		if ($project !== null) {
+			$route    = sprintf(' AND b.%s = ?', $bucket->getSingleAssociationJoinColumnName('project'));
+			$params[] = $project->getId();
+			$types[count($params) - 1] = UuidType::NAME;
+		}
+
 		if ($pathHash !== null) {
-			$route    = sprintf(' AND b.%s = ?', $bucket->getColumnName('pathHash'));
-			$params[] = $pathHash;
+			$route    .= sprintf(' AND b.%s = ?', $bucket->getColumnName('pathHash'));
+			$params[]  = $pathHash;
 		}
 
 		$sql = sprintf(
 			'SELECT %s, e.%s AS name, SUM(e.%s) AS value'
 			. ' FROM %s e INNER JOIN %s b ON b.%s = e.%s'
-			. ' WHERE b.%s = ? AND b.%s = ? AND b.%s >= ? AND b.%s < ?%s'
+			. ' WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s'
 			. ' GROUP BY %s, e.%s',
 			implode(', ', $select),
 			$metric->getColumnName('name'),
@@ -468,7 +500,6 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$bucket->getColumnName('id'),
 			$metric->getSingleAssociationJoinColumnName('bucket'),
 			$bucket->getColumnName('granularity'),
-			$bucket->getSingleAssociationJoinColumnName('project'),
 			$bucket->getColumnName('bucketAt'),
 			$bucket->getColumnName('bucketAt'),
 			$route,

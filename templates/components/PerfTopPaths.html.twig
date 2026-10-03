@@ -7,7 +7,9 @@
 
 <div{{ attributes.defaults({class:'panel p-3'}) }}>
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
-		<span class="text-sm font-semibold text-fg">{{ 'Heaviest routes'|trans }}</span>
+		<span class="text-sm font-semibold text-fg">
+			{{ 'Heaviest routes'|trans }}{% if this.project is null %} — {{ 'all projects'|trans }}{% endif %}
+		</span>
 
 		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
 			{% for hours, label in this.windows %}
@@ -26,16 +28,12 @@
 			{{ 'Per hit'|trans }}
 		</label>
 
-		{% if report %}
-			<span class="ml-auto text-xs tabular-nums text-muted">
-				{{ report.window.from|date('d.m. H:i') }} – {{ report.window.to|date('H:i') }}
-			</span>
-		{% endif %}
+		<span class="ml-auto text-xs tabular-nums text-muted">
+			{{ report.window.from|date('d.m. H:i') }} – {{ report.window.to|date('H:i') }}
+		</span>
 	</div>
 
-	{% if report is null %}
-		<p class="py-6 text-center text-sm text-muted">{{ 'Pick a project to see its performance.'|trans }}</p>
-	{% elseif report.isEmpty %}
+	{% if report.isEmpty %}
 		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
 	{% else %}
 		<table class="w-full text-sm">

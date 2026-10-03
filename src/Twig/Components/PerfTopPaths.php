@@ -53,16 +53,11 @@ final class PerfTopPaths
 	}
 
 	/**
-	 * Null until somebody picks a project. The dashboard shows every project by default, and a
-	 * table of several projects' routes added together would be a table of nothing: two
-	 * applications both have a `/login`.
+	 * With no project selected this is every project at once, and each row is named after the
+	 * application it belongs to - two of them both have a `/login`.
 	 */
-	public function getReport(): ?TopPathsReport
+	public function getReport(): TopPathsReport
 	{
-		if ($this->project === null) {
-			return null;
-		}
-
 		return $this->report->topPaths(
 			$this->project,
 			new DateTimeImmutable("-{$this->hours} hours"),

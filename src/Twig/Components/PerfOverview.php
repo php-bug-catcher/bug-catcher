@@ -54,13 +54,12 @@ final class PerfOverview
 	/**
 	 * One read of the window, shared by every chart on the panel. Memoised because a template
 	 * asks for the series and then for four charts drawn from it.
+	 *
+	 * With no project selected this is every project at once, which is what the dashboard shows
+	 * by default and a fair question to ask of a server that watches several applications.
 	 */
-	public function getSeries(): ?PerfTimeSeries
+	public function getSeries(): PerfTimeSeries
 	{
-		if ($this->project === null) {
-			return null;
-		}
-
 		return $this->series ??= $this->report->timeSeries(
 			$this->project,
 			new DateTimeImmutable("-{$this->hours} hours"),
@@ -76,7 +75,7 @@ final class PerfOverview
 	{
 		$series = $this->getSeries();
 
-		if ($series === null || $series->isEmpty()) {
+		if ($series->isEmpty()) {
 			return ['throughput' => '', 'latency' => '', 'bands' => '', 'cpu' => '', 'status' => ''];
 		}
 

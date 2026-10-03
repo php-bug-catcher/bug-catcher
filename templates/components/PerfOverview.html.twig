@@ -7,7 +7,9 @@
 
 <div{{ attributes.defaults({class:'panel p-3'}) }}>
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
-		<span class="text-sm font-semibold text-fg">{{ 'Performance'|trans }}</span>
+		<span class="text-sm font-semibold text-fg">
+			{{ 'Performance'|trans }}{% if this.project is null %} — {{ 'all projects'|trans }}{% endif %}
+		</span>
 
 		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
 			{% for hours, label in this.windows %}
@@ -22,9 +24,7 @@
 		{% endif %}
 	</div>
 
-	{% if this.project is null %}
-		<p class="py-6 text-center text-sm text-muted">{{ 'Pick a project to see its performance.'|trans }}</p>
-	{% elseif charts.throughput is empty %}
+	{% if charts.throughput is empty %}
 		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
 	{% else %}
 		<div class="grid gap-4 pt-3">
