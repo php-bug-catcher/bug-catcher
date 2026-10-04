@@ -11,7 +11,9 @@ use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Tests\Functional\apiTestHelper;
+use BugCatcher\Service\Perf\Report\PerfReportBuilder;
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 
 class SendPerfBucketsTest extends KernelTestCase
@@ -38,6 +40,71 @@ class SendPerfBucketsTest extends KernelTestCase
 		$this->assertSame('www.site.com', $stored->getHost());
 		$this->assertSame('2026-03-10 14:37:00', $stored->getBucketAt()->format('Y-m-d H:i:s'));
 		$this->assertNotNull($this->stored('/feed/'));
+	}
+
+	/**
+	 * The collector stamps every bucket with `gmdate()`, and every read in this bundle asks its
+	 * question in the server's own timezone - so an installation that is not on UTC had its
+	 * measurements stored an offset away from every window that would ever look for them. The
+	 * dashboard was empty with the rows sitting in the table, and nothing anywhere said why.
+	 *
+	 * The whole suite runs with `date_default_timezone_set('UTC')` from tests/bootstrap.php,
+	 * which is exactly why nothing caught it. This one changes the clock on purpose.
+	 */
+	public function testAUtcBucketIsStoredOnTheServersOwnClock(): void
+	{
+		$timezone = date_default_timezone_get();
+		date_default_timezone_set('Europe/Bratislava');
+
+		try {
+			[$browser] = $this->browser();
+			ProjectFactory::createOne(['code' => 'testProject']);
+
+			$browser->post('/api/perf_buckets', $this->payload([$this->row()]))->assertStatus(204);
+
+			// 14:37 UTC is 15:37 in Bratislava on 10 March - CET, because summer time does not
+			// start until the 29th. The conversion follows the offset of the day, not a constant.
+			$stored = $this->stored(bucketAt: new DateTimeImmutable('2026-03-10 15:37:00'));
+			$this->assertNotNull($stored, 'the bucket was not stored on the local clock');
+			$this->assertSame('2026-03-10 15:37:00', $stored->getBucketAt()->format('Y-m-d H:i:s'));
+		} finally {
+			date_default_timezone_set($timezone);
+		}
+	}
+
+	/**
+	 * The half of it that actually matters: a window built the way the dashboard builds one has
+	 * to find what the collector just shipped. Asserting the stored value alone would have passed
+	 * with the bug still in, as long as both sides were wrong the same way.
+	 */
+	public function testTheDashboardsWindowFindsWhatTheCollectorShipped(): void
+	{
+		$timezone = date_default_timezone_get();
+		date_default_timezone_set('Europe/Bratislava');
+
+		try {
+			[$browser] = $this->browser();
+			$project = ProjectFactory::createOne(['code' => 'testProject'])->_real();
+
+			// what the collector would send for "ten minutes ago", in UTC as it always does
+			$shippedAt = (new DateTimeImmutable('-10 minutes'))->setTimezone(new DateTimeZone('UTC'));
+
+			$browser
+				->post('/api/perf_buckets', $this->payload([
+					['bucketAt' => $shippedAt->format('Y-m-d\TH:i:00\Z')] + $this->row(hits: 7),
+				]))
+				->assertStatus(204);
+
+			$series = self::getContainer()->get(PerfReportBuilder::class)->timeSeries(
+				$project,
+				new DateTimeImmutable('-1 hour'),
+				new DateTimeImmutable(),
+			);
+
+			$this->assertSame(7, $series->hits(), 'the dashboard window did not see the shipped bucket');
+		} finally {
+			date_default_timezone_set($timezone);
+		}
 	}
 
 	/**
@@ -189,13 +256,14 @@ class SendPerfBucketsTest extends KernelTestCase
 	private function stored(
 		string $path = '/user/{id}',
 		PerfGranularity $granularity = PerfGranularity::Minute,
+		?DateTimeImmutable $bucketAt = null,
 	): ?PerfBucket {
 		$container = self::getContainer();
 		$container->get(EntityManagerInterface::class)->clear();
 
 		return $container->get(PerfBucketRepository::class)->findOneByKey(
 			$granularity,
-			new DateTimeImmutable('2026-03-10 14:37:00'),
+			$bucketAt ?? new DateTimeImmutable('2026-03-10 14:37:00'),
 			$container->get(\BugCatcher\Repository\ProjectRepository::class)->findOneBy(['code' => 'testProject']),
 			'web-01',
 			'www.site.com',
