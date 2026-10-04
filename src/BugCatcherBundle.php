@@ -15,6 +15,7 @@ use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
 use BugCatcher\Controller\PerformanceController;
 use BugCatcher\Controller\SecurityController;
+use BugCatcher\Entity\Record;
 use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
@@ -40,6 +41,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Tito10047\PersistentStateBundle\PersistentStateBundle;
+use Tito10047\PersistentStateBundle\Transformer\ObjectIdValueTransformer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 /**
@@ -47,8 +50,39 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
  */
 final class BugCatcherBundle extends AbstractBundle
 {
+	/** @see prependExtension() */
+	private const RECORD_TRANSFORMER_ID = 'bug_catcher.persistent_state.record_transformer';
+
 	public function build(ContainerBuilder $container) {
 		parent::build($container);
+	}
+
+	/**
+	 * LogList renders a selectable list of Record entities and reads the selection back through
+	 * `persistent_state.selection.manager.default`. That manager's transformer is
+	 * `persistent_state.transformer.scalar`, which can identify a scalar and nothing else, so the
+	 * dashboard died with "ScalarValueTransformer::getIdentifier(): Return value must be of type
+	 * string|int, BugCatcher\Entity\RecordLogTrace returned" on the first installation whose list
+	 * was not empty.
+	 *
+	 * Prepended rather than asked of the application: the bundle is what does the selecting, so the
+	 * bundle is what knows a Record is identified by its uuid. Prepended config is merged before
+	 * the application's own, so an installation that names a transformer of its own still wins.
+	 */
+	public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void {
+		if (!isset($builder->getParameter('kernel.bundles')['PersistentStateBundle'])) {
+			return;
+		}
+
+		$builder->prependExtensionConfig('persistent_state', [
+			'selection' => [
+				'managers' => [
+					'default' => [
+						'transformer' => '@' . self::RECORD_TRANSFORMER_ID,
+					],
+				],
+			],
+		]);
 	}
 
 
@@ -204,6 +238,12 @@ final class BugCatcherBundle extends AbstractBundle
 				->tag('ea.crud_controller')
 				->arg('$components', $config["notifier_components"]);
 		}
+		// LogList hands whole Record entities to the persistent-state selection manager, so that
+		// manager needs a transformer that can name one. See prependExtension(), which is what
+		// points the default manager at this service.
+		$services->set(self::RECORD_TRANSFORMER_ID, ObjectIdValueTransformer::class)
+			->arg('$class', Record::class)
+			->tag(PersistentStateBundle::TRANSFORMER_TAG);
 		$services->set(LogList::class)
 			->autowire()
 			->autoconfigure()
