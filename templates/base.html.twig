@@ -26,6 +26,14 @@
 	<link rel="icon" type="image/svg+xml" href="{{ asset('/assets/logo/'~logo~'/icon.svg','bug_catcher') }}">
 	<link rel="icon" type="image/png" href="{{ asset('/assets/logo/'~logo~'/icon.png','bug_catcher') }}">
 
+	{# Installing the dashboard as an app is what makes Chrome stop refusing the alert sound -
+	   see ManifestController. Only linked once logged in: the manifest route sits behind the
+	   application's catch-all access rule, so on the login page the browser would be sent to
+	   /login and report a manifest it could not parse. Nobody installs from the login page. #}
+	{% if is_granted('IS_AUTHENTICATED') %}
+		<link rel="manifest" href="{{ path('bug_catcher.manifest') }}">
+	{% endif %}
+
 	{% block stylesheets %}
 		{{ encore_entry_link_tags('bug_catcher',null,'bug_catcher') }}
 	{% endblock %}

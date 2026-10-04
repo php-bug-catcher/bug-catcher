@@ -1,3 +1,25 @@
+## Making the sound notifier audible for good
+
+Browsers refuse to play audio a page did not get a user gesture for, so by default the dashboard
+asks to be clicked once per page load before `NotifierSound` may make a noise - which is no way to
+run a wall monitor.
+
+The dashboard ships a web app manifest (`/manifest.webmanifest`) for exactly this reason. **Install
+it as an app** - in Chrome, ⋮ → *Cast, save and share* → *Install page as app* - and the autoplay
+block is lifted for every page in the app's scope, permanently and across restarts. Installing
+requires HTTPS (or `localhost`), and the menu entry only appears once you are logged in.
+
+If the installation is a screen nobody logs into, start the browser with the policy switched off
+instead:
+
+```bash
+chromium --kiosk --autoplay-policy=no-user-gesture-required https://bugcatcher.example.com/
+```
+
+Fleet-wide, the same thing is Chrome's `AutoplayAllowlist` enterprise policy. Firefox and Edge need
+none of this: both have a per-site *autoplay* permission in the padlock menu that you set to *Allow*
+once.
+
 ## Custom notifier
 
 You are free to create your own notifier. You can send email, SMS or whatever you want.

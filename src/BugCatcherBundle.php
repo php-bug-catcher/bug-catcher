@@ -13,6 +13,7 @@ use BugCatcher\Controller\Admin\NotifierSoundCrudController;
 use BugCatcher\Controller\Admin\ProjectCrudController;
 use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
+use BugCatcher\Controller\ManifestController;
 use BugCatcher\Controller\PerformanceController;
 use BugCatcher\Controller\SecurityController;
 use BugCatcher\Entity\Record;
@@ -204,6 +205,15 @@ final class BugCatcherBundle extends AbstractBundle
 			->public()
 			->tag('controller.service_arguments')
 			->tag('container.service_subscriber')
+			->arg('$logo', $config["logo"]);
+		// logo and app_name are Twig globals the application sets, not container parameters, so
+		// the manifest gets them the way every other controller here does - explicitly
+		$services->set(ManifestController::class)
+			->autowire()
+			->public()
+			->tag('controller.service_arguments')
+			->tag('container.service_subscriber')
+			->arg('$appName', $config["app_name"])
 			->arg('$logo', $config["logo"]);
 		$services->set(Controller\Admin\DashboardController::class)
 			->autowire()

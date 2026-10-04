@@ -352,6 +352,21 @@ http 200 GET "/performance/${PROJECT_ID}"
 # the path that was shipped two minutes ago, read back out of perf_bucket by TopPaths
 body_has '/user/{id}'
 
+step "The web app manifest renders and its icons are really there"
+# The only reason the dashboard is installable is that Chrome then stops refusing the alert sound,
+# and the only reason it installs is a manifest whose icons resolve. Those URLs come out of
+# Encore's manifest.json and are published by assets:install, so a forgotten `yarn build` or a
+# missing icon in the configured logo variant can only fail here - never in phpunit.
+http 200 GET /
+body_has 'rel="manifest"'
+http 200 GET /manifest.webmanifest
+body_has '"display":"standalone"'
+body_has '"sizes":"192x192"'
+body_has '"sizes":"512x512"'
+for ICON_URL in $(grep -oE '/bundles/bugcatcher/assets/logo/[^"]+\.(png|svg)' <<<"${HTTP_BODY}" | sort -u); do
+	http 200 GET "${ICON_URL}"
+done
+
 step "The admin renders"
 http 200 GET /admin
 http 200 GET /change-password
