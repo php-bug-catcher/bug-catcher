@@ -1,0 +1,9 @@
+ux_icons:
+  iconify:
+    # The bundle ships no SVGs - ux_icons.icon_dir is a single application-level path - so every
+    # icon the dashboard draws has to be imported into the installation and committed:
+    #   php bin/console ux:icons:import $(php vendor/php-bug-catcher/bug-catcher/tests/skeleton/required-icons.php)
+    # Leave on-demand downloads off. With them on, an icon nobody imported still draws on the
+    # developer's machine and turns into a request to api.iconify.design per render in production -
+    # and into a blank space the day iconify.design is unreachable.
+    on_demand: false

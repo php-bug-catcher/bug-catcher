@@ -1,0 +1,102 @@
+# Does a project built from php-bug-catcher/skeleton still run this bundle?
+#
+# symfony.yml boots tests/App/, a kernel written to exercise the bundle - it brings its own
+# bundles.php, its own firewalls and its own api_platform mapping paths. Everything the bundle needs
+# an *application* to configure is therefore invisible to phpunit: a bundle nobody registered, a
+# route nobody imported, an icon nobody committed, a firewall nobody declared. This job is where
+# that shows up, and it runs on every push - a skeleton that stopped matching the bundle is a broken
+# `composer create-project`, which is how every new installation starts.
+name: Skeleton
+
+on:
+  push:
+  pull_request:
+  # the skeleton can also break on its own, without a commit here
+  schedule:
+    - cron: '41 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      skeleton-ref:
+        description: 'branch or tag of php-bug-catcher/skeleton to test against'
+        required: false
+        default: ''
+
+jobs:
+  e2e:
+    name: create-project E2E (PHP ${{ matrix.php-versions }}, ${{ matrix.bundle }} bundle)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: symfony
+          MYSQL_DATABASE: skeleton_e2e
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ "8.4", "8.5" ]
+        # working-copy: does the skeleton still fit this branch of the bundle?
+        # released: does `composer create-project` work today, with the version the skeleton's
+        #   committed lock pins? A fix here that the skeleton has not re-locked against is still a
+        #   broken installation, and only this leg says so.
+        bundle: [ working-copy, released ]
+
+    steps:
+      - name: Checkout the bundle
+        uses: actions/checkout@v4
+        with:
+          path: bundle
+
+      - name: Checkout the skeleton
+        uses: actions/checkout@v4
+        with:
+          repository: php-bug-catcher/skeleton
+          ref: ${{ github.event.inputs.skeleton-ref }}
+          path: skeleton
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: ${{ runner.os }}-skeleton-${{ hashFiles('skeleton/composer.lock') }}
+          restore-keys: ${{ runner.os }}-skeleton-
+
+      # Bug Catcher groups by a bucket expression and selects the row it found, which
+      # ONLY_FULL_GROUP_BY rejects. An installation has to drop that mode; so does CI.
+      - name: Drop ONLY_FULL_GROUP_BY
+        run: |
+          mysql --protocol=tcp -h 127.0.0.1 -P ${{ job.services.mysql.ports['3306'] }} -uroot -psymfony \
+            -e "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+
+      - name: Run the end-to-end check
+        env:
+          DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/skeleton_e2e?serverVersion=8.4.0&charset=utf8mb4
+          APP_PORT: 8099
+          E2E_WORKDIR: ${{ runner.temp }}/app
+          E2E_BUNDLE: ${{ matrix.bundle }}
+        run: bundle/tests/skeleton/e2e.sh "${GITHUB_WORKSPACE}/skeleton"
+
+      - name: Server log
+        if: failure()
+        run: tail -n 200 "${{ runner.temp }}/app/server.log" || true

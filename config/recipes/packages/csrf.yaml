@@ -1,0 +1,11 @@
+# Session CSRF, deliberately not the stateless kind Symfony's own skeleton configures.
+#
+# A stateless token is a double-submit cookie: the form renders the placeholder "csrf-token" and
+# Symfony's csrf_protection Stimulus controller swaps in the real value in the browser. That
+# controller ships in the *application's* asset build, and every page here is rendered by
+# @BugCatcher/base.html.twig, which loads the bundle's build instead - so the placeholder would be
+# submitted verbatim and every login, every admin form and every logout would be rejected.
+framework:
+  form:
+    csrf_protection: true
+  csrf_protection: true

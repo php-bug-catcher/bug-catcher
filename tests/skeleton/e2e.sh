@@ -16,7 +16,9 @@
 #   DATABASE_URL        required; must be MySQL, with ONLY_FULL_GROUP_BY off on the server
 #   APP_PORT            port the built-in server listens on (default 8099)
 #   E2E_WORKDIR         where the project is built (default a fresh mktemp -d, removed on exit)
-#   E2E_BUNDLE_VERSION  version the path repository claims (default <major of latest tag>.9999.0)
+#   E2E_BUNDLE          "working-copy" (default) or "released" - the latter installs the skeleton's
+#                       committed lock untouched, which is what `create-project` hands out today
+#   E2E_BUNDLE_VERSION  version the path repository claims (default from the skeleton's constraint)
 #   E2E_SKIP_YARN       set to 1 to skip the Encore build
 #
 set -euo pipefail
@@ -86,7 +88,8 @@ http() {
 	local expected="$1" method="$2" path="$3"
 	shift 3
 	local body_file="${APP}/.http-body" status
-	status="$(curl -sS -o "${body_file}" -w '%{http_code}' \
+	HTTP_HEADERS_FILE="${APP}/.http-headers"
+	status="$(curl -sS -o "${body_file}" -D "${HTTP_HEADERS_FILE}" -w '%{http_code}' \
 		-X "${method}" \
 		${COOKIES:+-b "${COOKIES}" -c "${COOKIES}"} \
 		"$@" "${BASE}${path}")" || die "curl ${method} ${path} failed"
@@ -137,10 +140,30 @@ step "composer validate"
 composer --working-dir="${APP}" validate --no-check-all --no-check-publish \
 	|| die "the skeleton's composer.json and composer.lock do not agree"
 
+if [[ "${E2E_BUNDLE:-working-copy}" == "released" ]]; then
+	step "Install the skeleton as published, from its own lock"
+	# No path repository: this answers the other half of the question - does `create-project` work
+	# *today*, with the version the committed composer.lock pins? A bundle fix that the skeleton
+	# has not re-locked against is a broken installation however green the working-copy run is.
+	composer --working-dir="${APP}" install --no-interaction --no-progress --prefer-dist \
+		|| die "composer install from the committed lock failed"
+	INSTALLED="$(php -r '
+		foreach (json_decode(file_get_contents($argv[1]), true)["packages"] as $package) {
+			if ("php-bug-catcher/bug-catcher" === $package["name"]) { echo $package["version"]; }
+		}' "${APP}/composer.lock")"
+	ok "php-bug-catcher/bug-catcher ${INSTALLED} from packagist"
+else
+
 step "Point the project at this working copy of the bundle"
 if [[ -z "${E2E_BUNDLE_VERSION:-}" ]]; then
-	major="$(git -C "${BUNDLE_DIR}" tag --sort=-v:refname | sed -n 's/^v\?\([0-9]\+\)\..*/\1/p' | head -n 1)"
-	E2E_BUNDLE_VERSION="${major:-2}.9999.0"
+	# Read off the skeleton's own constraint rather than the bundle's git tags: a CI checkout is a
+	# shallow one with no tags, and the number that has to be satisfied is the skeleton's anyway.
+	E2E_BUNDLE_VERSION="$(php -r '
+		$require = json_decode(file_get_contents($argv[1]), true)["require"] ?? [];
+		$constraint = $require["php-bug-catcher/bug-catcher"] ?? "";
+		preg_match("/(\d+)/", $constraint, $m) || exit(1);
+		echo $m[1], ".9999.0";
+	' "${APP}/composer.json")" || die "the skeleton does not require php-bug-catcher/bug-catcher"
 fi
 # A path repository without `versions` reports dev-<branch>, which the skeleton's `^2.0` refuses -
 # and refusing it is right, so the repository names a version inside the released range instead.
@@ -149,11 +172,15 @@ composer --working-dir="${APP}" config repositories.bug_catcher --json \
 ok "php-bug-catcher/bug-catcher ${E2E_BUNDLE_VERSION} from ${BUNDLE_DIR}"
 
 step "Install"
-# Only the bundle is updated: everything else stays on the committed lock, so this run tests the
-# dependency set the skeleton actually ships, not whatever packagist released this morning.
+# Only the bundle is updated, and deliberately without --with-all-dependencies: everything else
+# stays on the committed lock, so this run tests the dependency set `create-project` hands out
+# rather than whatever packagist released this morning. A working copy whose requirements no longer
+# fit that lock fails here, which is the skeleton saying it needs to be re-locked.
 composer --working-dir="${APP}" update php-bug-catcher/bug-catcher \
-	--with-all-dependencies --no-interaction --no-progress --prefer-dist \
-	|| die "composer update failed"
+	--no-interaction --no-progress --prefer-dist \
+	|| die "composer update failed; the skeleton's lock may need regenerating against this bundle"
+
+fi
 
 # ------------------------------------------------------------------------------ 2. static checks
 
@@ -222,14 +249,22 @@ if ('/' !== $path && is_file(__DIR__.'/public'.$path)) {
 }
 require __DIR__.'/public/index.php';
 ROUTER
-(cd "${APP}" && php -S "127.0.0.1:${PORT}" -t public router.php >"${SERVER_LOG}" 2>&1) &
+if curl -sS -o /dev/null --max-time 2 "${BASE}/" 2>/dev/null; then
+	die "something is already listening on ${PORT}; set APP_PORT"
+fi
+# Started without a wrapping subshell on purpose, so $! is php itself - killing a subshell leaves
+# the server orphaned and the next run answers from a workdir that no longer exists.
+php -S "127.0.0.1:${PORT}" -t "${APP}/public" "${APP}/router.php" >"${SERVER_LOG}" 2>&1 &
 SERVER_PID=$!
 for _ in $(seq 1 60); do
+	if grep -q 'Failed to listen' "${SERVER_LOG}" 2>/dev/null; then
+		die "the server could not bind ${PORT}"
+	fi
 	if curl -sS -o /dev/null "${BASE}/login" 2>/dev/null; then break; fi
 	kill -0 "${SERVER_PID}" 2>/dev/null || die "the server died on startup"
 	sleep 0.5
 done
-ok "listening"
+ok "listening (pid ${SERVER_PID})"
 
 # --------------------------------------------------------------------------------- 5. the API
 
@@ -248,17 +283,27 @@ http 404 POST /api/record_logs \
 	-H 'Content-Type: application/json' \
 	-d '{"level":500,"message":"nope","requestUri":"/","projectCode":"no-such-project"}'
 
-step "Ingest a minute of performance buckets"
+step "Ingest performance buckets"
+# Two minutes: one a couple of minutes ago, which is what the dashboard row and the minute-grained
+# charts read, and one inside the previous whole hour, which is the only thing app:perf:rollup
+# --granularity=hour is going to find anything in.
 PERF_PAYLOAD="$(php -r '
-$h = array_fill(0, 16, 0); $h[8] = 12;
-echo json_encode(["projectCode" => $argv[1], "rows" => [[
-	"bucketAt" => gmdate("Y-m-d\TH:i:00\Z", time() - 120),
-	"serverName" => "e2e-web-01", "host" => "127.0.0.1", "path" => "/user/{id}",
-	"hits" => 12, "sumDuration" => 7.2, "sumUser" => 3.1, "sumSys" => 0.4,
-	"maxDuration" => 1.9, "sumMem" => 12582912, "maxMem" => 2097152,
-	"clientErrors" => 1, "serverErrors" => 1, "histogram" => $h,
-	"extra" => ["sq" => 48, "st" => 1.2],
-]]]);' "${PROJECT_CODE}")"
+$row = static function (int $at, int $hits, float $sumDuration): array {
+	$h = array_fill(0, 16, 0);
+	$h[8] = $hits;
+	return [
+		"bucketAt" => gmdate("Y-m-d\TH:i:00\Z", $at),
+		"serverName" => "e2e-web-01", "host" => "127.0.0.1", "path" => "/user/{id}",
+		"hits" => $hits, "sumDuration" => $sumDuration, "sumUser" => $sumDuration / 2,
+		"sumSys" => 0.4, "maxDuration" => 1.9, "sumMem" => 1048576 * $hits,
+		"maxMem" => 2097152, "clientErrors" => 1, "serverErrors" => 1,
+		"histogram" => $h, "extra" => ["sq" => 4 * $hits, "st" => 0.1 * $hits],
+	];
+};
+echo json_encode(["projectCode" => $argv[1], "rows" => [
+	$row(time() - 120, 12, 7.2),
+	$row(strtotime(gmdate("Y-m-d H:00:00", time() - 3600)) + 600, 30, 18.5),
+]]);' "${PROJECT_CODE}")"
 http 204 POST /api/perf_buckets -H 'Content-Type: application/json' -d "${PERF_PAYLOAD}"
 
 # ------------------------------------------------------------------------- 6. the pages, signed in
@@ -290,10 +335,22 @@ step "The record detail page renders"
 RECORD_ID="$(grep -oE '/detail/[0-9a-f-]{36}' <<<"${HTTP_BODY}" | head -n 1 | cut -d/ -f3)"
 [[ -n "${RECORD_ID}" ]] || die "no /detail/<id> link on the dashboard"
 http 200 GET "/detail/${RECORD_ID}"
+body_has 'name="_token"'
+
+step "Resolving a record takes it off the dashboard"
+RECORD_TOKEN="$(sed -n 's/.*name="_token" value="\([^"]*\)".*/\1/p' <<<"${HTTP_BODY}" | head -n 1)"
+[[ -n "${RECORD_TOKEN}" ]] || die "no CSRF token on the detail page"
+http 302 POST "/detail/${RECORD_ID}/status/resolved" --data-urlencode "_token=${RECORD_TOKEN}"
+http 200 GET /
+grep -qF -- "/detail/${RECORD_ID}" <<<"${HTTP_BODY}" \
+	&& die "the resolved record is still in the new-logs list"
+ok "gone from the list"
 
 step "The performance page renders, for every project and for one"
 http 200 GET /performance
 http 200 GET "/performance/${PROJECT_ID}"
+# the path that was shipped two minutes ago, read back out of perf_bucket by TopPaths
+body_has '/user/{id}'
 
 step "The admin renders"
 http 200 GET /admin
@@ -319,14 +376,25 @@ http 200 POST /mcp \
 body_has 'bug-catcher'
 
 step "The MCP tools are registered"
-http 200 POST /mcp \
-	-H "Authorization: Bearer ${MCP_TOKEN}" \
-	-H 'Content-Type: application/json' \
-	-H 'Accept: application/json, text/event-stream' \
-	-d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+# Every call after initialize carries the session the server handed back in Mcp-Session-Id.
+MCP_SESSION="$(sed -n 's/^[Mm]cp-[Ss]ession-[Ii]d: *\(.*\)\r*$/\1/p' "${HTTP_HEADERS_FILE}" | tr -d '\r' | head -n 1)"
+[[ -n "${MCP_SESSION}" ]] || die "initialize returned no Mcp-Session-Id header"
+MCP_HEADERS=(
+	-H "Authorization: Bearer ${MCP_TOKEN}"
+	-H "Mcp-Session-Id: ${MCP_SESSION}"
+	-H 'Content-Type: application/json'
+	-H 'Accept: application/json, text/event-stream'
+)
+http 202 POST /mcp "${MCP_HEADERS[@]}" -d '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+http 200 POST /mcp "${MCP_HEADERS[@]}" -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
 for tool in list_projects search_records get_record_detail set_record_status; do
 	body_has "${tool}"
 done
+
+step "An MCP tool answers with the data the API ingested"
+http 200 POST /mcp "${MCP_HEADERS[@]}" \
+	-d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_projects","arguments":{}}}'
+body_has "${PROJECT_CODE}"
 COOKIES="${SAVED_COOKIES}"
 
 # ------------------------------------------------------------------------------- 8. the cron commands
@@ -336,7 +404,12 @@ console app:ping-collector || die "app:ping-collector failed"
 ok "app:ping-collector"
 console app:record-optimizer --past=1 --precision=5 || die "app:record-optimizer failed"
 ok "app:record-optimizer"
-console app:perf:rollup --granularity=hour || die "app:perf:rollup --granularity=hour failed"
+ROLLUP="$(console app:perf:rollup --granularity=hour)" || die "app:perf:rollup --granularity=hour failed"
+printf '    %s\n' "${ROLLUP}"
+# The previous whole hour holds the second bucket of the batch, so a run that folds nothing means
+# the roll-up window and the ingested bucketAt disagree - and every chart wider than two hours,
+# which reads hours, would stay empty for ever without saying so.
+grep -qE '[1-9][0-9]* buckets' <<<"${ROLLUP}" || die "the hour roll-up folded no buckets"
 ok "app:perf:rollup hour"
 console app:perf:rollup --granularity=day || die "app:perf:rollup --granularity=day failed"
 ok "app:perf:rollup day"

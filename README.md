@@ -1,4 +1,5 @@
 ![Tests](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+![Skeleton](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/skeleton.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/php-bug-catcher/bug-catcher/badge.svg?branch=main)](https://coveralls.io/github/php-bug-catcher/bug-catcher?branch=main)
 
 # Catch every bug in all your PHP applications in one place
@@ -8,6 +9,18 @@
 </p>
 <img src="docs/bug_catcher_01.png" width="800" >
 <img src="docs/stacktrace.png" width="800" >
+
+## Requirements
+
+- **PHP 8.4 or newer**
+- **MySQL 8.0+ or MariaDB 10.6+, running without `ONLY_FULL_GROUP_BY`.** Not a preference: the
+  dashboard sparkline and `app:record-optimizer` bucket by `DATE_FORMAT()`/`SEC_TO_TIME()` and
+  select the row they grouped, and the performance ingest upserts with
+  `INSERT ... ON DUPLICATE KEY UPDATE` and reads the row back with `LAST_INSERT_ID()`. PostgreSQL
+  and SQLite have none of that. Set
+  `sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION`;
+  the skeleton's `compose.yaml` already does.
+- Node and Yarn, for the application's own Encore build.
 
 ## Installation
 
@@ -97,6 +110,18 @@ Now check out the site at `http://localhost:8000`
 #optimize records by grouping them by 60 minutes older than 7 days
 0 0 * * * www-data php /var/www/bug-catcher/bin/console app:record-optimizer --past=7 --precision=60
 ```
+
+With [performance monitoring](#performance-monitoring) in use, also:
+
+```
+*/5 * * * * www-data php /var/www/bug-catcher/bin/console app:perf:detect --window=5
+5 * * * *   www-data php /var/www/bug-catcher/bin/console app:perf:rollup --granularity=hour
+20 0 * * *  www-data php /var/www/bug-catcher/bin/console app:perf:rollup --granularity=day
+40 0 * * *  www-data php /var/www/bug-catcher/bin/console app:perf:purge
+```
+
+The roll-up is what fills in every chart wider than two hours; without the hourly job those views
+stay empty while the minute rows sit in the table.
 
 ## Enable Logging
 
