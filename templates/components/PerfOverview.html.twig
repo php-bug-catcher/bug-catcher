@@ -3,12 +3,16 @@
 	app.css decides how wide they end up; the charts' own titles are hidden there too, because
 	each one already has a heading here.
 #}
+{% trans_default_domain 'BugCatcher' %}
 {% set charts = this.charts %}
 
 <div{{ attributes.defaults({class:'panel p-3'}) }}>
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
-		<span class="text-sm font-semibold text-fg">
+		<span class="inline-flex items-center gap-1 text-sm font-semibold text-fg">
 			{{ 'Performance'|trans }}{% if this.project is null %} — {{ 'all projects'|trans }}{% endif %}
+			{% include '@BugCatcher/components/_hint.html.twig' with {
+				text: 'Wallclock, CPU, memory and status of every request, measured on the monitored machine and summed per bucket. Windows wider than two hours are read from rolled-up buckets, so they stay empty until app:perf:rollup has run.'|trans
+			} only %}
 		</span>
 
 		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
@@ -31,23 +35,43 @@
 			{# throughput and latency are two charts of one width stacked into one cell: the
 			   library has a single scale per chart, and this is the dual axis #}
 			<figure class="bc-chart">
-				<figcaption class="text-xs uppercase text-muted">{{ 'Throughput and latency'|trans }}</figcaption>
+				<figcaption class="flex items-center gap-1 text-xs uppercase text-muted">
+					{{ 'Throughput and latency'|trans }}
+					{% include '@BugCatcher/components/_hint.html.twig' with {
+						text: 'The bars are how many requests arrived in each bucket; the lines below are the mean and the 95th percentile of how long they took. A line that rises while the bars stay flat means the application got slower, not busier.'|trans
+					} only %}
+				</figcaption>
 				{{ charts.throughput|raw }}
 				{{ charts.latency|raw }}
 			</figure>
 
 			<figure class="bc-chart">
-				<figcaption class="text-xs uppercase text-muted">{{ 'Latency bands'|trans }}</figcaption>
+				<figcaption class="flex items-center gap-1 text-xs uppercase text-muted">
+					{{ 'Latency bands'|trans }}
+					{% include '@BugCatcher/components/_hint.html.twig' with {
+						text: 'How each bucket\'s requests were spread over five bands of "how long did you wait". The slow band growing is visible long before the mean moves.'|trans
+					} only %}
+				</figcaption>
 				{{ charts.bands|raw }}
 			</figure>
 
 			<figure class="bc-chart">
-				<figcaption class="text-xs uppercase text-muted">{{ 'Where the time went'|trans }}</figcaption>
+				<figcaption class="flex items-center gap-1 text-xs uppercase text-muted">
+					{{ 'Where the time went'|trans }}
+					{% include '@BugCatcher/components/_hint.html.twig' with {
+						text: 'What the average request spent its time on: user CPU, system CPU, and waiting — the database, a cache, an HTTP call. Waiting is usually the largest part of a slow request.'|trans
+					} only %}
+				</figcaption>
 				{{ charts.cpu|raw }}
 			</figure>
 
 			<figure class="bc-chart">
-				<figcaption class="text-xs uppercase text-muted">{{ 'Status mix'|trans }}</figcaption>
+				<figcaption class="flex items-center gap-1 text-xs uppercase text-muted">
+					{{ 'Status mix'|trans }}
+					{% include '@BugCatcher/components/_hint.html.twig' with {
+						text: 'How the requests of each bucket ended. A redirect is indistinguishable from a success on the wire, so 2xx and 3xx share one band.'|trans
+					} only %}
+				</figcaption>
 				{{ charts.status|raw }}
 			</figure>
 		</div>

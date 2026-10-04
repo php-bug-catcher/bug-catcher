@@ -137,25 +137,55 @@ above:
 - `app:perf:purge` drops the buckets past their retention (minutes a week, hours ninety days, days
   two years by default). `--dry-run` counts them without deleting.
 
-**On the dashboard**, four panels are available and none of them is switched on for you - a
-charting panel appearing on everybody's wall monitor after an upgrade is not a default anybody
-chose. Add the ones you want:
+**The charts live at `/performance`**, not on the dashboard. The dashboard answers one question
+from across the room - is anything on fire - and four charts of one project is a different
+question, asked by somebody who has already picked a project out of that wall. There are two ways
+in: the **Performance** button in the nav, which charts every project at once, and **clicking a
+project's name** on the dashboard, which charts that one. The page is `/performance` and
+`/performance/{project}`, so either is a link you can send to somebody.
 
 ```yaml
 # config/packages/bug_catcher.yaml
 bug_catcher:
-    dashboard_components:
-        - StatusList
-        - LogList
+    # the panels of /performance, in order. This is the default - say it only to change it
+    performance_components:
         - PerfOverview      # throughput and latency, latency bands, where the time went, status mix
         - PerfTopPaths      # the heaviest routes, grouped and sorted like phptop
+        - PerfDatabase      # queries per request, what they cost, and the routes that run most
+    # the dashboard row of a project with performance switched off - unchanged
     status_list_components:
         - ProjectStatus
         - LogCount
         - LogSparkLine
-        - PerfSparkLine     # a day of p95 next to each project
+        - WarningSound
+    # and of one with it on. This is the default - say it only to change it
+    perf_status_list_components:
+        - ProjectStatus
+        - LogCount          # the error count stays; it is what the dashboard has always been for
+        - PerfApdex         # how many of the users waited
+        - PerfLatency       # and how long the slow tenth of them waited
+        - PerfSparkLine     # a day of p95, so the row shows a direction as well as a state
         - WarningSound
 ```
+
+**Performance is per project**, a checkbox in the administration (`Project.perfEnabled`). A server
+usually watches several applications and the collector gets installed on them one at a time, so
+the dashboard draws each row the way that project is set up; a project with it off keeps the row
+it always had. Off by default - a row that turned into three empty columns after an upgrade would
+read as "this is broken".
+
+With it on, the twelve columns of the row are shared out differently (the name gives up two,
+the error count one), and the components are told so through a `dense` prop. A component of your
+own that goes on both rows should honour it.
+
+Two more cells are built and not in the default row, because adding one means taking a column
+from something else: `PerfThroughput` (requests per minute - the one number here that *falls*
+when an application stops answering at all, which every other cell makes look like a perfect
+score) and `PerfRegressions` (how many routes `app:perf:detect` is currently shouting about,
+measured against each route's own baseline rather than against a fixed threshold).
+
+Listing a perf panel in `dashboard_components` is refused when the container is built: both lists
+are resolved by component name, so a leftover entry would quietly keep drawing it on the homepage.
 
 The charts are server-rendered SVG with no JavaScript, and they take their colours from the
 `--bc-*` theme tokens, so they follow the light/dark switch like everything else.
@@ -163,10 +193,18 @@ The charts are server-rendered SVG with no JavaScript, and they take their colou
 **The roll-up is not optional if you want the wider windows.** A window up to two hours is read
 from minute buckets, which the collector ships directly; anything wider reads hours, and hours
 only exist once `app:perf:rollup` has run. Without that cron line the 24 h and 7 d views are
-empty even though the measurements are in the database. `PerfOverview`
-and `PerfTopPaths` read one project at a time - pick one on the dashboard. The detail page of a
+empty even though the measurements are in the database. The detail page of a
 regression draws the route around the time it happened with the baseline across it
 (`Detail:PerfChart`, registered for `RecordPerformance` by default).
+
+**`PerfDatabase` needs the Symfony bundle, not just the hook.** The hook cannot see a query - it
+runs before your autoloader and knows nothing about Doctrine. What fills that panel is
+[`php-bug-catcher/perf-collector-bundle`](https://github.com/php-bug-catcher/perf-collector-bundle),
+whose DBAL middleware counts and times every query and merges `sq` and `st` into
+`$GLOBALS['_bcperf_extra']`; the collector sums them per bucket and they are stored in
+`perf_bucket_extra`. Without it the panel says so rather than drawing an empty chart. Anything
+else an application merges into that global is stored the same way and is available to a custom
+metric extractor - see [docs/custom_perf_metric.md](docs/custom_perf_metric.md).
 
 Everything is configured under `bug_catcher.perf` - `enabled`, `retention`, `rollup_path_cap`,
 `anomaly`, `baseline`, `metrics`, `detectors`. The design is in

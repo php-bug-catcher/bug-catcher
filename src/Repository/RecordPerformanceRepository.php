@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BugCatcher\Repository;
 
+use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordPerformance;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**
  * The repository the mapping names for {@see RecordPerformance}.
@@ -32,6 +34,30 @@ final class RecordPerformanceRepository extends ServiceEntityRepository implemen
 		private readonly RecordRepositoryInterface $recordRepository,
 	) {
 		parent::__construct($registry, RecordPerformance::class);
+	}
+
+	/**
+	 * Unresolved regressions of one project seen since an instant.
+	 *
+	 * Rows and not occurrences: records are deduplicated by hash, so one route regressing for an
+	 * hour is one row with a count of twelve, and "12" on a dashboard row would read as twelve
+	 * routes. What the cell is for is "how many things is the detector shouting about".
+	 *
+	 * DQL rather than `count()` with criteria because `date` and `status` live on the root of the
+	 * hierarchy; the `INSTANCE OF` is implicit in rooting the query at the subtype.
+	 */
+	public function countOpenSince(Project $project, DateTimeImmutable $since): int
+	{
+		return (int)$this->createQueryBuilder('p')
+			->select('COUNT(p.id)')
+			->andWhere('p.project = :project')
+			->andWhere('p.date >= :since')
+			->andWhere('p.status = :status')
+			->setParameter('project', $project->getId(), UuidType::NAME)
+			->setParameter('since', $since)
+			->setParameter('status', 'new')
+			->getQuery()
+			->getSingleScalarResult();
 	}
 
 	public function setStatusBetween(

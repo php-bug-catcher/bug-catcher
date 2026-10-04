@@ -190,6 +190,362 @@
 			<source>Open in new tab</source>
 			<target>Otvoriť v novom paneli</target>
 		  </trans-unit>
+
+		  <!-- performance dashboard: PerfOverview -->
+		  <trans-unit id="47">
+			<source>Performance</source>
+			<target>Výkon</target>
+		  </trans-unit>
+		  <trans-unit id="48">
+			<source>all projects</source>
+			<target>všetky projekty</target>
+		  </trans-unit>
+		  <trans-unit id="49">
+			<source>Window</source>
+			<target>Okno</target>
+		  </trans-unit>
+		  <trans-unit id="50">
+			<source>requests</source>
+			<target>požiadaviek</target>
+		  </trans-unit>
+		  <trans-unit id="51">
+			<source>No performance data in this window.</source>
+			<target>V tomto okne nie sú žiadne údaje o výkone.</target>
+		  </trans-unit>
+		  <trans-unit id="52">
+			<source>Throughput and latency</source>
+			<target>Priepustnosť a odozva</target>
+		  </trans-unit>
+		  <trans-unit id="53">
+			<source>Latency bands</source>
+			<target>Pásma odozvy</target>
+		  </trans-unit>
+		  <trans-unit id="54">
+			<source>Where the time went</source>
+			<target>Kam sa minul čas</target>
+		  </trans-unit>
+		  <trans-unit id="55">
+			<source>Status mix</source>
+			<target>Rozdelenie stavov</target>
+		  </trans-unit>
+
+		  <!-- performance dashboard: PerfTopPaths -->
+		  <trans-unit id="56">
+			<source>Heaviest routes</source>
+			<target>Najnáročnejšie cesty</target>
+		  </trans-unit>
+		  <trans-unit id="57">
+			<source>Group by</source>
+			<target>Zoskupiť podľa</target>
+		  </trans-unit>
+		  <trans-unit id="58">
+			<source>Per hit</source>
+			<target>Na požiadavku</target>
+		  </trans-unit>
+		  <trans-unit id="59">
+			<source>Showing the %limit% busiest rows of the window.</source>
+			<target>Zobrazuje sa %limit% najvyťaženejších riadkov okna.</target>
+		  </trans-unit>
+		  <trans-unit id="60">
+			<source>Route</source>
+			<target>Cesta</target>
+		  </trans-unit>
+		  <trans-unit id="61">
+			<source>Vhost</source>
+			<target>Vhost</target>
+		  </trans-unit>
+		  <trans-unit id="62">
+			<source>Machine</source>
+			<target>Stroj</target>
+		  </trans-unit>
+		  <trans-unit id="63">
+			<source>Hits</source>
+			<target>Požiadavky</target>
+		  </trans-unit>
+		  <trans-unit id="64">
+			<source>Total time</source>
+			<target>Celkový čas</target>
+		  </trans-unit>
+		  <trans-unit id="65">
+			<source>User CPU</source>
+			<target>CPU používateľa</target>
+		  </trans-unit>
+		  <trans-unit id="66">
+			<source>System CPU</source>
+			<target>CPU systému</target>
+		  </trans-unit>
+		  <trans-unit id="67">
+			<source>Memory per hit</source>
+			<target>Pamäť na požiadavku</target>
+		  </trans-unit>
+		  <trans-unit id="68">
+			<source>Peak memory</source>
+			<target>Špičková pamäť</target>
+		  </trans-unit>
+		  <trans-unit id="69">
+			<source>p95 latency</source>
+			<target>Odozva p95</target>
+		  </trans-unit>
+
+		  <!-- performance dashboard: PerfSparkLine and the regression detail -->
+		  <trans-unit id="70">
+			<source>p95 over the last %hours% hours</source>
+			<target>p95 za posledných %hours% hodín</target>
+		  </trans-unit>
+		  <trans-unit id="71">
+			<source>The regression</source>
+			<target>Zhoršenie</target>
+		  </trans-unit>
+		  <trans-unit id="72">
+			<source>No measurements are kept for this route any more.</source>
+			<target>Pre túto cestu sa už neuchovávajú žiadne merania.</target>
+		  </trans-unit>
+		  <trans-unit id="73">
+			<source>Dashed: the baseline this was measured against (%baseline%).</source>
+			<target>Prerušovaná čiara: základ, voči ktorému sa meralo (%baseline%).</target>
+		  </trans-unit>
+		  <trans-unit id="74">
+			<source>Average latency</source>
+			<target>Priemerná odozva</target>
+		  </trans-unit>
+		  <trans-unit id="75">
+			<source>Error rate</source>
+			<target>Chybovosť</target>
+		  </trans-unit>
+
+		  <!-- what the chart renderer paints into the SVG: titles, descriptions, legends -->
+		  <trans-unit id="76">
+			<source>Requests</source>
+			<target>Požiadavky</target>
+		  </trans-unit>
+		  <trans-unit id="77">
+			<source>Requests per bucket.</source>
+			<target>Počet požiadaviek v jednom intervale.</target>
+		  </trans-unit>
+		  <trans-unit id="78">
+			<source>hits</source>
+			<target>požiadavky</target>
+		  </trans-unit>
+		  <trans-unit id="79">
+			<source>Latency</source>
+			<target>Odozva</target>
+		  </trans-unit>
+		  <trans-unit id="80">
+			<source>Mean and 95th percentile response time per bucket.</source>
+			<target>Priemerná odozva a 95. percentil v jednom intervale.</target>
+		  </trans-unit>
+		  <trans-unit id="81">
+			<source>mean</source>
+			<target>priemer</target>
+		  </trans-unit>
+		  <trans-unit id="82">
+			<source>p95</source>
+			<target>p95</target>
+		  </trans-unit>
+		  <trans-unit id="83">
+			<source>Share of requests per duration band.</source>
+			<target>Podiel požiadaviek v jednotlivých pásmach trvania.</target>
+		  </trans-unit>
+		  <trans-unit id="84">
+			<source>User CPU, system CPU and waiting, per request, per bucket.</source>
+			<target>CPU používateľa, CPU systému a čakanie – na jednu požiadavku, v jednom intervale.</target>
+		  </trans-unit>
+		  <trans-unit id="85">
+			<source>user</source>
+			<target>používateľ</target>
+		  </trans-unit>
+		  <trans-unit id="86">
+			<source>sys</source>
+			<target>systém</target>
+		  </trans-unit>
+		  <trans-unit id="87">
+			<source>wait</source>
+			<target>čakanie</target>
+		  </trans-unit>
+		  <trans-unit id="88">
+			<source>Requests per status class, per bucket.</source>
+			<target>Počet požiadaviek podľa triedy stavu, v jednom intervale.</target>
+		  </trans-unit>
+		  <trans-unit id="89">
+			<source>%metric% on %path%</source>
+			<target>%metric% na %path%</target>
+		  </trans-unit>
+		  <trans-unit id="90">
+			<source>%metric% of %path% around the window it regressed in.</source>
+			<target>%metric% cesty %path% v okolí okna, v ktorom sa zhoršila.</target>
+		  </trans-unit>
+		  <trans-unit id="91">
+			<source>observed</source>
+			<target>namerané</target>
+		  </trans-unit>
+
+		  <!-- the hints behind the info dots -->
+		  <trans-unit id="92">
+			<source>Wallclock, CPU, memory and status of every request, measured on the monitored machine and summed per bucket. Windows wider than two hours are read from rolled-up buckets, so they stay empty until app:perf:rollup has run.</source>
+			<target>Reálny čas, CPU, pamäť a stav každej požiadavky, merané na sledovanom stroji a zrátané po intervaloch. Okná širšie než dve hodiny sa čítajú z agregovaných intervalov, takže ostanú prázdne, kým nezbehne app:perf:rollup.</target>
+		  </trans-unit>
+		  <trans-unit id="93">
+			<source>The bars are how many requests arrived in each bucket; the lines below are the mean and the 95th percentile of how long they took. A line that rises while the bars stay flat means the application got slower, not busier.</source>
+			<target>Stĺpce hovoria, koľko požiadaviek prišlo v každom intervale; čiary pod nimi sú priemerná odozva a 95. percentil. Ak čiara stúpa a stĺpce stoja, aplikácia sa spomalila, nie je vyťaženejšia.</target>
+		  </trans-unit>
+		  <trans-unit id="94">
+			<source>How each bucket's requests were spread over five bands of "how long did you wait". The slow band growing is visible long before the mean moves.</source>
+			<target>Ako sa požiadavky v každom intervale rozložili do piatich pásiem toho, „ako dlho sa čakalo“. Rast pomalého pásma vidno oveľa skôr, než sa pohne priemer.</target>
+		  </trans-unit>
+		  <trans-unit id="95">
+			<source>What the average request spent its time on: user CPU, system CPU, and waiting — the database, a cache, an HTTP call. Waiting is usually the largest part of a slow request.</source>
+			<target>Na čom strávila čas priemerná požiadavka: CPU používateľa, CPU systému a čakanie – databáza, cache, HTTP volanie. Čakanie býva najväčšou časťou pomalej požiadavky.</target>
+		  </trans-unit>
+		  <trans-unit id="96">
+			<source>How the requests of each bucket ended. A redirect is indistinguishable from a success on the wire, so 2xx and 3xx share one band.</source>
+			<target>Ako sa skončili požiadavky v jednotlivých intervaloch. Presmerovanie sa na linke nedá odlíšiť od úspechu, preto majú 2xx a 3xx spoločné pásmo.</target>
+		  </trans-unit>
+		  <trans-unit id="97">
+			<source>What phptop prints, over the stored buckets: the rows of the window that cost the most. Click a column heading to sort by it, and "Per hit" turns the totals into averages per request — which is how a rarely-called but expensive route shows itself.</source>
+			<target>To, čo vypisuje phptop, nad uloženými intervalmi: riadky okna, ktoré stáli najviac. Kliknutím na hlavičku stĺpca sa zoradí podľa neho a „Na požiadavku“ zmení súčty na priemery na jednu požiadavku – tak sa prezradí zriedka volaná, ale drahá cesta.</target>
+		  </trans-unit>
+		  <trans-unit id="98">
+			<source>The metric this record was written for, over the same route, around the window it regressed in. The dashed line is the baseline it was compared against — without it a spike says nothing about whether it was unusual.</source>
+			<target>Metrika, kvôli ktorej záznam vznikol, na tej istej ceste, v okolí okna, v ktorom sa zhoršila. Prerušovaná čiara je základ, voči ktorému sa porovnávala – bez nej špička nehovorí nič o tom, či bola nezvyčajná.</target>
+		  </trans-unit>
+
+		  <!-- performance dashboard: PerfDatabase -->
+		  <trans-unit id="99">
+			<source>Database</source>
+			<target>Databáza</target>
+		  </trans-unit>
+		  <trans-unit id="100">
+			<source>This window has traffic but no query counts. Install php-bug-catcher/perf-collector-bundle in the monitored application — it counts the queries the hook cannot see.</source>
+			<target>V tomto okne je prevádzka, ale žiadne počty dotazov. Do sledovanej aplikácie nainštaluj php-bug-catcher/perf-collector-bundle – ten počíta dotazy, ktoré hook nevidí.</target>
+		  </trans-unit>
+		  <trans-unit id="101">
+			<source>queries / request</source>
+			<target>dotazov / požiadavku</target>
+		  </trans-unit>
+		  <trans-unit id="102">
+			<source>ms / request</source>
+			<target>ms / požiadavku</target>
+		  </trans-unit>
+		  <trans-unit id="103">
+			<source>of the response</source>
+			<target>z odozvy</target>
+		  </trans-unit>
+		  <trans-unit id="104">
+			<source>queries in the window</source>
+			<target>dotazov v okne</target>
+		  </trans-unit>
+		  <trans-unit id="105">
+			<source>Queries and time in the database</source>
+			<target>Dotazy a čas v databáze</target>
+		  </trans-unit>
+		  <trans-unit id="106">
+			<source>Queries per request</source>
+			<target>Dotazov na požiadavku</target>
+		  </trans-unit>
+		  <trans-unit id="107">
+			<source>Time in the database</source>
+			<target>Čas v databáze</target>
+		  </trans-unit>
+		  <trans-unit id="108">
+			<source>Share of the response</source>
+			<target>Podiel na odozve</target>
+		  </trans-unit>
+		  <trans-unit id="109">
+			<source>Database queries the average request of each bucket ran.</source>
+			<target>Počet databázových dotazov, ktoré spravila priemerná požiadavka v jednom intervale.</target>
+		  </trans-unit>
+		  <trans-unit id="110">
+			<source>Milliseconds the average request of each bucket spent waiting on the database.</source>
+			<target>Milisekundy, ktoré priemerná požiadavka v jednom intervale strávila čakaním na databázu.</target>
+		  </trans-unit>
+		  <trans-unit id="111">
+			<source>queries</source>
+			<target>dotazy</target>
+		  </trans-unit>
+		  <trans-unit id="112">
+			<source>in the database</source>
+			<target>v databáze</target>
+		  </trans-unit>
+		  <trans-unit id="113">
+			<source>all waiting</source>
+			<target>celé čakanie</target>
+		  </trans-unit>
+		  <trans-unit id="114">
+			<source>How many queries the average request ran and how long they took. These come from the Doctrine middleware in php-bug-catcher/perf-collector-bundle, not from the hook — the hook cannot see a query. "Where the time went" draws all waiting as one band; this is the part of it the database explains.</source>
+			<target>Koľko dotazov spravila priemerná požiadavka a ako dlho trvali. Tieto čísla pochádzajú z Doctrine middleware v php-bug-catcher/perf-collector-bundle, nie z hooku – hook dotaz nevidí. „Kam sa minul čas“ kreslí celé čakanie ako jedno pásmo; toto je tá jeho časť, ktorú vysvetľuje databáza.</target>
+		  </trans-unit>
+		  <trans-unit id="115">
+			<source>The bars are queries per request; the lines below are the milliseconds that cost, against all waiting for comparison. Queries flat while the time rises is a slow database; both rising together is a query somebody put in a loop.</source>
+			<target>Stĺpce sú dotazy na jednu požiadavku; čiary pod nimi sú milisekundy, ktoré to stálo, pre porovnanie oproti celému čakaniu. Keď počet dotazov stojí a čas stúpa, spomalila sa databáza; keď stúpa oboje, niekto dal dotaz do cyklu.</target>
+		  </trans-unit>
+		  <trans-unit id="116">
+			<source>The heaviest of the busiest routes: the window is cut to its most-visited routes before this is sorted, the same way the p95 column of the heaviest-routes table is. A route called twice an hour that runs ten thousand queries each time is found by the regression detector, not here.</source>
+			<target>Najnáročnejšie z najvyťaženejších ciest: okno sa najprv oreže na najnavštevovanejšie cesty a až potom sa zoradí – rovnako ako stĺpec p95 v tabuľke najnáročnejších ciest. Cestu, ktorá sa volá dvakrát za hodinu a zakaždým spraví desaťtisíc dotazov, nájde detektor regresií, nie táto tabuľka.</target>
+		  </trans-unit>
+
+		  <!-- the performance page -->
+		  <trans-unit id="117">
+			<source>Dashboard</source>
+			<target>Nástenka</target>
+		  </trans-unit>
+		  <trans-unit id="118">
+			<source>Project</source>
+			<target>Projekt</target>
+		  </trans-unit>
+		  <trans-unit id="119">
+			<source>All projects</source>
+			<target>Všetky projekty</target>
+		  </trans-unit>
+		  <trans-unit id="120">
+			<source>Performance of %project%</source>
+			<target>Výkon projektu %project%</target>
+		  </trans-unit>
+
+		  <!-- the dashboard row of a project with performance on -->
+		  <trans-unit id="121">
+			<source>Apdex %score% (%rating%) over the last %hours% h — a request under 500 ms counts whole, under 2 s counts half, slower counts nothing</source>
+			<target>Apdex %score% (%rating%) za %hours% h – požiadavka pod 500 ms sa ráta celá, pod 2 s za polovicu, pomalšia za nič</target>
+		  </trans-unit>
+		  <trans-unit id="122">
+			<source>Apdex: nothing measured in the last %hours% h</source>
+			<target>Apdex: za %hours% h sa nič nenameralo</target>
+		  </trans-unit>
+		  <trans-unit id="123">
+			<source>excellent</source>
+			<target>výborné</target>
+		  </trans-unit>
+		  <trans-unit id="124">
+			<source>good</source>
+			<target>dobré</target>
+		  </trans-unit>
+		  <trans-unit id="125">
+			<source>fair</source>
+			<target>priemerné</target>
+		  </trans-unit>
+		  <trans-unit id="126">
+			<source>poor</source>
+			<target>slabé</target>
+		  </trans-unit>
+		  <trans-unit id="127">
+			<source>unacceptable</source>
+			<target>neprijateľné</target>
+		  </trans-unit>
+		  <trans-unit id="128">
+			<source>p95 over the last %hours% h — 9 of 10 requests were faster than this</source>
+			<target>p95 za %hours% h – 9 z 10 požiadaviek bolo rýchlejších než toto</target>
+		  </trans-unit>
+		  <trans-unit id="129">
+			<source>Requests per minute over the last %hours% h — the one number here that falls when the application stops answering at all</source>
+			<target>Požiadaviek za minútu za %hours% h – jediné číslo v tomto riadku, ktoré klesne, keď aplikácia prestane odpovedať úplne</target>
+		  </trans-unit>
+		  <trans-unit id="130">
+			<source>/min</source>
+			<target>/min</target>
+		  </trans-unit>
+		  <trans-unit id="131">
+			<source>Routes that regressed against their baseline in the last %hours% h and have not been cleared</source>
+			<target>Cesty, ktoré sa za %hours% h zhoršili oproti svojmu základu a ešte neboli vyriešené</target>
+		  </trans-unit>
         </body>
     </file>
 </xliff>

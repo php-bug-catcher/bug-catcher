@@ -110,6 +110,19 @@ return static function (DefinitionConfigurator $definition): void {
 		->prototype('scalar')
 		->end()
 		->end()
+		// the panels of /performance. A page of its own rather than rows on the dashboard: the
+		// homepage answers "is anything on fire", and four charts of one project is a different
+		// question, asked by somebody who has already clicked that project. Listing a perf panel
+		// in dashboard_components is refused at build time - see BugCatcherBundle::loadExtension()
+		->arrayNode("performance_components")
+		->defaultValue([
+			"PerfOverview",
+			"PerfTopPaths",
+			"PerfDatabase",
+		])
+		->prototype('scalar')
+		->end()
+		->end()
 		->arrayNode("notifier_components")
 		->defaultValue([
 			"Project error count" => "project-error-count",
@@ -132,6 +145,24 @@ return static function (DefinitionConfigurator $definition): void {
 				"ProjectStatus",
 				"LogCount",
 				"LogSparkLine",
+				"WarningSound",
+			]
+		)
+		->prototype('scalar')->end()
+		->end()
+		// the row of a project with `perfEnabled` set, when bug_catcher.perf.enabled is also on.
+		// The error count stays - it is the thing the dashboard has always been for - and the
+		// rest of the twelve columns answer "are the people using this waiting": Apdex says how
+		// many of them, p95 says how long, and the sparkline says whether it is getting worse.
+		// PerfThroughput and PerfRegressions are built and not in the default row; adding one
+		// means taking a column from something else
+		->arrayNode("perf_status_list_components")
+		->defaultValue([
+				"ProjectStatus",
+				"LogCount",
+				"PerfApdex",
+				"PerfLatency",
+				"PerfSparkLine",
 				"WarningSound",
 			]
 		)

@@ -1,7 +1,9 @@
 {# The latency twin of LogSparkLine, so it sits on the same row grid and uses the same
    .sparkline hook in app.css - one stylesheet rule for both charts. #}
+{# 4 of the row's 12 columns, 3 when the row also carries the latency numbers. Both class names
+   are written out so that Tailwind can still find them when it scans this file. #}
 <div{{ attributes.defaults({
-	class:'sparkline col-span-4'
-}) }} title="{{ 'p95 over the last %hours% hours'|trans({'%hours%': this.graphHours}) }}">
+	class:'sparkline ' ~ (dense ? 'col-span-3' : 'col-span-4')
+}) }} title="{{ 'p95 over the last %hours% hours'|trans({'%hours%': this.graphHours}, 'BugCatcher') }}">
 	{{ this.sparkLine|raw }}
 </div>

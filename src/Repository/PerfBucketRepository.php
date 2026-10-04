@@ -317,6 +317,46 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	}
 
 	/**
+	 * The whole window as one row: no grouping at all.
+	 *
+	 * What a dashboard row asks for - a project's p95 and Apdex over the last hour are statements
+	 * about the window, not about each of its sixty minutes. Summing the per-bucket aggregates in
+	 * PHP would work for the counters and be wrong for the percentile: a percentile of percentiles
+	 * is not a percentile. Here the sixteen bins are added in SQL and the estimate is taken once,
+	 * off the total.
+	 */
+	public function aggregateWindow(
+		PerfGranularity $granularity,
+		?Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+	): WindowAggregate {
+		$rows = $this->aggregateRows([], $granularity, $project, $from, $to);
+		$row  = $rows[0] ?? null;
+
+		// an aggregate over no rows is one row of nulls, which is a window with no traffic
+		if ($row === null || $row['hits'] === null) {
+			return new WindowAggregate('', '', 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, HistogramBins::empty());
+		}
+
+		return new WindowAggregate(
+			'',
+			'',
+			(int)$row['hits'],
+			(float)$row['sumDuration'],
+			(float)$row['sumUser'],
+			(float)$row['sumSys'],
+			(float)$row['maxDuration'],
+			(int)$row['sumMem'],
+			(int)$row['maxMem'],
+			(int)$row['clientErrors'],
+			(int)$row['serverErrors'],
+			$this->histogramOf($row),
+			$this->aggregateExtra([], $granularity, $project, $from, $to)[''] ?? [],
+		);
+	}
+
+	/**
 	 * @param string $keyField what identifies a slice
 	 * @param string $labelField what a slice is called
 	 * @return array<string, WindowAggregate>
@@ -332,8 +372,11 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?int $limit = null,
 		bool $splitByProject = false,
 	): array {
-		$groupBy    = [$keyField];
-		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash);
+		$groupBy = [$keyField];
+		// the extras have to be sliced the same way the measurements are, project included:
+		// grouped only by the key field, every application's `/login` would be handed the sum of
+		// all of them
+		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash, $splitByProject);
 		$aggregates = [];
 
 		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit, $splitByProject) as $row) {
@@ -353,7 +396,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 				(int)$row['clientErrors'],
 				(int)$row['serverErrors'],
 				$this->histogramOf($row),
-				$extra[(string)$row[$keyField]] ?? [],
+				$extra[$key] ?? [],
 			);
 		}
 
@@ -366,7 +409,9 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	 * from the mapping, because the naming strategy belongs to the application - the same reason
 	 * {@see \BugCatcher\Service\Perf\Ingest\PerfBucketUpserter} builds its statement that way.
 	 *
-	 * @param non-empty-list<string> $groupBy the fields that tell one result row from another
+	 * @param list<string> $groupBy the fields that tell one result row from another. Empty is the
+	 *     whole window as one row - aggregate functions with no GROUP BY return exactly one,
+	 *     all-null when nothing matched
 	 * @return list<array<string, mixed>>
 	 */
 	private function aggregateRows(
@@ -428,7 +473,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		}
 
 		$sql = sprintf(
-			'SELECT %s FROM %s b%s WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s GROUP BY %s',
+			'SELECT %s FROM %s b%s WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s%s',
 			implode(', ', $select),
 			$metadata->getTableName(),
 			$join,
@@ -436,7 +481,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$metadata->getColumnName('bucketAt'),
 			$metadata->getColumnName('bucketAt'),
 			$where,
-			implode(', ', $grouped),
+			$grouped === [] ? '' : ' GROUP BY ' . implode(', ', $grouped),
 		);
 
 		// busiest first, so that a limit keeps the rows worth looking at
@@ -450,9 +495,16 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	/**
 	 * The extra metrics of the same window, summed per result row and keyed the way those rows
 	 * are. Whatever the monitored application put in `$GLOBALS['_bcperf_extra']` reaches a custom
-	 * metric extractor through here.
+	 * metric extractor - and the database panel - through here.
 	 *
-	 * @param non-empty-list<string> $groupBy
+	 * A query of its own rather than a join onto {@see aggregateRows()}: `perf_bucket_extra` holds
+	 * one row per metric per bucket, so joining it would multiply every count and every histogram
+	 * bin by however many metrics the application happens to send.
+	 *
+	 * @param list<string> $groupBy empty is the whole window under the key `''`, the way
+	 *     {@see aggregateRows()} reads it
+	 * @param bool $splitByProject keep the applications apart, exactly as {@see aggregateRows()}
+	 *     does - the keys of what comes back have to match the ones the rows are stored under
 	 * @return array<string, array<string, float>>
 	 */
 	private function aggregateExtra(
@@ -462,6 +514,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
+		bool $splitByProject = false,
 	): array {
 		$bucket = $this->bucketMetadata();
 		$metric = $this->getEntityManager()->getClassMetadata(PerfBucketExtra::class);
@@ -475,11 +528,22 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		$params = [$granularity->value, $from, $to];
 		$types  = [1 => Types::DATETIME_IMMUTABLE, 2 => Types::DATETIME_IMMUTABLE];
 		$route  = '';
+		$join   = '';
 
 		if ($project !== null) {
 			$route    = sprintf(' AND b.%s = ?', $bucket->getSingleAssociationJoinColumnName('project'));
 			$params[] = $project->getId();
 			$types[count($params) - 1] = UuidType::NAME;
+		} elseif ($splitByProject) {
+			$projects = $this->getEntityManager()->getClassMetadata(Project::class);
+			$join     = sprintf(
+				' INNER JOIN %s p ON p.%s = b.%s',
+				$projects->getTableName(),
+				$projects->getColumnName('id'),
+				$bucket->getSingleAssociationJoinColumnName('project'),
+			);
+			$select[]     = sprintf('p.%s AS projectCode', $projects->getColumnName('code'));
+			$keyColumns[] = sprintf('p.%s', $projects->getColumnName('code'));
 		}
 
 		if ($pathHash !== null) {
@@ -487,31 +551,42 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$params[]  = $pathHash;
 		}
 
+		// the metric name is always selected and always grouped by; the key columns come first
+		// when there are any, and there are none when the whole window is one row
+		$select[]     = sprintf('e.%s AS name', $metric->getColumnName('name'));
+		$select[]     = sprintf('SUM(e.%s) AS value', $metric->getColumnName('value'));
+		$keyColumns[] = sprintf('e.%s', $metric->getColumnName('name'));
+
 		$sql = sprintf(
-			'SELECT %s, e.%s AS name, SUM(e.%s) AS value'
-			. ' FROM %s e INNER JOIN %s b ON b.%s = e.%s'
+			'SELECT %s'
+			. ' FROM %s e INNER JOIN %s b ON b.%s = e.%s%s'
 			. ' WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s'
-			. ' GROUP BY %s, e.%s',
+			. ' GROUP BY %s',
 			implode(', ', $select),
-			$metric->getColumnName('name'),
-			$metric->getColumnName('value'),
 			$metric->getTableName(),
 			$bucket->getTableName(),
 			$bucket->getColumnName('id'),
 			$metric->getSingleAssociationJoinColumnName('bucket'),
+			$join,
 			$bucket->getColumnName('granularity'),
 			$bucket->getColumnName('bucketAt'),
 			$bucket->getColumnName('bucketAt'),
 			$route,
 			implode(', ', $keyColumns),
-			$metric->getColumnName('name'),
 		);
 
 		$extra = [];
 		$rows  = $this->connection()->fetchAllAssociative($sql, $params, $types);
 
 		foreach ($rows as $row) {
-			$extra[$this->rowKey($groupBy, $row)][(string)$row['name']] = (float)$row['value'];
+			$key  = $this->rowKey($groupBy, $row);
+			$code = $splitByProject ? (string)$row['projectCode'] : '';
+
+			if ($code !== '') {
+				$key = $code . "\x1f" . $key;
+			}
+
+			$extra[$key][(string)$row['name']] = (float)$row['value'];
 		}
 
 		return $extra;

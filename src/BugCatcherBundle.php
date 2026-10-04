@@ -13,6 +13,7 @@ use BugCatcher\Controller\Admin\NotifierSoundCrudController;
 use BugCatcher\Controller\Admin\ProjectCrudController;
 use BugCatcher\Controller\Admin\UserCrudController;
 use BugCatcher\Controller\DashboardController;
+use BugCatcher\Controller\PerformanceController;
 use BugCatcher\Controller\SecurityController;
 use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Repository\RecordLogTraceRepository;
@@ -140,12 +141,29 @@ final class BugCatcherBundle extends AbstractBundle
 				->autoconfigure()
 				->arg('$enabled', $config["perf"]["enabled"]);
 		}
+		// the perf panels moved to /performance, and a stale dashboard_components entry would
+		// otherwise keep rendering them on the homepage - silently, because a Twig component is
+		// resolved by name and both names exist. Say so at build time instead.
+		$misplaced = array_intersect($config["dashboard_components"], PerformanceController::PANELS);
+		if ($misplaced !== []) {
+			throw new InvalidArgumentException(sprintf(
+				'bug_catcher.dashboard_components lists %s, which belong on the performance page. '
+				. 'Move them to bug_catcher.performance_components, or drop them to take the defaults.',
+				implode(', ', $misplaced),
+			));
+		}
 		$services->set(DashboardController::class)
 			->autowire()
 			->autoconfigure()
 			->public()
 			->arg('$classesComponents', $config["detail_components"])
 			->arg('$components', $config["dashboard_components"])
+			->arg('$refreshInterval', $config["refresh_interval"]);
+		$services->set(PerformanceController::class)
+			->autowire()
+			->autoconfigure()
+			->public()
+			->arg('$components', $config["performance_components"])
 			->arg('$refreshInterval', $config["refresh_interval"]);
 		$services->set(SecurityController::class)
 			->autowire()
@@ -198,7 +216,9 @@ final class BugCatcherBundle extends AbstractBundle
 		$services->set(StatusList::class)
 			->autowire()
 			->autoconfigure()
-			->arg('$components', $config["status_list_components"]);
+			->arg('$components', $config["status_list_components"])
+			->arg('$perfComponents', $config["perf_status_list_components"])
+			->arg('$perfEnabled', $config["perf"]["enabled"]);
 		$services->set(Favicon::class)
 			->autowire()
 			->autoconfigure()

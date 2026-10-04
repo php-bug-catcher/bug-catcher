@@ -29,22 +29,22 @@ final readonly class CpuBreakdownChartBuilder extends AbstractPerfChartBuilder
 		$labels = $this->labels($series);
 
 		$chart = Chart::stackedBar()
-			->title('Where the time went')
-			->description('User CPU, system CPU and waiting, per request, per bucket.')
+			->title($this->t('Where the time went'))
+			->description($this->t('User CPU, system CPU and waiting, per request, per bucket.'))
 			->size(self::WIDTH, self::HEIGHT)
 			->vertical()
 			->series(
-				'user',
+				$this->t('user'),
 				$this->points($labels, $series->series(static fn(PerfTimePoint $p): float => $p->userMs)),
 				'var(--bc-perf-user)',
 			)
 			->series(
-				'sys',
+				$this->t('sys'),
 				$this->points($labels, $series->series(static fn(PerfTimePoint $p): float => $p->sysMs)),
 				'var(--bc-perf-sys)',
 			)
 			->series(
-				'wait',
+				$this->t('wait'),
 				$this->points($labels, $series->series(static fn(PerfTimePoint $p): float => $p->waitMs)),
 				'var(--bc-perf-wait)',
 			)

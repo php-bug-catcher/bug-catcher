@@ -33,8 +33,8 @@ final readonly class StatusMixChartBuilder extends AbstractPerfChartBuilder
 
 		$labels  = $this->labels($series);
 		$builder = Chart::stackedBar()
-			->title('Status mix')
-			->description('Requests per status class, per bucket.')
+			->title($this->t('Status mix'))
+			->description($this->t('Requests per status class, per bucket.'))
 			->size(self::WIDTH, self::HEIGHT)
 			->vertical();
 

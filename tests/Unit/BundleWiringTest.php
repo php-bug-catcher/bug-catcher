@@ -54,8 +54,23 @@ class BundleWiringTest extends TestCase
 		$this->addToAssertionCount(1);
 	}
 
-	/** @param array<string, mixed> $perf overrides on top of the shipped defaults, merged one deep */
-	private function load(array $perf): void
+	/**
+	 * The perf panels live on `/performance`, and both lists are resolved by component name - so
+	 * a leftover `dashboard_components` entry would quietly keep drawing them on the homepage.
+	 */
+	public function testAPerformancePanelLeftOnTheDashboardStopsTheBuild(): void
+	{
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessageMatches('/dashboard_components lists PerfOverview.*performance_components/');
+
+		$this->load([], ['dashboard_components' => ['StatusList', 'PerfOverview']]);
+	}
+
+	/**
+	 * @param array<string, mixed> $perf overrides on top of the shipped defaults, merged one deep
+	 * @param array<string, mixed> $root overrides on the root configuration
+	 */
+	private function load(array $perf, array $root = []): void
 	{
 		$defaults = [
 			'enabled'           => true,
@@ -79,6 +94,7 @@ class BundleWiringTest extends TestCase
 			'clear_stacktrace_on_fixed' => true,
 			'detail_components'      => [],
 			'dashboard_components'   => [],
+			'performance_components' => ['PerfOverview', 'PerfTopPaths', 'PerfDatabase'],
 			'refresh_interval'       => 15,
 			'logo'                   => 'default',
 			'app_name'               => 'BugCatcher',
@@ -88,7 +104,9 @@ class BundleWiringTest extends TestCase
 			'dashboard_list_items'   => [],
 			'no_bug_funny_messages'  => [],
 			'status_list_components' => [],
+			'perf_status_list_components' => [],
 			'mcp'                    => ['access_token' => null, 'record_types' => []],
+			...$root,
 		];
 
 		$path       = dirname(__DIR__, 2) . '/config';

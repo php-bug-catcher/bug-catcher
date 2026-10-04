@@ -1,0 +1,12 @@
+{# 2 of the row's 12 columns. Deliberately uncoloured: PerfApdex beside it is the traffic light,
+   and two of those on one row is two alarms for one fact. #}
+{% trans_default_domain 'BugCatcher' %}
+
+{# `whitespace-nowrap` and the smaller size are not decoration: at the 5-column breakpoint this
+   cell is about 40px, and "240 ms" wrapping after the number makes this row taller than the one
+   beside it, which breaks the grid every project card is read against. #}
+<div{{ attributes.defaults({
+	class:'col-span-2 overflow-hidden text-right'
+}) }} title="{{ 'p95 over the last %hours% h — 9 of 10 requests were faster than this'|trans({'%hours%': this.hours}) }}">
+	<span class="font-mono text-xs tabular-nums whitespace-nowrap text-muted">{{ this.formatted }}</span>
+</div>

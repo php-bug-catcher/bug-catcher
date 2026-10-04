@@ -2,13 +2,17 @@
 	The phptop table. Every control is a writable LiveProp, so `data-model` is the whole of the
 	interaction - the server re-reads the report and re-renders the table.
 #}
+{% trans_default_domain 'BugCatcher' %}
 {% set report = this.report %}
 {% set unitSuffix = this.perHit ? '/hit' : '' %}
 
 <div{{ attributes.defaults({class:'panel p-3'}) }}>
 	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
-		<span class="text-sm font-semibold text-fg">
+		<span class="inline-flex items-center gap-1 text-sm font-semibold text-fg">
 			{{ 'Heaviest routes'|trans }}{% if this.project is null %} — {{ 'all projects'|trans }}{% endif %}
+			{% include '@BugCatcher/components/_hint.html.twig' with {
+				text: 'What phptop prints, over the stored buckets: the rows of the window that cost the most. Click a column heading to sort by it, and "Per hit" turns the totals into averages per request — which is how a rarely-called but expensive route shows itself.'|trans
+			} only %}
 		</span>
 
 		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">

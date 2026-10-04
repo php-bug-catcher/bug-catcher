@@ -1,0 +1,102 @@
+{#
+	The database half of a request. Three states, and the middle one is the one worth having:
+	no traffic, traffic that nobody instrumented, and numbers.
+#}
+{% trans_default_domain 'BugCatcher' %}
+{% set charts = this.charts %}
+
+<div{{ attributes.defaults({class:'panel p-3'}) }}>
+	<div class="flex flex-wrap items-center gap-2 border-b border-line pb-3">
+		<span class="inline-flex items-center gap-1 text-sm font-semibold text-fg">
+			{{ 'Database'|trans }}{% if this.project is null %} — {{ 'all projects'|trans }}{% endif %}
+			{% include '@BugCatcher/components/_hint.html.twig' with {
+				text: 'How many queries the average request ran and how long they took. These come from the Doctrine middleware in php-bug-catcher/perf-collector-bundle, not from the hook — the hook cannot see a query. "Where the time went" draws all waiting as one band; this is the part of it the database explains.'|trans
+			} only %}
+		</span>
+
+		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
+			{% for hours, label in this.windows %}
+				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
+			{% endfor %}
+		</select>
+	</div>
+
+	{% if this.series.isEmpty %}
+		<p class="py-6 text-center text-sm text-muted">{{ 'No performance data in this window.'|trans }}</p>
+	{% elseif not this.isCollected %}
+		{# traffic but no query count: the collector is running and the bundle beside it is not,
+		   which is a different problem from a quiet window and reads identically if unsaid #}
+		<p class="py-6 text-center text-sm text-muted">
+			{{ 'This window has traffic but no query counts. Install php-bug-catcher/perf-collector-bundle in the monitored application — it counts the queries the hook cannot see.'|trans }}
+		</p>
+	{% else %}
+		<div class="flex flex-wrap gap-2 pt-3">
+			<span class="chip chip-accent tabular-nums">
+				{{ this.queriesPerHit|round(1) }} {{ 'queries / request'|trans }}
+			</span>
+			<span class="chip chip-warn tabular-nums">
+				{{ this.dbMsPerHit|round(1) }} {{ 'ms / request'|trans }}
+			</span>
+			<span class="chip chip-info tabular-nums">
+				{{ (this.shareOfWallclock * 100)|round(1) }} % {{ 'of the response'|trans }}
+			</span>
+			<span class="ml-auto self-center text-xs tabular-nums text-muted">
+				{{ this.queries|round(0) }} {{ 'queries in the window'|trans }}
+			</span>
+		</div>
+
+		<div class="grid gap-4 pt-3">
+			{# a count and a duration cannot share a scale, so they are two charts of one width #}
+			<figure class="bc-chart">
+				<figcaption class="flex items-center gap-1 text-xs uppercase text-muted">
+					{{ 'Queries and time in the database'|trans }}
+					{% include '@BugCatcher/components/_hint.html.twig' with {
+						text: 'The bars are queries per request; the lines below are the milliseconds that cost, against all waiting for comparison. Queries flat while the time rises is a slow database; both rising together is a query somebody put in a loop.'|trans
+					} only %}
+				</figcaption>
+				{{ charts.queries|raw }}
+				{{ charts.time|raw }}
+			</figure>
+		</div>
+
+		{% if this.routes is not empty %}
+			<table class="mt-4 w-full text-sm">
+				<thead>
+				<tr class="border-b border-line text-left text-xs uppercase text-muted">
+					<th class="py-1 pr-2 font-medium">
+						<span class="inline-flex items-center gap-1">
+							{{ 'Route'|trans }}
+							{% include '@BugCatcher/components/_hint.html.twig' with {
+								text: 'The heaviest of the busiest routes: the window is cut to its most-visited routes before this is sorted, the same way the p95 column of the heaviest-routes table is. A route called twice an hour that runs ten thousand queries each time is found by the regression detector, not here.'|trans
+							} only %}
+						</span>
+					</th>
+					<th class="py-1 pl-2 text-right font-medium">{{ 'Hits'|trans }}</th>
+					<th class="py-1 pl-2 text-right font-medium">{{ 'Queries per request'|trans }}</th>
+					<th class="py-1 pl-2 text-right font-medium">{{ 'Time in the database'|trans }}</th>
+					<th class="py-1 pl-2 text-right font-medium">{{ 'Share of the response'|trans }}</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for row in this.routes %}
+					<tr class="border-b border-line/40 last:border-0 hover:bg-surface-2/60">
+						<td class="w-2/5 py-1 pr-2" title="{{ row.label }}">
+							<span class="block truncate font-mono">{{ row.label }}</span>
+						</td>
+						<td class="py-1 pl-2 text-right tabular-nums">{{ row.hits }}</td>
+						<td class="py-1 pl-2 text-right tabular-nums">
+							{{ this.queriesPerHitOf(row)|round(1) }}
+						</td>
+						<td class="py-1 pl-2 text-right tabular-nums">
+							{{ this.dbMsPerHitOf(row)|round(1) }} ms
+						</td>
+						<td class="py-1 pl-2 text-right tabular-nums">
+							{{ (this.shareOf(row) * 100)|round(1) }} %
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	{% endif %}
+</div>

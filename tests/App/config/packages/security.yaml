@@ -27,9 +27,10 @@ security:
             stateless: true
             access_token:
                 token_handler: BugCatcher\Security\McpAccessTokenHandler
-        # only the detail page, so the rest of the functional tests keep running unsecured
+        # only the pages that read the logged-in user, so the rest of the functional tests keep
+        # running unsecured
         main:
-            pattern: ^/detail
+            pattern: ^/(detail|performance)
             lazy: true
             provider: app_user_provider
     access_control:
@@ -38,6 +39,9 @@ security:
         - { path: ^/mcp, roles: ROLE_MCP }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/detail, roles: ROLE_DEVELOPER }
+        # a customer may look at the charts of a project they are on - the controller is what
+        # checks which projects those are
+        - { path: ^/performance, roles: ROLE_CUSTOMER }
         - { path: ^/_components/LogList/clearAll, roles: ROLE_DEVELOPER }
         - { path: ^/_components/LogList/clearOne, roles: ROLE_DEVELOPER }
         - { path: ^/, roles: ROLE_CUSTOMER }

@@ -40,8 +40,8 @@ final readonly class LatencyBandsChartBuilder extends AbstractPerfChartBuilder
 
 		$labels  = $this->labels($series);
 		$builder = Chart::stackedBar()
-			->title('Latency bands')
-			->description('Share of requests per duration band.')
+			->title($this->t('Latency bands'))
+			->description($this->t('Share of requests per duration band.'))
 			->size(self::WIDTH, self::HEIGHT)
 			->vertical();
 

@@ -1,0 +1,9 @@
+{# An info dot that says what the thing beside it means, on hover and on keyboard focus.
+   `title` would do neither the focus nor the theming - see .bc-hint in app.css.
+   Params: text (already translated), class (extra variants, e.g. bc-hint--end). #}
+<span class="bc-hint {{ class|default('') }}" tabindex="0" role="note" aria-label="{{ text }}">
+	<twig:ux:icon name="lucide:info" width="14" height="14"/>
+	{# aria-hidden: the dot already carries the text as its label, and a screen reader that read
+	   both would say it twice #}
+	<span class="bc-hint__bubble" aria-hidden="true">{{ text }}</span>
+</span>

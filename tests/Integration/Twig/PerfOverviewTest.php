@@ -41,14 +41,19 @@ class PerfOverviewTest extends KernelTestCase
 		}
 	}
 
-	/** One read of the window feeds all four, and the panel renders them all. */
+	/**
+	 * One read of the window feeds all four, and the panel renders them all.
+	 *
+	 * Charts are counted by the library's root class rather than by `<svg`: every hint beside a
+	 * heading is an inline icon, and those are SVGs too.
+	 */
 	public function testThePanelInlinesThem(): void
 	{
 		$this->measured();
 
 		$html = $this->render();
 
-		$this->assertSame(5, substr_count($html, '<svg'));
+		$this->assertSame(5, substr_count($html, 'class="atelier-chart"'));
 		$this->assertStringContainsString('var(--bc-perf-', $html);
 	}
 
@@ -56,8 +61,19 @@ class PerfOverviewTest extends KernelTestCase
 	{
 		$html = $this->render();
 
-		$this->assertStringNotContainsString('<svg', $html);
+		$this->assertStringNotContainsString('class="atelier-chart"', $html);
 		$this->assertStringContainsString('No performance data', $html);
+	}
+
+	/** Every chart says what it means, and the explanation is a translation rather than a literal. */
+	public function testEveryChartCarriesAHint(): void
+	{
+		$this->measured();
+
+		$html = $this->render();
+
+		$this->assertSame(5, substr_count($html, 'class="bc-hint__bubble"'));
+		$this->assertStringContainsString('the mean and the 95th percentile', $html);
 	}
 
 	/**

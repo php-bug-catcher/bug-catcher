@@ -67,7 +67,9 @@ class PerfTopPathsTest extends KernelTestCase
 
 		$this->assertStringContainsString('web-01', $html);
 		$this->assertStringContainsString('web-02', $html);
-		$this->assertStringNotContainsString('/a', $html);
+		// the whole attribute rather than the bare path: the live component writes a base64
+		// checksum into the markup, and one in eighty of those contains "/a" somewhere
+		$this->assertStringNotContainsString('title="/a"', $html);
 	}
 
 	public function testThePerHitToggleChangesWhatIsPrinted(): void

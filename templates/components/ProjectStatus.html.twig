@@ -1,14 +1,20 @@
-{# 6 of the row's 12 columns: LogSparkLine takes 4 and LogCount 2. #}
+{# 6 of the row's 12 columns: LogSparkLine takes 4 and LogCount 2. A row with performance on has
+   two more cells to fit, so the name gives up two columns - both class names are written out so
+   that Tailwind can still find them when it scans this file. #}
 <div{{ attributes.defaults({
-	class:'col-span-6 flex min-w-0 items-center gap-1.5'
+	class:(dense ? 'col-span-4' : 'col-span-6') ~ ' flex min-w-0 items-center gap-1.5'
 }) }}>
 	{# The LED is the calm signal - it is the only thing that moves while everything is fine.
 	   A failing ping additionally recolours the name and adds an icon, so the down state is
 	   readable from a distance and does not rely on colour alone. #}
 	<span class="led {{ this.lastStatus ? 'led-ok' : 'led-danger' }}" aria-hidden="true"></span>
 
-	<span class="truncate text-sm {{ this.lastStatus ? '' : 'font-semibold text-danger' }}"
-		  title="{{ project.name }}">{{ project.name }}</span>
+	{# The name is the way to this project's charts. A link rather than the whole row: the row
+	   holds the sound toggle and whatever else the component list was configured with, and a
+	   link wrapped around those would swallow their clicks. #}
+	<a href="{{ path('bug_catcher.performance.project', {project: project.id}) }}"
+	   class="truncate text-sm hover:text-accent hover:underline {{ this.lastStatus ? '' : 'font-semibold text-danger' }}"
+	   title="{{ 'Performance of %project%'|trans({'%project%': project.name}, 'BugCatcher') }}">{{ project.name }}</a>
 
 	{% if not this.lastStatus %}
 		<twig:ux:icon name="jam:triangle-danger" height="14" width="14" class="shrink-0 text-danger"/>

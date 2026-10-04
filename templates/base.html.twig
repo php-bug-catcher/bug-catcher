@@ -73,6 +73,16 @@
 						<span class="hidden sm:inline">{{ filter.label }}</span>
 					</a>
 				{% endfor %}
+
+				{# the way in to the charts of every project at once; one project's are a click
+				   on its name on the dashboard #}
+				<a href="{{ path('bug_catcher.performance.index') }}"
+				   class="btn btn-sm {{ app.request.attributes.get('_route') starts with 'bug_catcher.performance' ? 'btn-accent' : 'btn-ghost' }}"
+				   {{ app.request.attributes.get('_route') starts with 'bug_catcher.performance' ? 'aria-current="page"' : '' }}
+				>
+					<twig:ux:icon name="lucide:activity" width="16" height="16"/>
+					<span class="hidden sm:inline">{{ 'Performance'|trans({},'BugCatcher') }}</span>
+				</a>
 			</nav>
 
 			<div class="ml-auto flex items-center gap-2">

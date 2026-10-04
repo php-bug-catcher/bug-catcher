@@ -51,6 +51,11 @@ final class ProjectCrudController extends AbstractCrudController
 			TextField::new('code'),
 			TextField::new('name'),
 			BooleanField::new("enabled"),
+			// turns this project's dashboard row from "how many errors" into "how many errors,
+			// and are the people using it waiting" - see docs/performance.md
+			BooleanField::new("perfEnabled")
+				->setLabel('Performance')
+				->setHelp('Show latency on the dashboard row. Needs the collector shipping buckets for this project.'),
 			ChoiceField::new("pingCollector")->setChoices($collectorTypes)->hideOnIndex(),
 			UrlField::new("url"),
 			TextField::new('dbConnection')->hideOnIndex(),

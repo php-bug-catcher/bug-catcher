@@ -26,6 +26,11 @@
 
         <field name="pingCollector" type="string" length="255" nullable="true"/>
 
+        <!-- whether this project's dashboard row talks about latency as well as errors. Not
+             nullable and false by default: an existing installation upgrades into the row it
+             already had. -->
+        <field name="perfEnabled" type="boolean" nullable="false"/>
+
         <many-to-many field="users" target-entity="BugCatcher\Entity\User" mapped-by="projects">
             <join-table name="user_project">
                 <join-columns>

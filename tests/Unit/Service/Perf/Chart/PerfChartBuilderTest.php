@@ -8,6 +8,7 @@ use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Chart\AtelierThemeFactory;
 use BugCatcher\Service\Perf\Chart\CpuBreakdownChartBuilder;
+use BugCatcher\Service\Perf\Chart\DatabaseChartBuilder;
 use BugCatcher\Service\Perf\Chart\DetailChartBuilder;
 use BugCatcher\Service\Perf\Chart\LatencyBandsChartBuilder;
 use BugCatcher\Service\Perf\Chart\StatusMixChartBuilder;
@@ -20,14 +21,23 @@ use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use DateInterval;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PerfChartBuilderTest extends TestCase
 {
 	private AtelierThemeFactory $themes;
 
+	/**
+	 * A translator with no catalogue hands every message back unchanged, which is what keeps the
+	 * assertions below about the chart rather than about the Slovak for "p95".
+	 */
+	private TranslatorInterface $translator;
+
 	protected function setUp(): void
 	{
-		$this->themes = new AtelierThemeFactory();
+		$this->themes     = new AtelierThemeFactory();
+		$this->translator = new Translator('en');
 	}
 
 	/**
@@ -80,19 +90,24 @@ class PerfChartBuilderTest extends TestCase
 	/** @return array<string, array{callable}> */
 	public function everyChart(): array
 	{
-		$themes = new AtelierThemeFactory();
+		$themes     = new AtelierThemeFactory();
+		$translator = new Translator('en');
 
 		return [
 			'throughput' => [static fn(PerfTimeSeries $s): string
-				=> (new ThroughputLatencyChartBuilder($themes))->build($s)['hits']],
+				=> (new ThroughputLatencyChartBuilder($themes, $translator))->build($s)['hits']],
 			'latency'    => [static fn(PerfTimeSeries $s): string
-				=> (new ThroughputLatencyChartBuilder($themes))->build($s)['latency']],
+				=> (new ThroughputLatencyChartBuilder($themes, $translator))->build($s)['latency']],
 			'bands'      => [static fn(PerfTimeSeries $s): string
-				=> (new LatencyBandsChartBuilder($themes))->build($s)],
+				=> (new LatencyBandsChartBuilder($themes, $translator))->build($s)],
 			'cpu'        => [static fn(PerfTimeSeries $s): string
-				=> (new CpuBreakdownChartBuilder($themes))->build($s)],
+				=> (new CpuBreakdownChartBuilder($themes, $translator))->build($s)],
 			'status'     => [static fn(PerfTimeSeries $s): string
-				=> (new StatusMixChartBuilder($themes))->build($s)],
+				=> (new StatusMixChartBuilder($themes, $translator))->build($s)],
+			'queries'    => [static fn(PerfTimeSeries $s): string
+				=> (new DatabaseChartBuilder($themes, $translator))->build($s)['queries']],
+			'db time'    => [static fn(PerfTimeSeries $s): string
+				=> (new DatabaseChartBuilder($themes, $translator))->build($s)['time']],
 		];
 	}
 
@@ -102,7 +117,7 @@ class PerfChartBuilderTest extends TestCase
 	 */
 	public function testThroughputAndLatencyAreTwoChartsOfOneWidth(): void
 	{
-		$charts = (new ThroughputLatencyChartBuilder($this->themes))->build($this->series(12));
+		$charts = (new ThroughputLatencyChartBuilder($this->themes, $this->translator))->build($this->series(12));
 
 		$this->assertStringContainsString('viewBox="0 0 960 200"', $charts['hits']);
 		$this->assertStringContainsString('viewBox="0 0 960 280"', $charts['latency']);
@@ -110,9 +125,39 @@ class PerfChartBuilderTest extends TestCase
 		$this->assertStringContainsString('p95', $charts['latency']);
 	}
 
+	/**
+	 * The database line shares a chart with the waiting band it is a part of, so the two have to
+	 * be told apart by colour - one hue for both would read as a single line.
+	 */
+	public function testTheDatabaseChartDrawsTheQueriesAndTheTimeTheyCost(): void
+	{
+		$at     = new DateTimeImmutable('2026-03-10 14:00:00');
+		$series = new PerfTimeSeries($this->window(2), [
+			$this->point($at, avgMs: 100.0, userMs: 40.0, sysMs: 10.0, extra: ['sq' => 120.0, 'st' => 0.4]),
+			$this->point($at->add(new DateInterval('PT1M')), avgMs: 200.0, userMs: 40.0, sysMs: 10.0,
+				extra: ['sq' => 240.0, 'st' => 0.9]),
+		]);
+
+		$charts = (new DatabaseChartBuilder($this->themes, $this->translator))->build($series);
+
+		$this->assertStringContainsString('var(--bc-perf-queries)', $charts['queries']);
+		$this->assertStringContainsString('var(--bc-perf-dbtime)', $charts['time']);
+		$this->assertStringContainsString('var(--bc-perf-wait)', $charts['time']);
+		$this->assertStringNotContainsString('var(--bc-perf-dbtime)', $charts['queries']);
+	}
+
+	/** A window nobody instrumented still draws: the panel, not the builder, decides to say so. */
+	public function testTheDatabaseChartSurvivesBucketsThatCountedNothing(): void
+	{
+		$charts = (new DatabaseChartBuilder($this->themes, $this->translator))->build($this->series(12));
+
+		$this->assertStringStartsWith('<svg', $charts['queries']);
+		$this->assertStringStartsWith('<svg', $charts['time']);
+	}
+
 	public function testTheFiveLatencyBandsAreAllThere(): void
 	{
-		$svg = (new LatencyBandsChartBuilder($this->themes))->build($this->series(12));
+		$svg = (new LatencyBandsChartBuilder($this->themes, $this->translator))->build($this->series(12));
 
 		// the labels are XML-escaped in the markup ("&lt; 100 ms"), so they are compared escaped
 		foreach (array_keys(LatencyBands::empty()->toArray()) as $band) {
@@ -135,7 +180,7 @@ class PerfChartBuilderTest extends TestCase
 			],
 		);
 
-		$this->assertStringStartsWith('<svg', (new CpuBreakdownChartBuilder($this->themes))->build($series));
+		$this->assertStringStartsWith('<svg', (new CpuBreakdownChartBuilder($this->themes, $this->translator))->build($series));
 	}
 
 	/**
@@ -144,7 +189,7 @@ class PerfChartBuilderTest extends TestCase
 	 */
 	public function testALongWindowDoesNotPrintEveryLabel(): void
 	{
-		$svg = (new LatencyBandsChartBuilder($this->themes))->build($this->series(120));
+		$svg = (new LatencyBandsChartBuilder($this->themes, $this->translator))->build($this->series(120));
 
 		$this->assertLessThanOrEqual(
 			12,
@@ -154,7 +199,7 @@ class PerfChartBuilderTest extends TestCase
 
 	public function testAShortWindowKeepsAllItsLabels(): void
 	{
-		$svg = (new LatencyBandsChartBuilder($this->themes))->build($this->series(8));
+		$svg = (new LatencyBandsChartBuilder($this->themes, $this->translator))->build($this->series(8));
 
 		$this->assertSame(8, preg_match_all('/class="atelier-chart__category-label"/', $svg));
 	}
@@ -172,14 +217,14 @@ class PerfChartBuilderTest extends TestCase
 			new DateTimeImmutable('2026-03-10 14:05:00'),
 		);
 
-		$svg = (new DetailChartBuilder($this->themes))->build($report);
+		$svg = (new DetailChartBuilder($this->themes, $this->translator))->build($report);
 
 		$this->assertLessThanOrEqual(12, preg_match_all('/class="atelier-chart__category-label"/', $svg));
 	}
 
 	public function testTheDetailChartDrawsWhatNormalWasAcrossTheSpike(): void
 	{
-		$svg = (new DetailChartBuilder($this->themes))->build($this->detail('p95', 210.0));
+		$svg = (new DetailChartBuilder($this->themes, $this->translator))->build($this->detail('p95', 210.0));
 
 		$this->assertStringContainsString('class="bc-perf-baseline"', $svg);
 		$this->assertStringContainsString('stroke-dasharray="6 4"', $svg);
@@ -188,7 +233,7 @@ class PerfChartBuilderTest extends TestCase
 
 	public function testTheDetailChartWithoutABaselineIsStillAChart(): void
 	{
-		$svg = (new DetailChartBuilder($this->themes))->build($this->detail('avg', null));
+		$svg = (new DetailChartBuilder($this->themes, $this->translator))->build($this->detail('avg', null));
 
 		$this->assertStringStartsWith('<svg', $svg);
 		$this->assertStringNotContainsString('bc-perf-baseline', $svg);
@@ -200,13 +245,13 @@ class PerfChartBuilderTest extends TestCase
 	 */
 	public function testAMetricTheBundleCannotRebuildDrawsNoChart(): void
 	{
-		$this->assertSame('', (new DetailChartBuilder($this->themes))->build($this->detail('db_time', 20.0)));
+		$this->assertSame('', (new DetailChartBuilder($this->themes, $this->translator))->build($this->detail('db_time', 20.0)));
 	}
 
 	/** @dataProvider builtInMetrics */
 	public function testTheDetailChartDrawsWhicheverMetricRegressed(string $metric, PerfUnit $unit): void
 	{
-		$svg = (new DetailChartBuilder($this->themes))->build($this->detail($metric, 1.0, $unit));
+		$svg = (new DetailChartBuilder($this->themes, $this->translator))->build($this->detail($metric, 1.0, $unit));
 
 		$this->assertStringStartsWith('<svg', $svg);
 	}
@@ -260,8 +305,14 @@ class PerfChartBuilderTest extends TestCase
 		return new PerfWindow($from, $from->add(new DateInterval("PT{$minutes}M")), PerfGranularity::Minute);
 	}
 
-	private function point(DateTimeImmutable $at, float $avgMs, float $userMs, float $sysMs): PerfTimePoint
-	{
+	/** @param array<string, float> $extra */
+	private function point(
+		DateTimeImmutable $at,
+		float $avgMs,
+		float $userMs,
+		float $sysMs,
+		array $extra = [],
+	): PerfTimePoint {
 		return new PerfTimePoint(
 			$at,
 			hits: 10,
@@ -276,6 +327,7 @@ class PerfChartBuilderTest extends TestCase
 			clientErrors: 1,
 			serverErrors: 1,
 			bands: new LatencyBands(4, 3, 2, 1, 0),
+			extra: $extra,
 		);
 	}
 }

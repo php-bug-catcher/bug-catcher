@@ -4,6 +4,7 @@ namespace {
 	use BugCatcher\Controller\Admin\DashboardController as AdminDashboardController;
 	use BugCatcher\Controller\DashboardController;
 	use BugCatcher\Controller\HelloController;
+	use BugCatcher\Controller\PerformanceController;
 	use BugCatcher\Controller\RecordStatusController;
 	use BugCatcher\Controller\SecurityController;
 	use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -34,6 +35,16 @@ namespace {
 				->methods(['POST'])
 				// setStatus() interpolates the new status straight into DQL, keep it to known values
 				->requirements(['status' => 'resolved|archived']);
+		// two routes onto one action rather than an optional placeholder: "/performance/" with a
+		// trailing nothing is not a URL anybody should be able to generate, and the all-projects
+		// page wants a name of its own for the nav to link to
+		$routes
+			->add('bug_catcher.performance.index', '/performance')
+				->controller(PerformanceController::class . "::index")
+				->methods(['GET'])
+			->add('bug_catcher.performance.project', '/performance/{project}')
+				->controller(PerformanceController::class . "::index")
+				->methods(['GET']);
 		$routes
 			->add('bug_catcher.admin', '/admin')
 			->controller(AdminDashboardController::class . "::index")

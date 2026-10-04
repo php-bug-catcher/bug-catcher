@@ -64,6 +64,13 @@
 	--bc-perf-wait: var(--bc-warn);
 	--bc-perf-baseline: var(--bc-muted);
 
+	/* The database panel. Its time line is drawn against --bc-perf-wait on one chart - the
+	   point being that the database is a part of the waiting - so it must not be that colour:
+	   two lines in one hue would read as one. The waiting keeps --bc-perf-wait, here as there,
+	   which is what links the two panels. */
+	--bc-perf-queries: color-mix(in oklab, var(--bc-accent-2) 35%, transparent);
+	--bc-perf-dbtime: var(--bc-accent-2);
+
 	--bc-perf-band-1: var(--bc-ok);
 	--bc-perf-band-2: color-mix(in oklab, var(--bc-ok) 45%, var(--bc-warn));
 	--bc-perf-band-3: var(--bc-warn);
@@ -535,6 +542,60 @@
 	.bc-chart .atelier-chart__line,
 	.bc-chart .bc-perf-baseline {
 		vector-effect: non-scaling-stroke;
+	}
+
+	/* --- hint ----------------------------------------------------------------
+	   An info dot that says what a chart means, on hover and on keyboard focus. A `title`
+	   attribute would do the hover but not the focus, waits a second before it appears and
+	   cannot be themed; this is the same thing the page can style and a tab stop can reach.
+
+	   The bubble is positioned against the hint rather than the panel, so it needs no
+	   JavaScript to follow anything - and `max-width` in `rem` keeps a three-line
+	   explanation from stretching across the whole dashboard. */
+	.bc-hint {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		color: var(--color-muted);
+		cursor: help;
+	}
+
+	.bc-hint:hover,
+	.bc-hint:focus-visible {
+		color: var(--color-accent);
+		outline: none;
+	}
+
+	.bc-hint__bubble {
+		position: absolute;
+		top: calc(100% + 0.375rem);
+		left: 0;
+		z-index: 30;
+		display: none;
+		width: max-content;
+		max-width: 22rem;
+		padding: 0.5rem 0.625rem;
+		border: 1px solid var(--color-line);
+		border-radius: 0.375rem;
+		background: var(--color-surface-2);
+		color: var(--color-fg);
+		font-size: 0.75rem;
+		line-height: 1.35;
+		font-weight: 400;
+		text-transform: none;
+		white-space: normal;
+		box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+	}
+
+	.bc-hint:hover .bc-hint__bubble,
+	.bc-hint:focus-visible .bc-hint__bubble {
+		display: block;
+	}
+
+	/* a hint at the right edge of a panel would otherwise open off the page */
+	.bc-hint--end .bc-hint__bubble {
+		left: auto;
+		right: 0;
 	}
 
 	/* --- timeline ------------------------------------------------------------

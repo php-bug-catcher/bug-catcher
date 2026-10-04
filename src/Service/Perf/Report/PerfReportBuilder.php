@@ -16,6 +16,7 @@ use BugCatcher\Service\Perf\Histogram\PercentileEstimator;
 use BugCatcher\Service\Perf\PerfWindow;
 use BugCatcher\Service\Perf\Report\Dto\LatencyBands;
 use BugCatcher\Service\Perf\Report\Dto\PathDetailReport;
+use BugCatcher\Service\Perf\Report\Dto\PerfHealth;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimePoint;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use BugCatcher\Service\Perf\Report\Dto\TopPathRow;
@@ -72,6 +73,58 @@ final readonly class PerfReportBuilder
 		?string $path = null,
 	): PerfTimeSeries {
 		return $this->seriesOver($this->granularity->window($from, $to), $project, $path);
+	}
+
+	/**
+	 * The window as the handful of numbers a dashboard row has space for.
+	 *
+	 * One read and one percentile estimate, off the summed histogram - see
+	 * {@see \BugCatcher\Repository\PerfBucketRepository::aggregateWindow()} for why it is not a
+	 * sum of {@see timeSeries()}.
+	 */
+	public function health(?Project $project, DateTimeImmutable $from, DateTimeImmutable $to): PerfHealth
+	{
+		$window    = $this->granularity->window($from, $to);
+		$aggregate = $this->repository->aggregateWindow(
+			$window->granularity,
+			$project,
+			$window->from,
+			$window->to,
+		);
+
+		if ($aggregate->hits === 0) {
+			return new PerfHealth($window, 0, null, null, null);
+		}
+
+		return new PerfHealth(
+			$window,
+			$aggregate->hits,
+			$this->percentiles->p95($aggregate->durationHistogram),
+			$this->apdex(LatencyBands::fromHistogram($aggregate->durationHistogram)),
+			$aggregate->errors() / $aggregate->hits,
+		);
+	}
+
+	/**
+	 * Apdex at T = {@see PerfHealth::APDEX_THRESHOLD_MS}: satisfying requests count whole,
+	 * tolerable ones count half, the rest count nothing.
+	 *
+	 * Taken off the bands rather than the raw bins because the bands already are the three
+	 * groups the index asks for - under 500 ms, under 2 s, and the tail - and that is not a
+	 * coincidence: the edges were chosen to line up.
+	 */
+	private function apdex(LatencyBands $bands): ?float
+	{
+		$total = $bands->total();
+
+		if ($total === 0) {
+			return null;
+		}
+
+		$satisfied  = $bands->under100Ms + $bands->to500Ms;
+		$tolerating = $bands->to2s;
+
+		return ($satisfied + $tolerating / 2) / $total;
 	}
 
 	/**
@@ -190,6 +243,9 @@ final readonly class PerfReportBuilder
 			$aggregate->clientErrors,
 			$aggregate->serverErrors,
 			LatencyBands::fromHistogram($aggregate->durationHistogram),
+			// carried through untouched: the bundle does not know what an application counted,
+			// only that a panel which does should be able to read it
+			$aggregate->extra,
 		);
 	}
 
@@ -205,6 +261,7 @@ final readonly class PerfReportBuilder
 			$aggregate->maxMem,
 			$this->percentiles->p95($aggregate->durationHistogram),
 			$aggregate->hits === 0 ? 0.0 : $aggregate->errors() / $aggregate->hits,
+			$aggregate->extra,
 		);
 	}
 

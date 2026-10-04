@@ -1,0 +1,42 @@
+{% extends "@BugCatcher/base.html.twig" %}
+{% trans_default_domain 'BugCatcher' %}
+
+{% block title %}
+	{{ 'Performance'|trans }} · {{ project ? project.name : 'all projects'|trans }} · {{ app_name|default('Bug Catcher') }}
+{% endblock %}
+
+{% block main %}
+	{#
+		The switcher is plain links rather than a select: every one of them is a URL worth
+		keeping, and this page exists precisely so that one project's charts can be sent to
+		somebody.
+	#}
+	<div class="flex flex-wrap items-center gap-2">
+		<a href="{{ path('bug_catcher.dashboard.index') }}" class="btn btn-sm btn-ghost">
+			<twig:ux:icon name="lucide:arrow-left" width="16" height="16"/>
+			<span class="hidden sm:inline">{{ 'Dashboard'|trans }}</span>
+		</a>
+
+		<nav class="flex flex-wrap items-center gap-1" aria-label="{{ 'Project'|trans }}">
+			<a href="{{ path('bug_catcher.performance.index') }}"
+			   class="btn btn-sm {{ project is null ? 'btn-accent' : 'btn-ghost' }}"
+			   {{ project is null ? 'aria-current="page"' : '' }}
+			>{{ 'All projects'|trans }}</a>
+
+			{% for candidate in projects %}
+				<a href="{{ path('bug_catcher.performance.project', {project: candidate.id}) }}"
+				   class="btn btn-sm {{ project and project.id == candidate.id ? 'btn-accent' : 'btn-ghost' }}"
+				   {{ project and project.id == candidate.id ? 'aria-current="page"' : '' }}
+				   title="{{ candidate.name }}"
+				><span class="max-w-40 truncate">{{ candidate.name }}</span></a>
+			{% endfor %}
+		</nav>
+	</div>
+
+	{% for performanceComponent in components %}
+		{{ component(performanceComponent, {
+			project: project,
+			'data-poll': "delay("~refreshInterval~"000)|$render"
+		}) }}
+	{% endfor %}
+{% endblock %}

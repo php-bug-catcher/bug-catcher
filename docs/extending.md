@@ -20,10 +20,22 @@ bug_catcher:
         - LogList
 ```
 
-The bundle also ships two performance panels, neither of them switched on by default:
-`PerfOverview` (four charts of one project's window) and `PerfTopPaths` (the heaviest routes, with
-phptop's flags as controls). Both read one project, so they ask you to pick one while the
-dashboard is showing all of them. See the [README](../README.md#performance-monitoring).
+The three performance panels are **not** dashboard components - they are the page at
+`/performance`, configured under `performance_components`, and listing one here is refused when
+the container is built:
+
+```yaml
+bug_catcher:
+    performance_components:
+        - PerfOverview      # four charts of one project's window
+        - PerfTopPaths      # the heaviest routes, with phptop's flags as controls
+        - PerfDatabase      # queries per request and what they cost
+        - MyPanel           # your own, by component name, same as dashboard_components
+```
+
+A panel of your own takes a `#[LiveProp] public ?Project $project` and has to answer null as
+"every project at once" - the page passes null until somebody picks one. See the
+[README](../README.md#performance-monitoring).
 
 ## StatusList component
 
@@ -138,7 +150,27 @@ Component classes, so you do not repeat long class strings:
 | `.input` | form controls |
 | `.led` + `.led-ok` / `.led-danger` | pulsing status light |
 | `.code` | the stack trace listing |
+| `.bc-hint` | the info dot that explains a panel on hover and on focus. Add `.bc-hint--end` at the right edge of a panel so the bubble opens inwards |
 | `.text-glow` | neon text shadow, follows the element's own colour. Dark theme only |
+
+The hint has a partial of its own, so a component does not repeat the markup:
+
+```twig
+{% include '@BugCatcher/components/_hint.html.twig' with {
+    text: 'What this chart means.'|trans({}, 'BugCatcher')
+} only %}
+```
+
+A project with `perfEnabled` set draws its row from `perf_status_list_components` instead, and
+every component is told so through a `dense` prop - the same twelve columns then have five cells
+to share rather than three. Honour it if your component goes on both rows:
+
+```twig
+<div{{ attributes.defaults({class:(dense ? 'col-span-1' : 'col-span-2') ~ ' text-right'}) }}>
+```
+
+Write both class names out rather than building one: Tailwind finds classes by scanning these
+files as text, and `'col-span-' ~ n` is not a class name it can see.
 
 A status list component renders inside a 12 column grid and **must carry its own width**, because
 the component list is configurable and the row cannot know what it will contain:

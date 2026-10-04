@@ -33,31 +33,31 @@ final readonly class ThroughputLatencyChartBuilder extends AbstractPerfChartBuil
 		$labels = $this->labels($series);
 
 		$hits = Chart::bar()
-			->title('Requests')
-			->description('Requests per bucket.')
+			->title($this->t('Requests'))
+			->description($this->t('Requests per bucket.'))
 			->size(self::WIDTH, self::HITS_HEIGHT)
 			// a number above every bar is unreadable past a handful of buckets
 			->showValues(false)
 			->series(
-				'hits',
+				$this->t('hits'),
 				$this->points($labels, $series->series(static fn(PerfTimePoint $point): int => $point->hits)),
 				'var(--bc-perf-hits)',
 			)
 			->build();
 
 		$latency = Chart::line()
-			->title('Latency')
-			->description('Mean and 95th percentile response time per bucket.')
+			->title($this->t('Latency'))
+			->description($this->t('Mean and 95th percentile response time per bucket.'))
 			->size(self::WIDTH, self::LATENCY_HEIGHT)
 			// a latency axis that does not start at zero exaggerates every wobble
 			->includeZero(true)
 			->series(
-				'mean',
+				$this->t('mean'),
 				$this->points($labels, $series->series(static fn(PerfTimePoint $point): float => $point->avgMs)),
 				'var(--bc-perf-avg)',
 			)
 			->series(
-				'p95',
+				$this->t('p95'),
 				// a bucket nobody visited has no percentile; on a line it is a zero
 				$this->points($labels, $series->series(static fn(PerfTimePoint $point): float => $point->p95Ms ?? 0.0)),
 				'var(--bc-perf-p95)',

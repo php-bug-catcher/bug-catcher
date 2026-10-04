@@ -39,6 +39,16 @@ class Project {
 	private ?string $pingCollector = null;
 
 	/**
+	 * Whether this project ships performance samples, and so whether its row on the dashboard
+	 * talks about latency instead of only about errors.
+	 *
+	 * Per project rather than per installation because a server usually watches several
+	 * applications and the collector gets installed on them one at a time. Off by default: a row
+	 * that turned into three empty columns after an upgrade would read as "this is broken".
+	 */
+	private bool $perfEnabled = false;
+
+	/**
 	 * @var Collection<int, User>
 	 */
 	private Collection $users;
@@ -115,6 +125,16 @@ class Project {
 
 	public function setPingCollector(?string $pingCollector): static {
 		$this->pingCollector = $pingCollector;
+
+		return $this;
+	}
+
+	public function isPerfEnabled(): bool {
+		return $this->perfEnabled;
+	}
+
+	public function setPerfEnabled(bool $perfEnabled): static {
+		$this->perfEnabled = $perfEnabled;
 
 		return $this;
 	}

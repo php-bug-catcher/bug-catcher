@@ -50,11 +50,17 @@ final readonly class DetailChartBuilder extends AbstractPerfChartBuilder
 		$unit   = $metric?->unit() ?? $report->unit;
 
 		$model = Chart::line()
-			->title(sprintf('%s on %s', $metric?->label() ?? $report->metric, $report->path))
-			->description(sprintf('%s of %s around the window it regressed in.', $report->metric, $report->path))
+			->title($this->t('%metric% on %path%', [
+				'%metric%' => $metric === null ? $report->metric : $this->t($metric->label()),
+				'%path%'   => $report->path,
+			]))
+			->description($this->t('%metric% of %path% around the window it regressed in.', [
+				'%metric%' => $report->metric,
+				'%path%'   => $report->path,
+			]))
 			->size(self::WIDTH, self::HEIGHT)
 			->includeZero(true)
-			->series('observed', $this->points($labels, $values), 'var(--bc-perf-p95)')
+			->series($this->t('observed'), $this->points($labels, $values), 'var(--bc-perf-p95)')
 			->build();
 
 		$document = Chart::renderDocument(

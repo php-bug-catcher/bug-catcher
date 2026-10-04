@@ -6,15 +6,20 @@
 	Each row is a 12-column grid and every status component brings its own span, because the
 	component list is configurable through bug_catcher.status_list_components - the row cannot
 	know what it will be asked to contain.
+
+	A project with performance switched on gets a different list
+	(bug_catcher.perf_status_list_components) and is told so through `dense`, because the same
+	twelve columns then have five cells to share instead of three.
 #}
 <div{{ attributes.defaults({
 	class:'space-y-2'
 }) }}>
 	<div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 		{% for project in this.projects %}
+			{% set dense = this.usesPerf(project) %}
 			<div class="grid grid-cols-12 items-center gap-x-2 rounded-md border border-line bg-surface/50 px-2 py-1">
-				{% for statusComponent in components %}
-					{{ component(statusComponent, {project: project}) }}
+				{% for statusComponent in this.componentsFor(project) %}
+					{{ component(statusComponent, {project: project, dense: dense}) }}
 				{% endfor %}
 			</div>
 		{% endfor %}

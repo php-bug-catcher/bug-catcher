@@ -1,6 +1,7 @@
-{# The last 2 of the row's 12 columns. #}
+{# 2 of the row's 12 columns, 1 when the row also carries performance numbers. Both class names
+   are written out so that Tailwind can still find them when it scans this file. #}
 <div{{ attributes.defaults({
-	class:'col-span-2 text-right'
+	class:(dense ? 'col-span-1' : 'col-span-2') ~ ' text-right'
 }) }}>
 	{% set count = this.count %}
 	{# Zero is the boring state and stays quiet - on a wall of projects that are mostly fine,

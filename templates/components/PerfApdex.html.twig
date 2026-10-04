@@ -1,0 +1,31 @@
+{# 2 of the row's 12 columns. The score is the glance, the colour is the alarm, and the rating
+   is in the tooltip because 0.91 means nothing on its own. #}
+{% trans_default_domain 'BugCatcher' %}
+{% set health = this.health %}
+{% set tones = {
+	'idle':   'text-muted',
+	'ok':     'text-ok',
+	'warn':   'text-warn',
+	'danger': 'text-danger',
+} %}
+{% set ratings = {
+	'excellent':    'excellent'|trans,
+	'good':         'good'|trans,
+	'fair':         'fair'|trans,
+	'poor':         'poor'|trans,
+	'unacceptable': 'unacceptable'|trans,
+} %}
+
+<div{{ attributes.defaults({
+	class:'col-span-2 overflow-hidden text-right'
+}) }} title="{{ health.apdex is null
+	? 'Apdex: nothing measured in the last %hours% h'|trans({'%hours%': this.hours})
+	: 'Apdex %score% (%rating%) over the last %hours% h — a request under 500 ms counts whole, under 2 s counts half, slower counts nothing'|trans({
+		'%score%': health.apdex|number_format(2),
+		'%rating%': ratings[health.apdexRating]|default(health.apdexRating),
+		'%hours%': this.hours,
+	}) }}">
+	<span class="text-glow font-mono text-sm font-semibold tabular-nums whitespace-nowrap {{ tones[this.tone] }}">
+		{{- health.apdex is null ? '–' : health.apdex|number_format(2) -}}
+	</span>
+</div>

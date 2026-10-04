@@ -1,0 +1,12 @@
+{# 1 of the row's 12 columns. Zero is the boring state and stays quiet, the same way LogCount's
+   zero does - colouring every zero green drowns out the handful that need attention. #}
+{% trans_default_domain 'BugCatcher' %}
+{% set count = this.count %}
+
+<div{{ attributes.defaults({
+	class:'col-span-1 text-right'
+}) }} title="{{ 'Routes that regressed against their baseline in the last %hours% h and have not been cleared'|trans({'%hours%': this.hours}) }}">
+	<span class="text-glow font-mono text-sm font-semibold tabular-nums {{ count == 0 ? 'text-muted' : 'text-warn' }}">
+		{{- count -}}
+	</span>
+</div>

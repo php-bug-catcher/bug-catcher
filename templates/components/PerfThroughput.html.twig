@@ -1,0 +1,11 @@
+{# 2 of the row's 12 columns. Not in the default row - adding it means taking a column from
+   something else, which is the point of the list being configurable. #}
+{% trans_default_domain 'BugCatcher' %}
+
+<div{{ attributes.defaults({
+	class:'col-span-2 overflow-hidden text-right'
+}) }} title="{{ 'Requests per minute over the last %hours% h — the one number here that falls when the application stops answering at all'|trans({'%hours%': this.hours}) }}">
+	<span class="font-mono text-xs tabular-nums whitespace-nowrap text-muted">
+		{{- this.formatted }}{{ this.formatted == '–' ? '' : '/min'|trans }}
+	</span>
+</div>

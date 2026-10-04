@@ -14,6 +14,7 @@ namespace BugCatcher\Service\Perf\Report\Dto;
  */
 final readonly class TopPathRow
 {
+	/** @param array<string, float> $extra totals over the window, in whatever unit the application counted */
 	public function __construct(
 		public string $label,
 		public int $hits,
@@ -24,7 +25,22 @@ final readonly class TopPathRow
 		public int $maxMem,
 		public ?float $p95Ms,
 		public float $errorRate,
+		public array $extra = [],
 	) {
+	}
+
+	/** The total an application counted on this row, or null if it never sent that metric. */
+	public function extraTotal(string $name): ?float
+	{
+		return $this->extra[$name] ?? null;
+	}
+
+	/** The same per request. Null for the same reason {@see PerfTimePoint::extraPerHit()} is. */
+	public function extraPerHit(string $name): ?float
+	{
+		$total = $this->extraTotal($name);
+
+		return $total === null ? null : $this->perHit($total);
 	}
 
 	public function msPerHit(): float

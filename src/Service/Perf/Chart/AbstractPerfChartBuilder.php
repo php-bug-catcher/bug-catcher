@@ -10,13 +10,15 @@ use Atelier\Chart\Model\ChartModel;
 use Atelier\Svg\Document;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use LogicException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * What every chart on the performance page has in common.
  *
- * Three things the library leaves to the caller and all four charts need: turning a model into
+ * Four things the library leaves to the caller and all four charts need: turning a model into
  * markup that can be inlined into a page, thinning the x axis so a hundred labels do not overprint
- * into a smear, and refusing to build a chart out of nothing.
+ * into a smear, refusing to build a chart out of nothing, and translating the words the renderer
+ * paints into the SVG - a legend label is part of the page even though no template wrote it.
  */
 abstract readonly class AbstractPerfChartBuilder
 {
@@ -27,11 +29,29 @@ abstract readonly class AbstractPerfChartBuilder
 	 */
 	protected const float WIDTH = 960.0;
 
+	/** The catalogue the whole bundle writes into - `translations/BugCatcher.*.xlf`. */
+	protected const string DOMAIN = 'BugCatcher';
+
 	/** As many x labels as fit without touching. The rest of the ticks stay, only the text goes. */
 	private const int MAX_LABELS = 12;
 
-	public function __construct(protected AtelierThemeFactory $themes)
+	public function __construct(
+		protected AtelierThemeFactory $themes,
+		protected TranslatorInterface $translator,
+	) {
+	}
+
+	/**
+	 * A word the renderer will paint into the SVG: a title, a description, a legend label.
+	 *
+	 * The charts are built server-side and inlined, so this is the only chance to translate
+	 * them - there is no client-side pass over the markup afterwards.
+	 *
+	 * @param array<string, string|int|float> $parameters
+	 */
+	protected function t(string $message, array $parameters = []): string
 	{
+		return $this->translator->trans($message, $parameters, self::DOMAIN);
 	}
 
 	/**

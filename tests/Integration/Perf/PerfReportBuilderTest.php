@@ -324,6 +324,87 @@ class PerfReportBuilderTest extends KernelTestCase
 		$this->assertNotSame([], $report->series->points);
 	}
 
+	/**
+	 * Whatever the application counted has to survive the whole read, or the panel built on it
+	 * has nothing: the aggregate carried `extra` long before the report DTOs had a field for it,
+	 * and the numbers were silently dropped here.
+	 */
+	public function testWhatTheApplicationCountedReachesTheTimeSeries(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 80, extra: ['sq' => 120, 'st' => 0.4]);
+
+		$points = $this->builder()->timeSeries(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:01:00'),
+		)->points;
+
+		// stored as the bucket's total, offered per request
+		$this->assertSame(120.0, $points[0]->extra['sq']);
+		$this->assertSame(12.0, $points[0]->extraPerHit('sq'));
+		$this->assertEqualsWithDelta(0.04, $points[0]->extraPerHit('st'), 0.0001);
+	}
+
+	/** Null and not zero: a bucket nobody instrumented is not a bucket that ran no queries. */
+	public function testAMetricTheApplicationNeverSentIsAbsentRatherThanZero(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 80);
+
+		$points = $this->builder()->timeSeries(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:01:00'),
+		)->points;
+
+		$this->assertSame([], $points[0]->extra);
+		$this->assertNull($points[0]->extraPerHit('sq'));
+	}
+
+	public function testWhatTheApplicationCountedReachesTheTopPathsTable(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 80, path: '/checkout', extra: ['sq' => 200]);
+		$this->minute('14:01', hits: 10, msPerHit: 80, path: '/checkout', extra: ['sq' => 100]);
+
+		$rows = $this->builder()->topPaths(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+		)->rows;
+
+		// summed over the window's buckets, not read off the last one
+		$this->assertSame(300.0, $rows[0]->extraTotal('sq'));
+		$this->assertSame(15.0, $rows[0]->extraPerHit('sq'));
+		$this->assertNull($rows[0]->extraTotal('nothing-sent-this'));
+	}
+
+	/**
+	 * Across projects the table splits the rows by application, and the extras have to split
+	 * with them: grouped only by route, both `/checkout` rows would be handed the sum of both.
+	 */
+	public function testAcrossProjectsEachApplicationKeepsItsOwnCounts(): void
+	{
+		$other = ProjectFactory::createOne()->_real();
+
+		$this->minute('14:00', hits: 10, msPerHit: 80, path: '/checkout', extra: ['sq' => 200]);
+		$this->minute('14:00', hits: 10, msPerHit: 80, path: '/checkout', extra: ['sq' => 50], project: $other);
+
+		$rows = $this->builder()->topPaths(
+			null,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+		)->rows;
+
+		$byLabel = [];
+		foreach ($rows as $row) {
+			$byLabel[$row->label] = $row->extraTotal('sq');
+		}
+
+		$this->assertSame(
+			[$this->project->getCode() . ' /checkout' => 200.0, $other->getCode() . ' /checkout' => 50.0],
+			$byLabel,
+		);
+	}
+
 	private function regression(string $path, DateTimeImmutable $windowAt): RecordPerformance
 	{
 		return new RecordPerformance(
@@ -347,6 +428,8 @@ class PerfReportBuilderTest extends KernelTestCase
 		int $errors = 0,
 		string $path = '/user/{id}',
 		string $serverName = 'web-01',
+		array $extra = [],
+		?Project $project = null,
 	): void {
 		$this->bucket(
 			PerfGranularity::Minute,
@@ -359,9 +442,12 @@ class PerfReportBuilderTest extends KernelTestCase
 			$errors,
 			$path,
 			$serverName,
+			$extra,
+			$project,
 		);
 	}
 
+	/** @param array<string, int|float> $extra */
 	private function bucket(
 		PerfGranularity $granularity,
 		string $bucketAt,
@@ -373,6 +459,8 @@ class PerfReportBuilderTest extends KernelTestCase
 		int $errors = 0,
 		string $path = '/user/{id}',
 		string $serverName = 'web-01',
+		array $extra = [],
+		?Project $project = null,
 	): void {
 		$histogram                                          = HistogramBins::empty();
 		$histogram[HistogramBins::binFor((float)$msPerHit)] = $hits;
@@ -381,7 +469,7 @@ class PerfReportBuilderTest extends KernelTestCase
 			new PerfBucket(
 				$granularity,
 				new DateTimeImmutable($bucketAt),
-				$this->project,
+				$project ?? $this->project,
 				$serverName,
 				'www.site.com',
 				$path,
@@ -394,6 +482,7 @@ class PerfReportBuilderTest extends KernelTestCase
 				maxMem: $memPerHit,
 				clientErrors: $errors,
 				durationHistogram: $histogram,
+				extra: $extra,
 			),
 		]);
 	}
