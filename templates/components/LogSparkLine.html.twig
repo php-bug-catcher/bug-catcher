@@ -1,7 +1,10 @@
-{# 4 of the row's 12 columns. The .sparkline class is what the stylesheet hooks onto to fix
-   the library's mask stroke and to size the SVG - see app.css. #}
+{# 4 of the row's 12 columns, 7 when the wall is on the denser grid - there it takes the room
+   that Apdex and p95 occupy on a project that reports latency, so the name and the error count
+   line up across every card. Both class names are written out so Tailwind can find them.
+   The .sparkline class is what the stylesheet hooks onto to fix the library's mask stroke and
+   to size the SVG - see app.css. #}
 <div{{ attributes.defaults({
-	class:'sparkline col-span-4'
+	class:'sparkline ' ~ (dense ? 'col-span-7' : 'col-span-4')
 }) }}>
 	{{ this.sparkLine|raw }}
 </div>

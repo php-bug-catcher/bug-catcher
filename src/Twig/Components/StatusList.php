@@ -49,4 +49,26 @@ final class StatusList extends AbstractController {
 	public function componentsFor(Project $project): array {
 		return $this->usesPerf($project) ? $this->perfComponents : $this->components;
 	}
+
+	/**
+	 * Whether the whole wall is drawn on the tighter grid - **not** a property of one row.
+	 *
+	 * The two lists share twelve columns but cut them differently: with latency on the row the
+	 * name gives up two columns and the error count one, to make room for Apdex and p95. Deciding
+	 * that per project means the cards sit side by side with their numbers at different offsets,
+	 * and a wall of projects is read by scanning down a column, not by reading each card.
+	 *
+	 * So one project with performance switched on puts every row on the same grid; the ones
+	 * without it simply have a wider sparkline where the two numbers would be. An installation
+	 * with no performance anywhere is untouched - the old six/two/four.
+	 */
+	public function isDense(): bool {
+		foreach ($this->getProjects() as $project) {
+			if ($this->usesPerf($project)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

@@ -12,6 +12,7 @@ use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
+use BugCatcher\Tests\App\Factory\UserFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Twig\Components\StatusList;
 use DateTimeImmutable;
@@ -48,15 +49,59 @@ class StatusListRowTest extends KernelTestCase
 		$this->assertContains('LogCount', $list->perfComponents, 'the error count is the one cell that stays');
 	}
 
-	/** Twelve columns, in both rows - a cell too many wraps the row and a wall monitor is full of them. */
-	public function testBothRowsFillTwelveColumnsExactly(): void
+	/** Twelve columns, in every combination - a cell too many wraps the row and a wall is full of them. */
+	public function testEveryRowFillsTwelveColumnsExactly(): void
 	{
 		$plain = ProjectFactory::createOne(['perfEnabled' => false, 'pingCollector' => 'none'])->_real();
 		$perf  = ProjectFactory::createOne(['perfEnabled' => true, 'pingCollector' => 'none'])->_real();
 		$this->measured($perf);
 
-		$this->assertSame(12, $this->columnsOf($plain, false, ['ProjectStatus', 'LogCount', 'LogSparkLine']));
-		$this->assertSame(12, $this->columnsOf($perf, true, ['ProjectStatus', 'LogCount', 'PerfApdex', 'PerfLatency', 'PerfSparkLine']));
+		$plainRow = ['ProjectStatus', 'LogCount', 'LogSparkLine'];
+		$perfRow  = ['ProjectStatus', 'LogCount', 'PerfApdex', 'PerfLatency', 'PerfSparkLine'];
+
+		// a wall with no performance anywhere is the layout it always had
+		$this->assertSame(12, $this->columnsOf($plain, false, $plainRow));
+		// and one where some project reports latency puts every row on the same grid
+		$this->assertSame(12, $this->columnsOf($plain, true, $plainRow));
+		$this->assertSame(12, $this->columnsOf($perf, true, $perfRow));
+	}
+
+	/**
+	 * The point of the shared grid: a card without latency has to break its twelve columns at the
+	 * same places as one with it, or the numbers do not line up down the wall - and a wall of
+	 * projects is read by scanning a column, not by reading each card.
+	 */
+	public function testTheNameAndTheErrorCountLineUpAcrossBothKindsOfRow(): void
+	{
+		$plain = ProjectFactory::createOne(['perfEnabled' => false, 'pingCollector' => 'none'])->_real();
+		$perf  = ProjectFactory::createOne(['perfEnabled' => true, 'pingCollector' => 'none'])->_real();
+		$this->measured($perf);
+
+		foreach (['ProjectStatus' => 4, 'LogCount' => 1] as $component => $span) {
+			$this->assertSame($span, $this->columnsOf($plain, true, [$component]), $component . ' on the plain row');
+			$this->assertSame($span, $this->columnsOf($perf, true, [$component]), $component . ' on the perf row');
+		}
+	}
+
+	/**
+	 * One project with latency switched on is enough to put the whole wall on the tighter grid.
+	 *
+	 * Asked of the user's own projects, not of every project in the database - the wall only ever
+	 * draws what that user is on, so that is what its layout follows.
+	 */
+	public function testTheWallIsDenseAsSoonAsAnyProjectReportsLatency(): void
+	{
+		// enabled explicitly: the factory randomises it, and getActiveProjects() leaves out the
+		// disabled ones - so a random false here would make this test pass for the wrong reason
+		$plain = ProjectFactory::createOne(['enabled' => true, 'perfEnabled' => false, 'pingCollector' => 'none'])->_real();
+
+		$this->loginUser(UserFactory::createOne(['enabled' => true, 'projects' => [$plain]])->_real());
+		$this->assertFalse($this->list()->isDense(), 'no project of this user has it on');
+
+		$perf = ProjectFactory::createOne(['enabled' => true, 'perfEnabled' => true, 'pingCollector' => 'none'])->_real();
+
+		$this->loginUser(UserFactory::createOne(['enabled' => true, 'projects' => [$plain, $perf]])->_real());
+		$this->assertTrue($this->list()->isDense());
 	}
 
 	/** The row says what the numbers mean, and the Apdex carries the colour. */

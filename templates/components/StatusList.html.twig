@@ -8,15 +8,17 @@
 	know what it will be asked to contain.
 
 	A project with performance switched on gets a different list
-	(bug_catcher.perf_status_list_components) and is told so through `dense`, because the same
-	twelve columns then have five cells to share instead of three.
+	(bug_catcher.perf_status_list_components). `dense` is read once for the whole wall, not per
+	row: the two lists cut the same twelve columns differently, and a wall of cards is read by
+	scanning down a column. One project with latency on therefore puts every row on the same
+	grid - the ones without it just get a wider sparkline where the two numbers would be.
 #}
 <div{{ attributes.defaults({
 	class:'space-y-2'
 }) }}>
 	<div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+		{% set dense = this.dense %}
 		{% for project in this.projects %}
-			{% set dense = this.usesPerf(project) %}
 			<div class="grid grid-cols-12 items-center gap-x-2 rounded-md border border-line bg-surface/50 px-2 py-1">
 				{% for statusComponent in this.componentsFor(project) %}
 					{{ component(statusComponent, {project: project, dense: dense}) }}
