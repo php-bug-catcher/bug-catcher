@@ -1,5 +1,11 @@
 doctrine:
   orm:
+    # Not optional. Doctrine's generated lazy-ghost proxies are subclasses of the entity, and
+    # PerfBucket is final, so the prod proxy warmer aborts cache:clear with "Cannot generate lazy
+    # ghost: class BugCatcher\Entity\PerfBucket is final". PHP's own lazy objects need no subclass,
+    # and the bundle requires PHP 8.4, so they are always available - drop
+    # enable_lazy_ghost_objects, auto_generate_proxy_classes and proxy_dir, which this ignores.
+    enable_native_lazy_objects: true
     dql:
       string_functions:
         TYPE: BugCatcher\Extension\DQL\TypeFunction

@@ -169,6 +169,34 @@ class PerfChartBuilderTest extends TestCase
 		}
 	}
 
+	/**
+	 * A window of machines that cannot measure CPU draws no CPU chart. Three bands of zero
+	 * under a heading that promises where the time went is worse than nothing, and the panel
+	 * says so in words instead.
+	 */
+	public function testAWindowWithNoCpuAnywhereDrawsNoBreakdownAtAll(): void
+	{
+		$at     = new DateTimeImmutable('2026-03-10 14:00:00');
+		$series = new PerfTimeSeries($this->window(2), [
+			$this->pointWithoutCpu($at),
+			$this->pointWithoutCpu($at->add(new DateInterval('PT1M'))),
+		]);
+
+		$this->assertSame('', (new CpuBreakdownChartBuilder($this->themes, $this->translator))->build($series));
+	}
+
+	/** One machine that can is enough: the rest contribute nothing to the band rather than all of it. */
+	public function testOneBucketWithCpuIsEnoughToDrawTheBreakdown(): void
+	{
+		$at     = new DateTimeImmutable('2026-03-10 14:00:00');
+		$series = new PerfTimeSeries($this->window(2), [
+			$this->pointWithoutCpu($at),
+			$this->point($at->add(new DateInterval('PT1M')), avgMs: 100.0, userMs: 40.0, sysMs: 10.0),
+		]);
+
+		$this->assertStringStartsWith('<svg', (new CpuBreakdownChartBuilder($this->themes, $this->translator))->build($series));
+	}
+
 	/** Negative values are refused by the library, and wallclock minus CPU can round below zero. */
 	public function testTheWaitingBandSurvivesCpuThatOutranWallclock(): void
 	{
@@ -303,6 +331,26 @@ class PerfChartBuilderTest extends TestCase
 		$from = new DateTimeImmutable('2026-03-10 14:00:00');
 
 		return new PerfWindow($from, $from->add(new DateInterval("PT{$minutes}M")), PerfGranularity::Minute);
+	}
+
+	/** What a bucket off a machine with no getrusage() looks like once the report has read it. */
+	private function pointWithoutCpu(DateTimeImmutable $at): PerfTimePoint
+	{
+		return new PerfTimePoint(
+			$at,
+			hits: 10,
+			avgMs: 200.0,
+			p95Ms: 400.0,
+			userMs: 0.0,
+			sysMs: 0.0,
+			waitMs: null,
+			memPerHit: 1_048_576.0,
+			maxMem: 2_097_152,
+			ok: 10,
+			clientErrors: 0,
+			serverErrors: 0,
+			bands: new LatencyBands(0, 10, 0, 0, 0),
+		);
 	}
 
 	/** @param array<string, float> $extra */

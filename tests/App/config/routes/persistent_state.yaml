@@ -1,0 +1,5 @@
+# LogList is built on tito10047/persistent-state-bundle: its "select all" buttons post to
+# persistent_selection_toggle, so without this import the dashboard dies with "Unable to generate a
+# URL for the named route persistent_selection_toggle".
+_persistent_state:
+  resource: "@PersistentStateBundle/config/routes.php"

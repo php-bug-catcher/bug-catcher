@@ -67,10 +67,12 @@ final readonly class DatabaseChartBuilder extends AbstractPerfChartBuilder
 				)),
 				'var(--bc-perf-dbtime)',
 			)
-			// the band it is a part of, so the chart says how much of the waiting it explains
+			// the band it is a part of, so the chart says how much of the waiting it explains.
+			// A machine with no CPU accounting has no waiting band to compare against, so the
+			// line is flat at zero there rather than claiming the whole request.
 			->series(
 				$this->t('all waiting'),
-				$this->points($labels, $series->series(static fn(PerfTimePoint $point): float => $point->waitMs)),
+				$this->points($labels, $series->series(static fn(PerfTimePoint $point): float => $point->waitMs ?? 0.0)),
 				'var(--bc-perf-wait)',
 			)
 			->build();

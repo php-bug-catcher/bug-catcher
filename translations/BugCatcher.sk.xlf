@@ -546,6 +546,11 @@
 			<source>Routes that regressed against their baseline in the last %hours% h and have not been cleared</source>
 			<target>Cesty, ktoré sa za %hours% h zhoršili oproti svojmu základu a ešte neboli vyriešené</target>
 		  </trans-unit>
+
+		  <trans-unit id="132">
+			<source>No CPU breakdown: the machines behind this window do not report processor time. PHP has no getrusage() on Windows, so wallclock, memory and status are collected there and this chart is not.</source>
+			<target>Bez rozpadu CPU: stroje za týmto oknom nehlásia procesorový čas. PHP na Windowse nemá getrusage(), takže sa tam zbiera reálny čas, pamäť a stav, ale tento graf nie.</target>
+		  </trans-unit>
         </body>
     </file>
 </xliff>

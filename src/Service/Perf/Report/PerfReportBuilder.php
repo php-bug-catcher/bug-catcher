@@ -235,8 +235,14 @@ final readonly class PerfReportBuilder
 			$userMs,
 			$sysMs,
 			// CPU time is measured by getrusage and wallclock by microtime, so on a busy machine
-			// the two can disagree by a hair; the band is what is left, never less than nothing
-			max(0.0, $avgMs - $userMs - $sysMs),
+			// the two can disagree by a hair; the band is what is left, never less than nothing.
+			//
+			// Null when the bucket has traffic and no CPU at all, which is what a machine with
+			// no getrusage() ships - Windows. Not a guess: a PHP request that burned exactly
+			// zero microseconds of user *and* system time does not exist, let alone a whole
+			// bucket of them, so the only thing this can mean is "not measured". Without the
+			// check the band would be the entire request, on every Windows route, for ever.
+			$this->cpuMeasured($aggregate) ? max(0.0, $avgMs - $userMs - $sysMs) : null,
 			$this->perHit((float)$aggregate->sumMem, $aggregate->hits),
 			$aggregate->maxMem,
 			$aggregate->ok(),
@@ -263,6 +269,17 @@ final readonly class PerfReportBuilder
 			$aggregate->hits === 0 ? 0.0 : $aggregate->errors() / $aggregate->hits,
 			$aggregate->extra,
 		);
+	}
+
+	/**
+	 * Whether the machines behind this slice reported CPU.
+	 *
+	 * See the note at the call site: zero CPU across a bucket that served requests is not a
+	 * measurement of nothing, it is the absence of a measurement.
+	 */
+	private function cpuMeasured(WindowAggregate $aggregate): bool
+	{
+		return $aggregate->sumUser > 0.0 || $aggregate->sumSys > 0.0;
 	}
 
 	private function around(DateTimeImmutable $at, PerfGranularity $granularity, DateInterval $half): PerfWindow

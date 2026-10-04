@@ -62,7 +62,15 @@
 						text: 'What the average request spent its time on: user CPU, system CPU, and waiting — the database, a cache, an HTTP call. Waiting is usually the largest part of a slow request.'|trans
 					} only %}
 				</figcaption>
-				{{ charts.cpu|raw }}
+				{% if charts.cpu is empty %}
+					{# no machine in this window reported CPU, which is what Windows looks like:
+					   PHP has no getrusage() there. Saying so beats three bands of zero. #}
+					<p class="py-4 text-sm text-muted">
+						{{ 'No CPU breakdown: the machines behind this window do not report processor time. PHP has no getrusage() on Windows, so wallclock, memory and status are collected there and this chart is not.'|trans }}
+					</p>
+				{% else %}
+					{{ charts.cpu|raw }}
+				{% endif %}
 			</figure>
 
 			<figure class="bc-chart">

@@ -325,6 +325,60 @@ class PerfReportBuilderTest extends KernelTestCase
 	}
 
 	/**
+	 * A machine with no `getrusage()` - Windows - ships no CPU at all, and the collector leaves
+	 * the keys out rather than sending zeroes. Wallclock minus nothing is the whole request, so
+	 * without this the waiting band would be 100 % on every Windows route for ever.
+	 */
+	public function testABucketWithNoCpuAtAllHasNoWaitingBandRatherThanAFullOne(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 200);
+
+		$point = $this->builder()->timeSeries(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:01:00'),
+		)->points[0];
+
+		$this->assertSame(200.0, $point->avgMs, 'the duration is still measured');
+		$this->assertNull($point->waitMs);
+		$this->assertFalse($point->hasCpu());
+	}
+
+	/** And a bucket that did report CPU is untouched by the guard. */
+	public function testABucketThatReportedCpuKeepsItsWaitingBand(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 200, userMs: 40.0, sysMs: 10.0);
+
+		$point = $this->builder()->timeSeries(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:01:00'),
+		)->points[0];
+
+		$this->assertTrue($point->hasCpu());
+		$this->assertSame(150.0, $point->waitMs);
+	}
+
+	/** The same question of the top-paths table, which computes its band per row. */
+	public function testARowWithNoCpuHasNoWaitingBandEither(): void
+	{
+		$this->minute('14:00', hits: 10, msPerHit: 200, path: '/windows');
+		$this->minute('14:01', hits: 10, msPerHit: 200, path: '/linux', userMs: 40.0, sysMs: 10.0);
+
+		$rows = [];
+		foreach ($this->builder()->topPaths(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+		)->rows as $row) {
+			$rows[$row->label] = $row->waitMsPerHit();
+		}
+
+		$this->assertNull($rows['/windows']);
+		$this->assertSame(150.0, $rows['/linux']);
+	}
+
+	/**
 	 * Whatever the application counted has to survive the whole read, or the panel built on it
 	 * has nothing: the aggregate carried `extra` long before the report DTOs had a field for it,
 	 * and the numbers were silently dropped here.

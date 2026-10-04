@@ -26,6 +26,13 @@ final readonly class CpuBreakdownChartBuilder extends AbstractPerfChartBuilder
 			return '';
 		}
 
+		// Nothing in this window reported CPU, which is what a window of Windows machines looks
+		// like. Three bands of zero drawn under a heading that promises where the time went is
+		// worse than no chart - the panel says so in words instead.
+		if (!$this->anyCpu($series)) {
+			return '';
+		}
+
 		$labels = $this->labels($series);
 
 		$chart = Chart::stackedBar()
@@ -45,11 +52,25 @@ final readonly class CpuBreakdownChartBuilder extends AbstractPerfChartBuilder
 			)
 			->series(
 				$this->t('wait'),
-				$this->points($labels, $series->series(static fn(PerfTimePoint $p): float => $p->waitMs)),
+				// a bucket from a machine with no CPU accounting contributes nothing to the band
+				// rather than its whole duration - see PerfTimePoint::$waitMs
+				$this->points($labels, $series->series(static fn(PerfTimePoint $p): float => $p->waitMs ?? 0.0)),
 				'var(--bc-perf-wait)',
 			)
 			->build();
 
 		return $this->finish($chart, $this->themes->milliseconds());
+	}
+
+	/** Whether any bucket in the window came from a machine that can measure CPU. */
+	private function anyCpu(PerfTimeSeries $series): bool
+	{
+		foreach ($series->points as $point) {
+			if ($point->hasCpu()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

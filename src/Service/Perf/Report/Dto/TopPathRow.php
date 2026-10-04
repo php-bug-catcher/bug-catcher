@@ -58,9 +58,18 @@ final readonly class TopPathRow
 		return $this->perHit($this->sysMs);
 	}
 
-	/** Wallclock that was not CPU: the database, the cache, the network. */
-	public function waitMsPerHit(): float
+	/**
+	 * Wallclock that was not CPU: the database, the cache, the network.
+	 *
+	 * Null where the machine reported no CPU at all - see {@see PerfTimePoint::$waitMs} for why
+	 * that is not the same as a request that spent all its time waiting.
+	 */
+	public function waitMsPerHit(): ?float
 	{
+		if ($this->userMs <= 0.0 && $this->sysMs <= 0.0) {
+			return null;
+		}
+
 		return max(0.0, $this->msPerHit() - $this->userMsPerHit() - $this->sysMsPerHit());
 	}
 

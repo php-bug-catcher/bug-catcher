@@ -15,7 +15,10 @@ use DateTimeImmutable;
  *
  * `waitMs` is the band worth having: wallclock minus CPU is time spent waiting on the database,
  * on a cache, on an HTTP call. It is usually the largest part of a slow request and no PHP
- * profiler on a production box will tell you about it.
+ * profiler on a production box will tell you about it. It is **null** where the machine could
+ * not measure CPU at all - Windows has no `getrusage()` - because wallclock minus nothing is
+ * the whole request, and drawing that as time spent waiting would be the most confident wrong
+ * answer on the page.
  *
  * `extra` is the exception to the per-hit rule: those are whatever the monitored application
  * counted, in whatever unit it counted them, **summed over the bucket**. Nothing here knows what
@@ -32,7 +35,7 @@ final readonly class PerfTimePoint
 		public ?float $p95Ms,
 		public float $userMs,
 		public float $sysMs,
-		public float $waitMs,
+		public ?float $waitMs,
 		public float $memPerHit,
 		public int $maxMem,
 		public int $ok,
@@ -46,6 +49,12 @@ final readonly class PerfTimePoint
 	public static function empty(DateTimeImmutable $bucketAt): self
 	{
 		return new self($bucketAt, 0, 0.0, null, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, LatencyBands::empty());
+	}
+
+	/** Whether the machines behind this bucket reported CPU at all. */
+	public function hasCpu(): bool
+	{
+		return $this->waitMs !== null;
 	}
 
 	/**
