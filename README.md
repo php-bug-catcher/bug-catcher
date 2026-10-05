@@ -49,7 +49,8 @@ see [skeleton/readme.md](https://raw.githubusercontent.com/php-bug-catcher/skele
   their stack traces and mark them resolved once it has fixed the cause. Served over HTTP at `/mcp`
   behind a bearer token. See [docs/mcp.md](docs/mcp.md).
 - **Performance monitoring**. Wallclock, CPU and memory per request, collected with one
-  `auto_prepend_file` line and no PHP extension, and reported as a record when a route regresses.
+  `auto_prepend_file` line — or one `require` in the front controller, for hosting that has no
+  `php.ini` to edit — and no PHP extension, and reported as a record when a route regresses.
   See [Performance monitoring](#performance-monitoring).
 
 ### Roadmap
@@ -141,10 +142,12 @@ route gets measurably worse than it used to be, a record appears next to the err
 notifications, the detail page and the MCP tools that every record gets.
 
 **On the monitored machine**: install
-[php-bug-catcher/perf-collector](https://github.com/php-bug-catcher/perf-collector), point
-`auto_prepend_file` at its hook and run `bc-perf-aggregate` from cron every minute. No PHP
-extension, no daemon; the hook appends one line to a local file and the network call happens in the
-cron run. Its README has the installation and the options.
+[php-bug-catcher/perf-collector](https://github.com/php-bug-catcher/perf-collector), load its hook —
+either by pointing `auto_prepend_file` at it, or by requiring it on the first line of the front
+controller where there is no `php.ini` to edit — and run `bc-perf-aggregate` from cron every minute.
+Both ways of loading it measure the same request, so the choice is only about what the hosting lets
+you do. No PHP extension, no daemon; the hook appends one line to a local file and the network call
+happens in the cron run. Its README has the installation and the options.
 
 **On this server**, three commands keep the measurements useful. Add them next to the cron lines
 above:
