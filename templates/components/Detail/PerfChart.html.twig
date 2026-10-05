@@ -14,10 +14,28 @@
 				} only %}
 			</figcaption>
 			{{ this.chart|raw }}
-			<figcaption class="pt-1 text-xs text-muted">
-				{{ 'Dashed: the baseline this was measured against (%baseline%).'|trans({
-					'%baseline%': this.report.unit.format(this.report.baseline)
-				}) }}
+			<figcaption class="flex flex-wrap items-center gap-2 pt-1 text-xs text-muted">
+				<span>
+					{{ 'Dashed: the baseline this was measured against (%baseline%).'|trans({
+						'%baseline%': this.report.unit.format(this.report.baseline)
+					}) }}
+				</span>
+
+				{#
+					One chart answers "was this unusual". The page answers "what else was happening
+					at the time", which is the next question every time - so the link carries the
+					moment and the route, not just the project.
+				#}
+				{% if this.at and this.record.project %}
+					<a class="btn btn-sm btn-ghost ml-auto"
+					   href="{{ path('bug_catcher.performance.project', {
+						   project: this.record.project.id,
+						   at: this.at,
+						   hours: this.linkHours,
+						   path: this.record.path,
+					   }) ~ '#perf-path-' ~ this.anchor }}"
+					>{{ 'Open in performance'|trans }}</a>
+				{% endif %}
 			</figcaption>
 		</figure>
 	{% endif %}

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BugCatcher\Service\Perf\Report\Dto;
 
+use BugCatcher\Entity\PerfBucket;
+
 /**
  * One line of the table phptop prints, over a window of buckets.
  *
@@ -27,6 +29,20 @@ final readonly class TopPathRow
 		public float $errorRate,
 		public array $extra = [],
 	) {
+	}
+
+	/**
+	 * A fragment identifier for this row, so a link can scroll to it.
+	 *
+	 * The same hash the buckets are keyed by, because a route is not a URL fragment: `/user/{id}`
+	 * has a brace in it and `/` is a path separator.
+	 *
+	 * Only meaningful when the report grouped by path - under any other grouping `label` is a
+	 * machine or a vhost, and the template is what knows which it asked for.
+	 */
+	public function anchor(): string
+	{
+		return PerfBucket::hashPath($this->label);
 	}
 
 	/** The total an application counted on this row, or null if it never sent that metric. */

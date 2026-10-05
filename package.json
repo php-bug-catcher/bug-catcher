@@ -26,6 +26,8 @@
     "build": "encore production --progress"
   },
   "dependencies": {
+    "@tito10047/vanilla-js-datepicker": "^0.2.0",
+    "@tito10047/vanilla-js-timepicker": "^0.2.0",
     "file-loader": "^6.2.0",
     "stimulus-use": "^0.52.2"
   }

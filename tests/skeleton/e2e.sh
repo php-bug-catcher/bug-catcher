@@ -352,6 +352,27 @@ http 200 GET "/performance/${PROJECT_ID}"
 # the path that was shipped two minutes ago, read back out of perf_bucket by TopPaths
 body_has '/user/{id}'
 
+step "The performance page honours the window a regression's link writes"
+# The link on a RecordPerformance carries an anchored window, one route and a row to scroll to.
+# Only prod builds the container the way a deployment does, and only here is the asset build real:
+# the two date pickers are a front-end dependency, so a forgotten `yarn build` shows up as a page
+# without `data-controller="perf-range"` and nowhere else.
+AT="$(date -u -d '-2 minutes' '+%Y-%m-%dT%H:%M' 2>/dev/null || date -u -v-2M '+%Y-%m-%dT%H:%M')"
+http 200 GET "/performance/${PROJECT_ID}?at=${AT}&hours=1&path=/user/%7Bid%7D"
+body_has 'data-controller="perf-range"'
+# the pickers are filled in from the resolved window rather than left empty
+body_has "value=\"${AT%T*}\""
+# and the row the fragment points at is there, keyed by the path's hash
+body_has "id=\"perf-path-$(printf '%s' '/user/{id}' | md5sum | cut -d' ' -f1)\""
+ok "anchored, filtered and anchored to a row"
+
+step "A hand-edited window is a page, not a 500"
+# this page is often behind no firewall at all, and `hours` reaches a chart that is inline SVG in
+# the document - PerfRangeResolver::MAX_HOURS is what keeps `?hours=100000` from being a DoS
+http 200 GET "/performance/${PROJECT_ID}?at=not-a-date&hours=-5"
+http 200 GET "/performance/${PROJECT_ID}?at=&hours=100000"
+ok "clamped and fallen back"
+
 step "The web app manifest renders and its icons are really there"
 # The only reason the dashboard is installable is that Chrome then stops refusing the alert sound,
 # and the only reason it installs is a manifest whose icons resolve. Those URLs come out of

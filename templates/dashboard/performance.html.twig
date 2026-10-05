@@ -33,9 +33,17 @@
 		</nav>
 	</div>
 
+	{#
+		`at`, `hours` and `path` seed every panel from the URL; each one owns its window from then
+		on. A panel configured in `performance_components` that does not declare them receives them
+		as plain HTML attributes rather than failing - see docs/extending.md.
+	#}
 	{% for performanceComponent in components %}
 		{{ component(performanceComponent, {
 			project: project,
+			at: at,
+			hours: hours,
+			path: path,
 			'data-poll': "delay("~refreshInterval~"000)|$render"
 		}) }}
 	{% endfor %}

@@ -544,6 +544,79 @@
 		vector-effect: non-scaling-stroke;
 	}
 
+	/* --- the day and time pickers --------------------------------------------
+	   Only the parts of the two pickers that are shape rather than colour. Their palettes are
+	   remapped onto --bc-* tokens further up, outside every layer - see the note there. */
+	.vdp-dropdown,
+	.vtp-dropdown {
+		font-size: 0.875rem;
+	}
+}
+
+/* --- the day and time pickers: palette ---------------------------------------
+   vanilla-js-datepicker and -timepicker both ship their colours as custom properties, with a
+   light default in `:root` and a dark override under `[data-vdp-theme="dark"]`. Remapping every
+   one of them onto a --bc-* token is what puts them on this bundle's theme switch instead:
+   `data-theme` on <html> swaps the --bc-* values and these follow it, inside a dropdown the
+   server never rendered and could not have coloured.
+
+   Which is why `perf-range_controller.js` passes `theme: 'light'` - see INERT_THEME there. Both
+   libraries default to `'auto'` and then redeclare every colour *on the dropdown element* under
+   `@media (prefers-color-scheme: dark)`; a property set on an element beats the same property
+   inherited from `:root`, so on a machine set to dark none of the mapping below would arrive.
+
+   Deliberately *outside* `@layer components`: the picker stylesheets are imported unlayered, and
+   unlayered rules beat layered ones no matter where they appear. A `:root` in a layer here would
+   lose to the library's own defaults and every one of these would be dead. */
+:root {
+	--vdp-font: inherit;
+	--vdp-radius: 0.5rem;
+	--vdp-z: 50;
+	--vdp-bg: var(--bc-surface);
+	--vdp-text: var(--bc-fg);
+	--vdp-muted: var(--bc-muted);
+	--vdp-border: var(--bc-line);
+	--vdp-shadow: 0 8px 32px -8px color-mix(in oklab, var(--bc-fg) 35%, transparent);
+	--vdp-accent: var(--bc-accent);
+	--vdp-accent-hover: color-mix(in oklab, var(--bc-accent) 80%, var(--bc-fg));
+	--vdp-accent-text: var(--bc-bg);
+	--vdp-hover-bg: var(--bc-surface-2);
+	--vdp-today-border: var(--bc-accent);
+	--vdp-range-bg: color-mix(in oklab, var(--bc-accent) 20%, transparent);
+	--vdp-range-text: var(--bc-fg);
+	--vdp-out-text: var(--bc-muted);
+	--vdp-disabled-text: var(--bc-muted);
+	--vdp-disabled-bg: transparent;
+	--vdp-weekend-text: var(--bc-accent-2);
+	--vdp-highlight-bg: color-mix(in oklab, var(--bc-accent-2) 18%, transparent);
+	--vdp-highlight-border: var(--bc-accent-2);
+	--vdp-header-bg: transparent;
+	--vdp-header-text: var(--bc-fg);
+	--vdp-btn-bg: transparent;
+	--vdp-btn-border: var(--bc-line);
+	--vdp-btn-text: var(--bc-fg);
+	--vdp-btn-hover: var(--bc-surface-2);
+	--vdp-footer-border: var(--bc-line);
+
+	--vtp-font: inherit;
+	--vtp-font-size: 0.875rem;
+	--vtp-radius: 0.5rem;
+	--vtp-radius-sm: 0.375rem;
+	--vtp-z: 50;
+	--vtp-bg: var(--bc-surface);
+	--vtp-fg: var(--bc-fg);
+	--vtp-fg-muted: var(--bc-muted);
+	--vtp-fg-disabled: var(--bc-muted);
+	--vtp-bg-disabled: transparent;
+	--vtp-bg-hover: var(--bc-surface-2);
+	--vtp-bg-selected: var(--bc-accent);
+	--vtp-fg-selected: var(--bc-bg);
+	--vtp-border: var(--bc-line);
+	--vtp-shadow: 0 8px 32px -8px color-mix(in oklab, var(--bc-fg) 35%, transparent);
+	--vtp-accent: var(--bc-accent);
+}
+
+@layer components {
 	/* --- hint ----------------------------------------------------------------
 	   An info dot that says what a chart means, on hover and on keyboard focus. A `title`
 	   attribute would do the hover but not the focus, waits a second before it appears and

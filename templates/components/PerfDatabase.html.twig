@@ -14,11 +14,17 @@
 			} only %}
 		</span>
 
-		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
-			{% for hours, label in this.windows %}
-				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
-			{% endfor %}
-		</select>
+		{% include '@BugCatcher/components/_perf_range.html.twig' with {
+			range: this.range, windows: this.windows, selected: this.hours
+		} only %}
+
+		{% if this.path %}
+			<span class="chip chip-info" title="{{ this.path }}">
+				<span class="max-w-60 truncate font-mono">{{ this.path }}</span>
+				<button type="button" data-model="path" value="" data-action="live#update"
+						class="ml-1 hover:text-fg" aria-label="{{ 'Show every route'|trans }}">&times;</button>
+			</span>
+		{% endif %}
 	</div>
 
 	{% if this.series.isEmpty %}

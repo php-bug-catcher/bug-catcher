@@ -551,6 +551,38 @@
 			<source>No CPU breakdown: the machines behind this window do not report processor time. PHP has no getrusage() on Windows, so wallclock, memory and status are collected there and this chart is not.</source>
 			<target>Bez rozpadu CPU: stroje za týmto oknom nehlásia procesorový čas. PHP na Windowse nemá getrusage(), takže sa tam zbiera reálny čas, pamäť a stav, ale tento graf nie.</target>
 		  </trans-unit>
+
+		  <!-- the window control: a day, a time and how long -->
+		  <trans-unit id="133">
+			<source>Day</source>
+			<target>Deň</target>
+		  </trans-unit>
+		  <trans-unit id="134">
+			<source>Time</source>
+			<target>Čas</target>
+		  </trans-unit>
+		  <trans-unit id="135">
+			<source>Now</source>
+			<target>Teraz</target>
+		  </trans-unit>
+		  <trans-unit id="136">
+			<source>Follow the clock again</source>
+			<target>Znova sledovať hodiny</target>
+		  </trans-unit>
+
+		  <!-- arriving from a regression: one route, and the way back to all of them -->
+		  <trans-unit id="137">
+			<source>Show every route</source>
+			<target>Zobraziť všetky cesty</target>
+		  </trans-unit>
+		  <trans-unit id="138">
+			<source>Open in performance</source>
+			<target>Otvoriť vo výkone</target>
+		  </trans-unit>
+		  <trans-unit id="139">
+			<source>%path% is not among the busiest rows of this window — the charts above are still its own.</source>
+			<target>%path% nie je medzi najvyťaženejšími riadkami tohto okna – grafy vyššie sú však stále jej vlastné.</target>
+		  </trans-unit>
         </body>
     </file>
 </xliff>

@@ -11,9 +11,9 @@ use BugCatcher\Service\Perf\Chart\DatabaseChartBuilder;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimePoint;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use BugCatcher\Service\Perf\Report\Dto\TopPathRow;
+use BugCatcher\Service\Perf\Report\PerfRangeResolver;
 use BugCatcher\Service\Perf\Report\PerfReportBuilder;
 use BugCatcher\Service\Perf\SqlMetrics;
-use DateTimeImmutable;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -38,15 +38,13 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 final class PerfDatabase
 {
 	use DefaultActionTrait;
+	use PerfRangeProps;
 
 	/** How many routes the table under the charts lists. A screenful, like every other panel. */
 	public const int ROUTES = 10;
 
 	#[LiveProp]
 	public ?Project $project = null;
-
-	#[LiveProp(writable: true)]
-	public int $hours = 1;
 
 	private ?PerfTimeSeries $series = null;
 
@@ -55,6 +53,7 @@ final class PerfDatabase
 
 	public function __construct(
 		private readonly PerfReportBuilder $report,
+		private readonly PerfRangeResolver $rangeResolver,
 		private readonly DatabaseChartBuilder $charts,
 	) {
 	}
@@ -62,10 +61,13 @@ final class PerfDatabase
 	/** One read of the window, shared by the charts and the totals above them. */
 	public function getSeries(): PerfTimeSeries
 	{
+		$range = $this->getRange();
+
 		return $this->series ??= $this->report->timeSeries(
 			$this->project,
-			new DateTimeImmutable("-{$this->hours} hours"),
-			new DateTimeImmutable(),
+			$range->from,
+			$range->to,
+			$this->path,
 		);
 	}
 
@@ -149,10 +151,12 @@ final class PerfDatabase
 			return $this->routes;
 		}
 
+		$range = $this->getRange();
+
 		$rows = $this->report->topPaths(
 			$this->project,
-			new DateTimeImmutable("-{$this->hours} hours"),
-			new DateTimeImmutable(),
+			$range->from,
+			$range->to,
 			PerfTopPathGroup::Path,
 			PerfTopPathSort::Hits,
 		)->rows;
@@ -188,10 +192,9 @@ final class PerfDatabase
 		return $perHit === null ? null : $perHit * 1000;
 	}
 
-	/** @return array<int, string> the windows the control offers, in hours */
-	public function getWindows(): array
+	protected function ranges(): PerfRangeResolver
 	{
-		return PerfReportBuilder::WINDOW_HOURS;
+		return $this->rangeResolver;
 	}
 
 	private function total(string $metric): float

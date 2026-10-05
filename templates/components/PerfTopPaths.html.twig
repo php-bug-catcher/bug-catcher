@@ -15,11 +15,9 @@
 			} only %}
 		</span>
 
-		<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
-			{% for hours, label in this.windows %}
-				<option value="{{ hours }}" {{ hours == this.hours ? 'selected' : '' }}>{{ label }}</option>
-			{% endfor %}
-		</select>
+		{% include '@BugCatcher/components/_perf_range.html.twig' with {
+			range: this.range, windows: this.windows, selected: this.hours
+		} only %}
 
 		<select data-model="group" class="input input-sm w-auto" aria-label="{{ 'Group by'|trans }}">
 			{% for group in this.groups %}
@@ -59,7 +57,15 @@
 			</thead>
 			<tbody>
 			{% for row in report.rows %}
-				<tr class="border-b border-line/40 last:border-0 hover:bg-surface-2/60">
+				{#
+					The id is what a regression's link scrolls to, and only exists when the rows are
+					routes: grouped by machine or vhost the label is not a path and the fragment
+					would point at the wrong kind of thing. Both class names are written out in full
+					or Tailwind would not find them in the build.
+				#}
+				<tr class="border-b border-line/40 last:border-0 {{ this.isHighlighted(row) ? 'bg-accent/10 ring-1 ring-accent/40' : 'hover:bg-surface-2/60' }}"
+					{% if this.groupedByPath %}id="perf-path-{{ row.anchor }}"{% endif %}
+				>
 					<td class="w-2/5 py-1 pr-2" title="{{ row.label }}">
 						<span class="block truncate font-mono">{{ row.label }}</span>
 					</td>
@@ -81,6 +87,17 @@
 			{# a table that silently shows the top of a list it cut off reads as the whole list #}
 			<p class="pt-2 text-xs text-muted">
 				{{ 'Showing the %limit% busiest rows of the window.'|trans({'%limit%': this.limit}) }}
+			</p>
+		{% endif %}
+
+		{#
+			The link that opened this page points a fragment at a row. When the row is not here the
+			page would simply not scroll, which reads as a broken link rather than as the fact it
+			is: a route slow enough to regress is often not a route called often enough to be heavy.
+		#}
+		{% if this.path and not this.isPathListed %}
+			<p class="pt-2 text-xs text-muted">
+				{{ '%path% is not among the busiest rows of this window — the charts above are still its own.'|trans({'%path%': this.path}) }}
 			</p>
 		{% endif %}
 	{% endif %}

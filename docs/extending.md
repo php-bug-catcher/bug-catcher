@@ -37,6 +37,70 @@ A panel of your own takes a `#[LiveProp] public ?Project $project` and has to an
 "every project at once" - the page passes null until somebody picks one. See the
 [README](../README.md#performance-monitoring).
 
+### The window a panel is asked about
+
+The page also passes `at`, `hours` and `path`, read from its own query string. A panel that does not
+declare them receives them as HTML attributes through `attributes` rather than failing, so an
+existing custom panel keeps working - it just always shows the last hour.
+
+To honour them, use the trait the three built-in panels use. It brings the three `LiveProp`s and
+turns them into one window, so that a link from a regression lands on the same stretch of time in
+every panel on the page:
+
+```php
+use BugCatcher\Service\Perf\Report\PerfRangeResolver;
+use BugCatcher\Twig\Components\PerfRangeProps;
+
+#[AsLiveComponent]
+final class MyPanel
+{
+    use DefaultActionTrait;
+    use PerfRangeProps;
+
+    #[LiveProp]
+    public ?Project $project = null;
+
+    public function __construct(
+        private readonly PerfReportBuilder $report,
+        private readonly PerfRangeResolver $rangeResolver,
+    ) {
+    }
+
+    public function getSeries(): PerfTimeSeries
+    {
+        $range = $this->getRange();
+
+        return $this->report->timeSeries($this->project, $range->from, $range->to, $this->path);
+    }
+
+    protected function ranges(): PerfRangeResolver
+    {
+        return $this->rangeResolver;
+    }
+}
+```
+
+`getRange()` returns a `PerfRange` of `from`, `to` and `live`; `$path` is null for the whole project
+or one route. Three things are worth knowing:
+
+- **`at` is the start of the window**, `[at, at + hours)`, formatted `Y-m-d\TH:i`. Absent means the
+  window follows the clock and ends now. If you want a moment *centred*, subtract half the window
+  when you build the link - which is what `Detail:PerfChart` does.
+- **`hours` is clamped** to between 1 and `PerfRangeResolver::MAX_HOURS` (one year), and an `at`
+  that does not parse falls back to the live window. Neither is your panel's problem; the resolver
+  has already dealt with it by the time you see a `PerfRange`.
+- **Granularity is not a control.** `PerfReportBuilder` picks minute, hour or day from the width of
+  the window. Anything wider than two hours is read from rolled-up buckets, so it stays empty until
+  `app:perf:rollup` has run.
+
+To draw the control itself, include the partial the built-in panels share:
+
+```twig
+{% include '@BugCatcher/components/_perf_range.html.twig' with {
+    range: this.range, windows: this.windows, selected: this.hours
+} only %}
+```
+
 ## StatusList component
 
 Your compoment should exend BugCatcher\Twig\Components\AbsComponent.

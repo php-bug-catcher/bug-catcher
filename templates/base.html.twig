@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+{# `lang` is the real locale, not a literal: it is what a screen reader pronounces the page in, and
+   what perf-range_controller.js reads to pick the pickers' month and day names. #}
+<html lang="{{ app.request.locale|split('_')|first }}" data-theme="light">
 <head>
 	<meta charset="UTF-8">
 	<meta content="width=device-width, initial-scale=1" name="viewport">

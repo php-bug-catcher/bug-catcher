@@ -6,7 +6,9 @@ namespace BugCatcher\Controller;
 
 use BugCatcher\Entity\Project;
 use BugCatcher\Repository\ProjectRepository;
+use BugCatcher\Service\Perf\Report\PerfRangeResolver;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 /**
  * The performance page: one project's charts, or every project's at once.
@@ -38,8 +40,24 @@ final class PerformanceController extends AbstractController
 	) {
 	}
 
-	public function index(?Project $project = null): Response
-	{
+	/**
+	 * The three window parameters are passed through rather than resolved here.
+	 *
+	 * {@see \BugCatcher\Service\Perf\Report\PerfRangeResolver} is a service the panels call, so a
+	 * panel embedded on a page that is not this one behaves identically - and so that a hostile
+	 * `at` or `hours` is answered in one place instead of two. The controller only seeds the first
+	 * render; after that each panel owns its own window, the way each already owns its own sort.
+	 *
+	 * @param string|null $at where the window starts, {@see \BugCatcher\Service\Perf\Report\Dto\PerfRange::AT_FORMAT};
+	 *     absent follows the clock
+	 * @param string|null $path the one route a regression's link narrows the page to
+	 */
+	public function index(
+		?Project $project = null,
+		#[MapQueryParameter] ?string $at = null,
+		#[MapQueryParameter] int $hours = PerfRangeResolver::DEFAULT_HOURS,
+		#[MapQueryParameter] ?string $path = null,
+	): Response {
 		// a uuid in the URL is a guess anybody can make, and these charts are the shape of an
 		// application's traffic. 404 rather than 403: whether a project exists is itself an
 		// answer somebody did not ask for
@@ -52,6 +70,9 @@ final class PerformanceController extends AbstractController
 			'projects'        => $this->visibleProjects(),
 			'components'      => $this->components,
 			'refreshInterval' => $this->refreshInterval,
+			'at'              => $at,
+			'hours'           => $hours,
+			'path'            => $path,
 		]);
 	}
 

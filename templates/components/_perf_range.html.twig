@@ -1,0 +1,46 @@
+{#
+	The window control: a day, a time, and how long.
+
+	Three widgets and one `LiveProp`. `at` is a hidden field because the two visible inputs are
+	half a value each and `data-model` binds one prop - the Stimulus controller is what joins them,
+	and what fires the native `input` event the binding listens for: the pickers emit only their own
+	`vdp:`/`vtp:` events. See assets/controllers/perf-range_controller.js.
+
+	`data-live-ignore` on the two visible inputs and nowhere else. A day on its own is not a window
+	start, so there is a moment - between picking the day and picking the time - when the client
+	holds half a value the server has never heard of. These panels carry `data-poll`, and a poll
+	landing in that gap re-rendered `at` as null and morphed the day straight back out of the input.
+	It is deliberately *not* on the wrapper: the hidden field, the length select and the "Now"
+	button all have to keep morphing, or "Now" would be frozen in whichever state it was first drawn.
+
+	Expects: range (PerfRange), windows (hours => label), selected (int)
+#}
+{% trans_default_domain 'BugCatcher' %}
+<div class="flex flex-wrap items-center gap-1" {{ stimulus_controller('perf-range') }}>
+	<input type="hidden" data-model="at" value="{{ range.anchor }}"
+		   {{ stimulus_target('perf-range', 'value') }}>
+
+	<input type="text" class="input input-sm w-28 tabular-nums" value="{{ range.date }}" data-live-ignore
+		   placeholder="{{ 'Day'|trans }}" aria-label="{{ 'Day'|trans }}" autocomplete="off"
+		   {{ stimulus_target('perf-range', 'date') }}>
+
+	<input type="text" class="input input-sm w-20 tabular-nums" value="{{ range.time }}" data-live-ignore
+		   placeholder="{{ 'Time'|trans }}" aria-label="{{ 'Time'|trans }}" autocomplete="off"
+		   {{ stimulus_target('perf-range', 'time') }}>
+
+	<select data-model="hours" class="input input-sm w-auto" aria-label="{{ 'Window'|trans }}">
+		{% for hours, label in windows %}
+			<option value="{{ hours }}" {{ hours == selected ? 'selected' : '' }}>{{ label }}</option>
+		{% endfor %}
+	</select>
+
+	{#
+		Only once the window has been pinned: on a live panel there is nothing to go back to, and a
+		button that does nothing is a button somebody clicks twice.
+	#}
+	{% if not range.live %}
+		<button type="button" class="btn btn-sm btn-ghost" title="{{ 'Follow the clock again'|trans }}"
+				{{ stimulus_action('perf-range', 'now') }}
+		>{{ 'Now'|trans }}</button>
+	{% endif %}
+</div>

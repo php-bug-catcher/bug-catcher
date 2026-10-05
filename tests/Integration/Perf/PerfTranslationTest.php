@@ -91,6 +91,46 @@ class PerfTranslationTest extends KernelTestCase
 	}
 
 	/** The dashboard row's numbers are bare, so everything it has to say is in the tooltips. */
+	/**
+	 * The window control, which is shared by all three panels and so would be wrong in all three.
+	 *
+	 * Rendered twice because half its strings only exist once the window has been pinned: a live
+	 * panel has nothing to go back to and does not draw the "Now" button at all.
+	 */
+	public function testTheWindowControlIsTranslated(): void
+	{
+		$live = (string)$this->renderTwigComponent('PerfOverview', ['project' => $this->project]);
+
+		$this->assertStringContainsString('Deň', $live);
+		$this->assertStringContainsString('Čas', $live);
+
+		$anchored = (string)$this->renderTwigComponent('PerfOverview', [
+			'project' => $this->project,
+			'at'      => (new DateTimeImmutable('-3 hours'))->format('Y-m-d\TH:i'),
+		]);
+
+		$this->assertStringContainsString('Teraz', $anchored);
+		$this->assertStringContainsString('Znova sledovať hodiny', $anchored);
+	}
+
+	/** And what a regression's link adds to the page: the chip, and the row that is not there. */
+	public function testTheRouteFilterAndItsWayOutAreTranslated(): void
+	{
+		$filtered = (string)$this->renderTwigComponent('PerfOverview', [
+			'project' => $this->project,
+			'path'    => '/checkout',
+		]);
+
+		$this->assertStringContainsString('Zobraziť všetky cesty', $filtered);
+
+		$missing = (string)$this->renderTwigComponent('PerfTopPaths', [
+			'project' => $this->project,
+			'path'    => '/never-called',
+		]);
+
+		$this->assertStringContainsString('nie je medzi najvyťaženejšími riadkami', $missing);
+	}
+
 	public function testTheDashboardRowCellsAreTranslated(): void
 	{
 		$apdex   = (string)$this->renderTwigComponent('PerfApdex', ['project' => $this->project]);
