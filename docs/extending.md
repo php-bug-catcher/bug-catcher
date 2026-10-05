@@ -55,6 +55,14 @@ bug_catcher:
 `PerfSparkLine` is the latency twin of `LogSparkLine`: a day of p95 per project, also off by
 default.
 
+Both lines are drawn against a **fixed** scale, so the colour means the same thing on every card:
+`LogSparkLine` tops out at its `treshold` prop (5 errors per quarter-hour by default, settable from
+a template), `PerfSparkLine` at four times Apdex T. A value over the top clamps there rather than
+running off the chart. To draw one of your own, the wrapper is
+`BugCatcher\Service\SparkLine\SparkLineRenderer` - hand it a value per slot and a
+`SparkLineScale`, and fill the buckets nothing was reported for with `SparkLineSlots`
+(`SparkLineGapMode::Zero` for a counter, `::Hold` for a gauge).
+
 ## Detail page components
 
 When you have cusoim record item, you can create your own detail page components.

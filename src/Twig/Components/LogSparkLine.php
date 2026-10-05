@@ -2,9 +2,10 @@
 
 namespace BugCatcher\Twig\Components;
 
-use Brendt\SparkLine\Period;
-use Brendt\SparkLine\SparkLine;
-use Brendt\SparkLine\SparkLineInterval;
+use BugCatcher\Service\SparkLine\SparkLineGapMode;
+use BugCatcher\Service\SparkLine\SparkLineRenderer;
+use BugCatcher\Service\SparkLine\SparkLineScale;
+use BugCatcher\Service\SparkLine\SparkLineSlots;
 use DateTimeImmutable;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
@@ -18,65 +19,74 @@ final class LogSparkLine extends AbsComponent {
 	public int $treshold = 5;
 	public int $graphHours = 24;
 
-	/** Drawing surface of the generated SVG. The rendered size is CSS's job - see stretchToContainer(). */
-	private const WIDTH  = 250;
-	private const HEIGHT = 30;
-
 	public function __construct(
-		private readonly EntityManagerInterface $em
+		private readonly EntityManagerInterface $em,
+		private readonly SparkLineSlots $slots,
+		private readonly SparkLineRenderer $renderer,
 	) {}
 
 	public function getSparkLine(): string {
-		$indexed   = $this->getSparkLineIntervals();
-		$sparkLine = SparkLine::new(collect($indexed), Period::MINUTE, $this->minutes)
-			->withMaxItemAmount(($this->graphHours * 60) / $this->minutes)
-			->withDimensions(self::WIDTH, self::HEIGHT)
-			->withMaxValue($this->treshold)
-			// CSS variables rather than hex: the SVG is inlined into the page, so the
-			// gradient stops resolve against the active theme. See --bc-spark-* in app.css.
-			->withColors('var(--bc-spark-low)', 'var(--bc-spark-mid)', 'var(--bc-spark-high)');
-
-		return $this->stretchToContainer($sparkLine->make());
-	}
-
-	/**
-	 * The library writes a fixed width onto the <svg>, so the chart stays 250px wide inside a
-	 * project card that is rarely 250px wide. Trading that width for a viewBox hands sizing to
-	 * CSS; preserveAspectRatio="none" is what lets a sparkline stretch to fill rather than
-	 * letterbox, which is the right trade here because the shape carries the trend, not a scale.
-	 */
-	private function stretchToContainer(string $svg): string {
-		return preg_replace(
-			'/^<svg width="(\d+)" height="(\d+)"/',
-			'<svg viewBox="0 0 $1 $2" preserveAspectRatio="none" height="$2"',
-			$svg,
-			1
+		// `treshold` is the top of the scale, which is what makes the red band mean something:
+		// at the threshold the line is in --bc-spark-high, below it is not. Anything above clamps
+		// there - a sparkline this size cannot say "ten times over" and pretending otherwise is
+		// what used to push the line out of the SVG entirely.
+		return $this->renderer->render(
+			$this->getSlotValues(),
+			new SparkLineScale((float)$this->treshold),
 		);
 	}
 
+	/** How many points the line has: one per `minutes` across `graphHours`. */
+	public function slotCount(): int {
+		return (int)ceil($this->graphHours * 60 / $this->minutes);
+	}
+
 	/**
-	 * @return SparkLineInterval[]
+	 * The error count of each interval, oldest first, one value per slot.
+	 *
+	 * The buckets trail `now` rather than sitting on the wall clock: slot `n` is the `minutes`
+	 * that ended `(slots - 1 - n) * minutes` ago, so the last one is always a *whole* interval
+	 * ending this second. That is what the chart used to get wrong - it drew either a bucket that
+	 * was still filling up or, past the halfway point of an interval, one in the future that no
+	 * row could ever land in. Either way the line dived to the floor at the right edge and the
+	 * shape depended on what minute you looked at it.
+	 *
+	 * Letting the database do the bucketing by slot index, and not by a formatted timestamp two
+	 * code paths have to agree on, is what makes that impossible rather than fixed.
+	 *
+	 * @return list<float>
 	 * @throws Exception
 	 */
-	public function getSparkLineIntervals(): array {
-		$maxDate = new DateTimeImmutable("-{$this->graphHours} hours");
-		$sql     = <<<SQL
-select
-    count(*) as cnt ,
-    concat(DATE_FORMAT(`date`,'%Y-%c-%d %H:'),TIME_FORMAT(SEC_TO_TIME(((DATE_FORMAT(`date`,'%i') div {$this->minutes})*{$this->minutes})*60),'%i'),':00') as period
+	public function getSlotValues(): array {
+		$slots    = $this->slotCount();
+		$interval = $this->minutes * 60;
+		$from     = new DateTimeImmutable("-" . ($slots * $interval) . " seconds");
+
+		$sql = <<<SQL
+select floor(timestampdiff(second, :from, r.date) / :interval) as slot, count(*) as cnt
 from record_log
 join record r on r.id = record_log.id
-where project_id=:project and `date` > :date
-group by period
-order by period
+where r.project_id = :project and r.date > :from
+group by slot
+order by slot
 SQL;
-		$stm     = $this->em->getConnection()
-			->prepare($sql);
+
+		$stm = $this->em->getConnection()->prepare($sql);
 		$stm->bindValue("project", $this->project->getId(), UuidType::NAME);
-		$stm->bindValue("date", $maxDate->format("Y-m-d H:i:s"));
-		$rows    = $stm->executeQuery()->fetchAllAssociative();
-		$indexed = array_map(fn(array $row) => new SparkLineInterval($row["cnt"], new DateTimeImmutable($row["period"])), $rows);
-//		array_unshift($indexed, new SparkLineInterval(self::TRESHOLD, new \DateTimeImmutable("-" . (self::GRAPH_HOURS + 1) . "hour")));
-		return $indexed;
+		$stm->bindValue("from", $from->format("Y-m-d H:i:s"));
+		$stm->bindValue("interval", $interval, ParameterType::INTEGER);
+
+		$bySlot = [];
+		foreach ($stm->executeQuery()->fetchAllAssociative() as $row) {
+			// A record dated in the future - a client with a skewed clock - belongs in the newest
+			// slot rather than nowhere. An error that silently vanishes off a wall monitor is the
+			// worse of the two lies.
+			$slot          = min((int)$row["slot"], $slots - 1);
+			$bySlot[$slot] = ($bySlot[$slot] ?? 0) + (int)$row["cnt"];
+		}
+
+		// An interval nobody logged an error in had zero errors. It draws a line along the
+		// baseline, which is the shape a quiet project is supposed to have.
+		return $this->slots->fill($bySlot, $slots, SparkLineGapMode::Zero);
 	}
 }

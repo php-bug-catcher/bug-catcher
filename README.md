@@ -13,9 +13,9 @@
 ## Requirements
 
 - **PHP 8.4 or newer**
-- **MySQL 8.0+ or MariaDB 10.6+, running without `ONLY_FULL_GROUP_BY`.** Not a preference: the
-  dashboard sparkline and `app:record-optimizer` bucket by `DATE_FORMAT()`/`SEC_TO_TIME()` and
-  select the row they grouped, and the performance ingest upserts with
+- **MySQL 8.0+ or MariaDB 10.6+, running without `ONLY_FULL_GROUP_BY`.** Not a preference:
+  `app:record-optimizer` buckets by `DATE_FORMAT()`/`SEC_TO_TIME()` and
+  selects the row it grouped, and the performance ingest upserts with
   `INSERT ... ON DUPLICATE KEY UPDATE` and reads the row back with `LAST_INSERT_ID()`. PostgreSQL
   and SQLite have none of that. Set
   `sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION`;

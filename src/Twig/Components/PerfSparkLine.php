@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BugCatcher\Twig\Components;
 
-use Brendt\SparkLine\Period;
-use Brendt\SparkLine\SparkLine;
-use Brendt\SparkLine\SparkLineInterval;
-use BugCatcher\Service\Perf\Report\Dto\PerfTimePoint;
+use BugCatcher\Service\Perf\Report\Dto\PerfHealth;
+use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use BugCatcher\Service\Perf\Report\PerfReportBuilder;
+use BugCatcher\Service\SparkLine\SparkLineGapMode;
+use BugCatcher\Service\SparkLine\SparkLineRenderer;
+use BugCatcher\Service\SparkLine\SparkLineScale;
+use BugCatcher\Service\SparkLine\SparkLineSlots;
 use DateTimeImmutable;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -26,37 +28,43 @@ final class PerfSparkLine extends AbsComponent
 {
 	public int $graphHours = 24;
 
-	/** Drawing surface of the generated SVG. The rendered size is CSS's job - see the template. */
-	private const int WIDTH = 250;
+	/**
+	 * The latency the ramp runs out at, in milliseconds.
+	 *
+	 * Four times Apdex T - the edge of "frustrated", the same number `PerfApdex` scores against
+	 * two cells to the left. It has to be a fixed budget and not the window's own maximum, which
+	 * is what this used to do: scaling to the data means the tallest point of every window reaches
+	 * the top of the chart, so the worst hour of a 20ms service is painted the same alarming red
+	 * as the worst hour of a 2s one. "Slower than it was" is a question for `PerfOverview`; a cell
+	 * on a wall monitor is being asked "is this slow".
+	 */
+	private const int SCALE_MAX_MS = 4 * PerfHealth::APDEX_THRESHOLD_MS;
 
-	private const int HEIGHT = 30;
-
-	public function __construct(private readonly PerfReportBuilder $report)
-	{
+	public function __construct(
+		private readonly PerfReportBuilder $report,
+		private readonly SparkLineSlots $slots,
+		private readonly SparkLineRenderer $renderer,
+	) {
 	}
 
 	public function getSparkLine(): string
 	{
-		$sparkLine = SparkLine::new(collect($this->getSparkLineIntervals()), Period::HOUR)
-			->withMaxItemAmount($this->graphHours)
-			->withDimensions(self::WIDTH, self::HEIGHT)
-			// CSS variables rather than hex: the SVG is inlined into the page, so the gradient
-			// stops resolve against the active theme. See --bc-spark-* in app.css.
-			->withColors('var(--bc-spark-low)', 'var(--bc-spark-mid)', 'var(--bc-spark-high)');
-
-		return $this->stretchToContainer($sparkLine->make());
+		return $this->renderer->render($this->getSlotValues(), new SparkLineScale(self::SCALE_MAX_MS));
 	}
 
 	/**
-	 * One point per hour that had traffic, carrying its p95 in whole milliseconds.
+	 * The p95 of each hour in whole milliseconds, oldest first, one value per hour of the window.
 	 *
-	 * The library counts events, so the "count" here is a latency - which is exactly what makes
-	 * the shape mean "slower upwards". Hours with no traffic are left out rather than drawn as
-	 * zero: a quiet night is not a fast night.
+	 * {@see PerfTimeSeries} already carries every bucket of the window, including the ones nothing
+	 * happened in - so the slots are its points, in order. What this has to decide is what an hour
+	 * with no traffic is worth, and the answer is the hour before it: latency is a gauge, not a
+	 * counter, and a quiet night is not a fast night. Leaving those hours out, which is what this
+	 * did before, handed the library a gap that it drew at the very bottom - an outage and an idle
+	 * Sunday both rendered as "instant".
 	 *
-	 * @return list<SparkLineInterval>
+	 * @return list<float>
 	 */
-	public function getSparkLineIntervals(): array
+	public function getSlotValues(): array
 	{
 		$series = $this->report->timeSeries(
 			$this->project,
@@ -64,29 +72,13 @@ final class PerfSparkLine extends AbsComponent
 			new DateTimeImmutable(),
 		);
 
-		$intervals = [];
-		foreach ($series->points as $point) {
+		$bySlot = [];
+		foreach ($series->points as $slot => $point) {
 			if ($point->p95Ms !== null) {
-				$intervals[] = new SparkLineInterval((int)round($point->p95Ms), $point->bucketAt);
+				$bySlot[$slot] = round($point->p95Ms);
 			}
 		}
 
-		return $intervals;
-	}
-
-	/**
-	 * The library writes a fixed width onto the `<svg>`, so the chart stays 250px wide inside a
-	 * project card that is rarely 250px wide. Trading that width for a viewBox hands sizing to
-	 * CSS; `preserveAspectRatio="none"` is what lets a sparkline stretch to fill rather than
-	 * letterbox, which is the right trade here because the shape carries the trend, not a scale.
-	 */
-	private function stretchToContainer(string $svg): string
-	{
-		return preg_replace(
-			'/^<svg width="(\d+)" height="(\d+)"/',
-			'<svg viewBox="0 0 $1 $2" preserveAspectRatio="none" height="$2"',
-			$svg,
-			1,
-		);
+		return $this->slots->fill($bySlot, max(count($series->points), 1), SparkLineGapMode::Hold);
 	}
 }

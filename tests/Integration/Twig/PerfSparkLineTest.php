@@ -12,7 +12,6 @@ use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use BugCatcher\Twig\Components\PerfSparkLine;
-use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
@@ -20,8 +19,12 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * The line next to a project in the status list: a day of p95, no axes, no JavaScript. It answers
- * one question from across the room - is this getting slower - and the page it lives on is a wall
- * monitor.
+ * one question from across the room - is this slow - and the page it lives on is a wall monitor.
+ *
+ * Two of its answers used to be wrong. The scale was the window's own maximum, so the tallest hour
+ * of every project reached the top of the chart and was painted the same alarming red whether its
+ * p95 was 20ms or 2s. And an hour with no traffic was dropped rather than filled, which the
+ * library drew along the very bottom - an idle Sunday and an outage rendered identically.
  */
 class PerfSparkLineTest extends KernelTestCase
 {
@@ -69,11 +72,24 @@ class PerfSparkLineTest extends KernelTestCase
 		$this->assertStringContainsString('viewBox="0 0 ', $this->render());
 	}
 
+	/**
+	 * One point per hour of the window, whether or not that hour reported anything. The window is
+	 * 24 hours snapped out to whole hours, so it is 25 buckets unless `now` lands exactly on one.
+	 */
+	public function testThereIsOnePointPerHourOfTheWindow(): void
+	{
+		$values = $this->component()->getSlotValues();
+
+		$this->assertGreaterThanOrEqual(24, count($values));
+		$this->assertLessThanOrEqual(25, count($values));
+	}
+
 	public function testAProjectThatShippedNothingDrawsAFlatLine(): void
 	{
-		$svg = $this->render();
+		$values = $this->component()->getSlotValues();
 
-		$this->assertStringContainsString('<svg', $svg);
+		$this->assertSame(array_fill(0, count($values), 0.0), $values);
+		$this->assertStringContainsString('<svg', $this->render());
 	}
 
 	/** An hour outside the window is not part of the shape. */
@@ -81,26 +97,76 @@ class PerfSparkLineTest extends KernelTestCase
 	{
 		$this->hour('-30 hours', msPerHit: 5000);
 
-		$component = $this->component();
+		$values = $this->component()->getSlotValues();
 
-		$this->assertSame([], $component->getSparkLineIntervals());
+		$this->assertSame(array_fill(0, count($values), 0.0), $values);
 	}
 
-	public function testThePointsAreTheLatencyOfEachHour(): void
+	/**
+	 * Each hour carries its own p95, and the hours after the last reading carry that reading:
+	 * latency is a gauge, not a counter, so an hour with no traffic is "unchanged" rather than
+	 * "instant". Dropping those hours is what used to put the right edge of the line on the floor.
+	 */
+	public function testEachHourCarriesItsP95AndTheQuietHoursHoldIt(): void
 	{
 		$this->hour('-3 hours', msPerHit: 90);
 		$this->hour('-2 hours', msPerHit: 900);
 
-		$counts = array_map(
-			static fn(object $interval): int => $interval->count,
-			$this->component()->getSparkLineIntervals(),
-		);
+		$values = $this->component()->getSlotValues();
+		$first  = $this->firstReading($values);
 
-		$this->assertCount(2, $counts);
-		$this->assertGreaterThanOrEqual(50, $counts[0]);
-		$this->assertLessThanOrEqual(100, $counts[0]);
-		$this->assertGreaterThanOrEqual(500, $counts[1]);
-		$this->assertLessThanOrEqual(1000, $counts[1]);
+		$this->assertGreaterThanOrEqual(50.0, $values[$first]);
+		$this->assertLessThanOrEqual(100.0, $values[$first]);
+
+		$slower = $values[$first + 1];
+		$this->assertGreaterThanOrEqual(500.0, $slower);
+		$this->assertLessThanOrEqual(1000.0, $slower);
+
+		$this->assertSame(
+			array_fill(0, count($values) - $first - 1, $slower),
+			array_slice($values, $first + 1),
+			'the last reading is held to the right edge rather than dropping to the floor',
+		);
+	}
+
+	/** Nothing was measured before the first hour that reported, so the line opens on the floor. */
+	public function testTheHoursBeforeTheFirstReadingAreOnTheBaseline(): void
+	{
+		$this->hour('-2 hours', msPerHit: 900);
+
+		$values = $this->component()->getSlotValues();
+		$first  = $this->firstReading($values);
+
+		$this->assertSame(array_fill(0, $first, 0.0), array_slice($values, 0, $first));
+	}
+
+	/**
+	 * The scale is a fixed budget - four times Apdex T - and not the window's maximum. A service
+	 * answering in 90ms is at the bottom of the chart in the first colour of the ramp, which is
+	 * the thing that was wrong: scaled to its own data, its worst hour was always at the top and
+	 * always red.
+	 */
+	public function testAFastProjectIsNotDrawnAtTheTopOfTheChart(): void
+	{
+		$this->hour('-2 hours', msPerHit: 90);
+
+		$points = $this->points($this->render());
+
+		$this->assertLessThanOrEqual(5, end($points), 'a 90ms p95 belongs near the floor, not in the red band');
+	}
+
+	/** Over the budget is the top of the chart - the library would otherwise draw past it. */
+	public function testLatencyOverTheBudgetClampsAtTheTop(): void
+	{
+		$this->hour('-2 hours', msPerHit: 5000);
+
+		$points = $this->points($this->render());
+
+		foreach ($points as $y) {
+			$this->assertLessThanOrEqual(25, $y);
+		}
+
+		$this->assertSame(25, end($points));
 	}
 
 	private function render(): string
@@ -114,6 +180,30 @@ class PerfSparkLineTest extends KernelTestCase
 		$this->assertInstanceOf(PerfSparkLine::class, $component);
 
 		return $component;
+	}
+
+	/** @param list<float> $values */
+	private function firstReading(array $values): int
+	{
+		foreach ($values as $slot => $value) {
+			if ($value > 0.0) {
+				return $slot;
+			}
+		}
+
+		self::fail('no hour of the window reported a p95');
+	}
+
+	/** @return list<int> the y of each point, counted up from the floor of the chart */
+	private function points(string $svg): array
+	{
+		$this->assertMatchesRegularExpression('/points="[^"]+"/', $svg);
+		preg_match('/points="([^"]+)"/', $svg, $matches);
+
+		return array_map(
+			static fn(string $pair): int => (int)explode(',', $pair)[1],
+			explode(' ', trim($matches[1])),
+		);
 	}
 
 	private function hour(string $ago, int $msPerHit): void
