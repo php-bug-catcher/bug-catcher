@@ -20,6 +20,82 @@ Fleet-wide, the same thing is Chrome's `AutoplayAllowlist` enterprise policy. Fi
 none of this: both have a per-site *autoplay* permission in the padlock menu that you set to *Allow*
 once.
 
+## What a notifier counts
+
+A notifier has a `component`, chosen in the admin from `bug_catcher.notifier_components`. It decides
+*what is counted* against the notifier's threshold - separately from *how it tells you*, which is the
+custom notifier below. Three are built in:
+
+```yaml
+bug_catcher:
+    notifier_components:
+        "Project error count": project-error-count
+        "Same error count": same-error-count
+        "Performance regression count": perf-regression-count
+        "Deploys that failed": my-component        # your own
+```
+
+| component | counts |
+|---|---|
+| `project-error-count` | every unresolved `Record` of the project, one count per project |
+| `same-error-count` | the same, grouped by `hash` as well, so twenty copies of one error weigh more than twenty different ones |
+| `perf-regression-count` | only `RecordPerformance` - routes whose performance regressed |
+
+The first two are rooted at the `Record` hierarchy with **no discriminator filter**, so a performance
+regression already raises them. That is deliberate and unchanged: a regression is a record somebody
+has to look at. `perf-regression-count` exists because it is the only way to be told about
+regressions *alone*, at a threshold chosen for regressions - twenty exceptions and twenty routes
+that got slower are not the same news, and one threshold cannot serve both.
+
+### A component of your own
+
+The built-in switch in `BugCatcher\EventSubscriber\NotifyCalculateListener` is closed, so a new
+component is a name in the config plus a listener on `NotifyCalculateEvent` that recognises it:
+
+```php
+use BugCatcher\DTO\NotifierStatus;
+use BugCatcher\Enum\Importance;
+use BugCatcher\Event\NotifyCalculateEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener]
+final class MyCalculateListener
+{
+    public function __invoke(NotifyCalculateEvent $event): void
+    {
+        if ($event->notifier->getComponent() !== 'my-component') {
+            return;
+        }
+
+        foreach ($event->notifier->getProjects() as $project) {
+            if (!$project->isEnabled()) {
+                continue;
+            }
+
+            $count = /* whatever you count */;
+            if ($count === 0) {
+                // no status at all rather than a status of zero: a notifier has nothing to clear
+                continue;
+            }
+
+            $status = new NotifierStatus($project);
+            $event->addStatus($status);
+            $status->incrementImportance(Importance::High, $count, $event->notifier->getThreshold());
+        }
+    }
+}
+```
+
+The `Importance` you pass is the *group* the count is added to, not the level that comes out:
+`NotifierStatus` scales the count against the threshold, so a count well over it saturates at
+`Importance::MamaMia`. Whatever comes out is compared against the notifier's `minimalImportance`
+before `NotifyEvent` is dispatched.
+
+Do not add a result cache to whatever you query here. `NotifyCalculateEvent` is dispatched
+immediately after a record is written - once per record, in a loop, during `app:perf:detect` - so a
+cached count is a count from before the write, and a notifier can fail to cross its threshold on the
+very run that gave it something to cross it with.
+
 ## Custom notifier
 
 You are free to create your own notifier. You can send email, SMS or whatever you want.

@@ -123,10 +123,18 @@ return static function (DefinitionConfigurator $definition): void {
 		->prototype('scalar')
 		->end()
 		->end()
+		// what a notifier counts, as label => id. The three built-ins are the cases of the switch
+		// in EventSubscriber\NotifyCalculateListener; a custom one is a listener of its own on
+		// NotifyCalculateEvent plus a name here, which is only what the admin offers as a choice.
+		//
+		// `perf-regression-count` is the one that does not count every record: the other two are
+		// rooted at the hierarchy with no discriminator filter, so a performance regression already
+		// raises them - at a threshold somebody chose for log errors. See docs/notifiers.md.
 		->arrayNode("notifier_components")
 		->defaultValue([
-			"Project error count" => "project-error-count",
-			"Same error count"    => "same-error-count",
+			"Project error count"         => "project-error-count",
+			"Same error count"            => "same-error-count",
+			"Performance regression count" => "perf-regression-count",
 		])
 		->prototype('scalar')->end()
 		->end()
