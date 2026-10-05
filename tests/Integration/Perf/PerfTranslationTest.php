@@ -75,6 +75,7 @@ class PerfTranslationTest extends KernelTestCase
 		// the column headings come from PerfTopPathSort::label()
 		$this->assertStringContainsString('Celkový čas', $html);
 		$this->assertStringContainsString('Špičková pamäť', $html);
+		$this->assertStringContainsString('Najpomalší beh', $html);
 	}
 
 	public function testTheDatabasePanelIsTranslated(): void

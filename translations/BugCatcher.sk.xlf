@@ -246,6 +246,14 @@
 			<source>Showing the %limit% busiest rows of the window.</source>
 			<target>Zobrazuje sa %limit% najvyťaženejších riadkov okna.</target>
 		  </trans-unit>
+		  <trans-unit id="140">
+			<source>Showing the %limit% heaviest rows of the window by %sort%.</source>
+			<target>Zobrazuje sa %limit% najnáročnejších riadkov okna podľa %sort%.</target>
+		  </trans-unit>
+		  <trans-unit id="141">
+			<source>Slowest run</source>
+			<target>Najpomalší beh</target>
+		  </trans-unit>
 		  <trans-unit id="60">
 			<source>Route</source>
 			<target>Cesta</target>

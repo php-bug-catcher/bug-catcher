@@ -10,6 +10,7 @@ use BugCatcher\Entity\PerfBucketExtra;
 use BugCatcher\Entity\Project;
 use BugCatcher\Enum\PerfGranularity;
 use BugCatcher\Enum\PerfTopPathGroup;
+use BugCatcher\Enum\PerfTopPathSort;
 use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\PerfWindow;
@@ -242,10 +243,15 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	/**
 	 * The same window sliced by whatever the table on the page is grouped by.
 	 *
-	 * Ordered by traffic and limited in SQL, because the number of distinct routes in a window is
-	 * whatever the monitored application produced and the page shows a screenful. A consequence
-	 * worth knowing: a table sorted by p95 is the slowest **of the busiest** rows, since the
-	 * percentile is estimated from the bins after they have been summed.
+	 * Limited in SQL, because the number of distinct routes in a window is whatever the monitored
+	 * application produced and the page shows a screenful - and ordered in SQL **by the sort the
+	 * page asked for**, so that the limit keeps the rows that sort is about. Ordering by traffic
+	 * and sorting the survivors afterwards would answer a different question: a project whose
+	 * traffic is cron jobs has hundreds of routes with one hit each, and the slowest of them is
+	 * never among the twenty busiest.
+	 *
+	 * The exception is {@see PerfTopPathSort::P95}, which no query can order by - see
+	 * {@see PerfTopPathSort::orderBy()}. That one really is the slowest of the busiest.
 	 *
 	 * @return array<string, WindowAggregate>
 	 */
@@ -256,6 +262,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		int $limit,
+		PerfTopPathSort $sort = PerfTopPathSort::Hits,
 	): array {
 		return $this->aggregate(
 			$group->field(),
@@ -265,6 +272,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$from,
 			$to,
 			limit: $limit,
+			sort: $sort,
 			// across projects every row has to say which application it belongs to: two of them
 			// both have a `/login`, and one merged row would be a row about nothing
 			splitByProject: $project === null,
@@ -371,6 +379,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?string $pathHash = null,
 		?int $limit = null,
 		bool $splitByProject = false,
+		PerfTopPathSort $sort = PerfTopPathSort::Hits,
 	): array {
 		$groupBy = [$keyField];
 		// the extras have to be sliced the same way the measurements are, project included:
@@ -379,7 +388,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash, $splitByProject);
 		$aggregates = [];
 
-		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit, $splitByProject) as $row) {
+		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit, $splitByProject, $sort) as $row) {
 			$code = $splitByProject ? (string)$row['projectCode'] : '';
 			$key  = $code === '' ? (string)$row[$keyField] : $code . "\x1f" . $row[$keyField];
 
@@ -423,6 +432,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?string $pathHash = null,
 		?int $limit = null,
 		bool $splitByProject = false,
+		PerfTopPathSort $sort = PerfTopPathSort::Hits,
 	): array {
 		$metadata = $this->bucketMetadata();
 
@@ -484,9 +494,18 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$grouped === [] ? '' : ' GROUP BY ' . implode(', ', $grouped),
 		);
 
-		// busiest first, so that a limit keeps the rows worth looking at
+		// Heaviest by whatever the table is sorted by, so that a limit keeps the rows worth
+		// looking at. The grouping columns come second as a tie-break: a window full of one-hit
+		// routes has nothing else to order by, and without it MySQL is free to return a different
+		// twenty every time the Live Component re-reads - a table that flickers between unrelated
+		// rows. Ascending, so two reads of the same window agree.
 		if ($limit !== null) {
-			$sql .= sprintf(' ORDER BY SUM(b.%s) DESC LIMIT %d', $metadata->getColumnName('hits'), $limit);
+			$sql .= sprintf(
+				' ORDER BY %s DESC%s LIMIT %d',
+				$this->orderExpression($metadata, $sort),
+				$grouped === [] ? '' : ', ' . implode(' ASC, ', $grouped) . ' ASC',
+				$limit,
+			);
 		}
 
 		return $this->connection()->fetchAllAssociative($sql, $params, $types);
@@ -612,6 +631,30 @@ final class PerfBucketRepository extends ServiceEntityRepository
 	{
 		// \x1f rather than a printable separator: a vhost is whatever the request said it was
 		return implode("\x1f", array_map(static fn(string $field): string => (string)$row[$field], $groupBy));
+	}
+
+	/**
+	 * The sort, as something a `GROUP BY` query can be ordered by.
+	 *
+	 * The enum carries the shape - which aggregate over which mapped field - and the column names
+	 * are filled in here, because the naming strategy belongs to the application. Nothing from a
+	 * request reaches the string: the only thing substituted is a field name the enum wrote, and
+	 * `getColumnName()` would raise on one the mapping does not have.
+	 *
+	 * {@see PerfTopPathSort::P95} has no expression and falls back to traffic, which is the
+	 * behaviour every sort had before this.
+	 *
+	 * @param ClassMetadata<PerfBucket> $metadata
+	 */
+	private function orderExpression(ClassMetadata $metadata, PerfTopPathSort $sort): string
+	{
+		$expression = $sort->orderBy() ?? PerfTopPathSort::Hits->orderBy() ?? 'SUM({hits})';
+
+		return (string)preg_replace_callback(
+			'/\{(\w+)}/',
+			fn(array $match): string => 'b.' . $metadata->getColumnName($match[1]),
+			$expression,
+		);
 	}
 
 	private function aliased(ClassMetadata $metadata, string $field): string

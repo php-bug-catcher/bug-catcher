@@ -288,21 +288,25 @@ step "Ingest performance buckets"
 # charts read, and one inside the previous whole hour, which is the only thing app:perf:rollup
 # --granularity=hour is going to find anything in.
 PERF_PAYLOAD="$(php -r '
-$row = static function (int $at, int $hits, float $sumDuration): array {
+$row = static function (int $at, int $hits, float $sumDuration, string $path = "/user/{id}", string $host = "127.0.0.1", int $errors = 1): array {
 	$h = array_fill(0, 16, 0);
 	$h[8] = $hits;
 	return [
 		"bucketAt" => gmdate("Y-m-d\TH:i:00\Z", $at),
-		"serverName" => "e2e-web-01", "host" => "127.0.0.1", "path" => "/user/{id}",
+		"serverName" => "e2e-web-01", "host" => $host, "path" => $path,
 		"hits" => $hits, "sumDuration" => $sumDuration, "sumUser" => $sumDuration / 2,
 		"sumSys" => 0.4, "maxDuration" => 1.9, "sumMem" => 1048576 * $hits,
-		"maxMem" => 2097152, "clientErrors" => 1, "serverErrors" => 1,
+		"maxMem" => 2097152, "clientErrors" => $errors, "serverErrors" => $errors,
 		"histogram" => $h, "extra" => ["sq" => 4 * $hits, "st" => 0.1 * $hits],
 	];
 };
 echo json_encode(["projectCode" => $argv[1], "rows" => [
 	$row(time() - 120, 12, 7.2),
 	$row(strtotime(gmdate("Y-m-d H:00:00", time() - 3600)) + 600, 30, 18.5),
+	// A console run, which is the one row shape phpunit cannot prove: `host` is empty, which has
+	// to survive a unique key it is part of, and the path has a colon in it, which has to survive
+	// the anchor round-trip. No error counters either - http_response_code() is false in CLI.
+	$row(time() - 120, 1, 94.0, "/console/app:import/orders", "", 0),
 ]]);' "${PROJECT_CODE}")"
 http 204 POST /api/perf_buckets -H 'Content-Type: application/json' -d "${PERF_PAYLOAD}"
 
@@ -365,6 +369,17 @@ body_has "value=\"${AT%T*}\""
 # and the row the fragment points at is there, keyed by the path's hash
 body_has "id=\"perf-path-$(printf '%s' '/user/{id}' | md5sum | cut -d' ' -f1)\""
 ok "anchored, filtered and anchored to a row"
+
+step "A console run is a row of its own, colon and empty vhost included"
+# Ingested with host="" and a path with a colon in it. `host` is part of the unique key and the
+# path is in it as its hash, so if either had been mangled this row would be missing or merged
+# into the HTTP one - and neither shape is reachable from the phpunit suite's own fixtures.
+# Which sort puts it on screen is the report builder's business and is tested there; here there
+# are three rows and a limit of twenty, so it is on screen either way.
+http 200 GET "/performance/${PROJECT_ID}?hours=1"
+body_has 'app:import/orders'
+body_has "id=\"perf-path-$(printf '%s' '/console/app:import/orders' | md5sum | cut -d' ' -f1)\""
+ok "named after the command, with its own bucket"
 
 step "A hand-edited window is a page, not a 500"
 # this page is often behind no firewall at all, and `hours` reaches a chart that is inline SVG in

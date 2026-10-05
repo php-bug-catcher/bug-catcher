@@ -210,8 +210,99 @@ class PerfReportBuilderTest extends KernelTestCase
 			'system cpu'     => [PerfTopPathSort::Sys, '/slow'],
 			'memory per hit' => [PerfTopPathSort::MemPerHit, '/slow'],
 			'peak memory'    => [PerfTopPathSort::MaxMem, '/slow'],
+			'slowest run'    => [PerfTopPathSort::MaxDuration, '/slow'],
 			'p95'            => [PerfTopPathSort::P95, '/slow'],
 		];
+	}
+
+	/**
+	 * The limit is what keeps the table to a screenful, and it has to cut by the column being
+	 * sorted on rather than by traffic. Otherwise this exact shape - the one a cron host has, a
+	 * crowd of routes called once each - hides the only row anybody opened the page for.
+	 */
+	public function testTheSlowestRouteIsListedEvenThoughItIsNotOneOfTheBusiest(): void
+	{
+		foreach (range(1, 10) as $route) {
+			$this->minute('14:00', hits: 100, msPerHit: 20, path: "/fast/{$route}");
+		}
+		$this->minute('14:00', hits: 1, msPerHit: 1_081_002, path: '/console/app:import/orders');
+
+		$report = $this->builder()->topPaths(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+			PerfTopPathGroup::Path,
+			PerfTopPathSort::MaxDuration,
+			limit: 3,
+		);
+
+		$this->assertSame('/console/app:import/orders', $report->rows[0]->label);
+		$this->assertTrue($report->truncated);
+	}
+
+	/**
+	 * p95 is the one sort no query can order by - a percentile of percentiles is not a percentile,
+	 * so it is estimated in PHP after the bins have been summed. A table sorted by it is therefore
+	 * still the slowest *of the busiest*, and the one-hit route above is genuinely out of reach.
+	 */
+	public function testSortingByP95StillOnlySeesTheBusiestRows(): void
+	{
+		foreach (range(1, 10) as $route) {
+			$this->minute('14:00', hits: 100, msPerHit: 20, path: "/fast/{$route}");
+		}
+		$this->minute('14:00', hits: 1, msPerHit: 1_081_002, path: '/console/app:import/orders');
+
+		$report = $this->builder()->topPaths(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+			PerfTopPathGroup::Path,
+			PerfTopPathSort::P95,
+			limit: 3,
+		);
+
+		$this->assertNotContains('/console/app:import/orders', array_column($report->rows, 'label'));
+	}
+
+	/**
+	 * Nothing bounds the histogram's top bin from above, so p95 can only answer "at least a
+	 * minute" for anything past it. An eighteen-minute cron job is indistinguishable from a
+	 * sixty-one-second one by that number - which is why the slowest single run is a column of its
+	 * own, and why it is not an estimate.
+	 */
+	public function testARunPastTheTopBinIsOnlyLegibleAsItsSlowestRun(): void
+	{
+		$this->minute('14:00', hits: 1, msPerHit: 1_081_002, path: '/console/app:import/orders');
+
+		$row = $this->builder()->topPaths(
+			$this->project,
+			new DateTimeImmutable('2026-03-10 14:00:00'),
+			new DateTimeImmutable('2026-03-10 14:05:00'),
+		)->rows[0];
+
+		$this->assertSame(60_000.0, $row->p95Ms);
+		$this->assertSame(1_081_002.0, $row->maxMs);
+	}
+
+	/** Two reads of one window return one answer, even when every row has the same traffic. */
+	public function testATieIsBrokenTheSameWayEveryTime(): void
+	{
+		foreach (['/c', '/a', '/b'] as $path) {
+			$this->minute('14:00', hits: 1, msPerHit: 100, path: $path);
+		}
+
+		$labels = [];
+		foreach (range(1, 3) as $ignored) {
+			$labels[] = array_column($this->builder()->topPaths(
+				$this->project,
+				new DateTimeImmutable('2026-03-10 14:00:00'),
+				new DateTimeImmutable('2026-03-10 14:05:00'),
+				limit: 2,
+			)->rows, 'label');
+		}
+
+		$this->assertSame($labels[0], $labels[1]);
+		$this->assertSame($labels[0], $labels[2]);
 	}
 
 	/**
@@ -453,7 +544,9 @@ class PerfReportBuilderTest extends KernelTestCase
 			$byLabel[$row->label] = $row->extraTotal('sq');
 		}
 
-		$this->assertSame(
+		// Which row comes first is not the claim here, and cannot be: both have ten hits, so the
+		// query's tie-break decides - and that is the project code, which the factory invents.
+		$this->assertEqualsCanonicalizing(
 			[$this->project->getCode() . ' /checkout' => 200.0, $other->getCode() . ' /checkout' => 50.0],
 			$byLabel,
 		);

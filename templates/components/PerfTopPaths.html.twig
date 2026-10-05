@@ -75,6 +75,13 @@
 					<td class="py-1 pl-2 text-right tabular-nums">{{ (this.perHit ? row.sysMsPerHit : row.sysMs)|round(1) }} ms</td>
 					<td class="py-1 pl-2 text-right tabular-nums">{{ (row.memPerHit / 1048576)|round(1) }} MiB</td>
 					<td class="py-1 pl-2 text-right tabular-nums">{{ (row.maxMem / 1048576)|round(1) }} MiB</td>
+					{#
+						The slowest single run, which is the only column that can describe one past
+						the histogram's top bin: p95 saturates at 60000 ms because nothing bounds
+						that bin from above. An eighteen-minute cron job reads 60000 there and
+						1081002 here.
+					#}
+					<td class="py-1 pl-2 text-right tabular-nums">{{ row.maxMs|round(1) }} ms</td>
 					<td class="py-1 pl-2 text-right tabular-nums">
 						{{ row.p95Ms is null ? '–' : (row.p95Ms|round(1) ~ ' ms') }}
 					</td>
@@ -84,9 +91,18 @@
 		</table>
 
 		{% if report.truncated %}
-			{# a table that silently shows the top of a list it cut off reads as the whole list #}
+			{#
+				A table that silently shows the top of a list it cut off reads as the whole list.
+				The cut is made by the column being sorted on, so the message names it - except
+				for p95, which no query can order by, where the window really is cut to its
+				busiest rows first.
+			#}
 			<p class="pt-2 text-xs text-muted">
-				{{ 'Showing the %limit% busiest rows of the window.'|trans({'%limit%': this.limit}) }}
+				{% if report.sort.orderBy is null %}
+					{{ 'Showing the %limit% busiest rows of the window.'|trans({'%limit%': this.limit}) }}
+				{% else %}
+					{{ 'Showing the %limit% heaviest rows of the window by %sort%.'|trans({'%limit%': this.limit, '%sort%': report.sort.label|trans}) }}
+				{% endif %}
 			</p>
 		{% endif %}
 

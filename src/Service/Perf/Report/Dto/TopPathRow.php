@@ -16,7 +16,14 @@ use BugCatcher\Entity\PerfBucket;
  */
 final readonly class TopPathRow
 {
-	/** @param array<string, float> $extra totals over the window, in whatever unit the application counted */
+	/**
+	 * @param float $maxMs the slowest single request on this row. The only number here that is
+	 *     not an aggregate, and the only one that can describe a run past the histogram's top
+	 *     bin: `p95Ms` saturates at sixty seconds, because nothing bounds that bin from above and
+	 *     its lower edge is the only honest estimate. An eighteen-minute cron job is a p95 of
+	 *     exactly 60000 and a `maxMs` of 1081002.
+	 * @param array<string, float> $extra totals over the window, in whatever unit the application counted
+	 */
 	public function __construct(
 		public string $label,
 		public int $hits,
@@ -25,6 +32,7 @@ final readonly class TopPathRow
 		public float $sysMs,
 		public int $totalMem,
 		public int $maxMem,
+		public float $maxMs,
 		public ?float $p95Ms,
 		public float $errorRate,
 		public array $extra = [],

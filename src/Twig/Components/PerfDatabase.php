@@ -137,11 +137,13 @@ final class PerfDatabase
 	/**
 	 * The routes of the window that spent the longest in the database.
 	 *
-	 * Sorted here rather than in SQL, and the consequence is worth stating: the report cuts the
-	 * window to its busiest routes first, so this is the heaviest *of the busiest* - the same
-	 * caveat the p95 column of `PerfTopPaths` carries, and for the same reason. A route called
-	 * twice an hour that runs ten thousand queries each time is not on this list; the regression
-	 * detector is what finds that one.
+	 * Sorted here rather than in SQL, and the consequence is worth stating: the report is asked
+	 * for the busiest routes, so this is the heaviest *of the busiest*. Unlike the sorts
+	 * `PerfTopPaths` offers, this one could not be pushed into the `ORDER BY` even in principle -
+	 * the extras live in `perf_bucket_extra` and are read by a query of their own, so the
+	 * measurements query has nothing to sort by. A route called twice an hour that runs ten
+	 * thousand queries each time is therefore not on this list; the regression detector is what
+	 * finds that one.
 	 *
 	 * @return list<TopPathRow>
 	 */

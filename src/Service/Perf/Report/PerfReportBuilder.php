@@ -151,11 +151,16 @@ final readonly class PerfReportBuilder
 			$window->from,
 			$window->to,
 			$limit + 1,
+			$sort,
 		);
 
 		$truncated = count($aggregates) > $limit;
 		$rows      = array_map($this->row(...), array_values($aggregates));
 
+		// The query already ordered by this sort, so for every sort but one this is a stable
+		// no-op - usort has been stable since PHP 8.0. It stays because p95 is the exception: it
+		// is estimated from the summed bins and no query can order by it, so those rows arrive
+		// ordered by traffic and are put in order here.
 		usort($rows, static fn(TopPathRow $a, TopPathRow $b): int => $sort->valueOf($b) <=> $sort->valueOf($a));
 
 		return new TopPathsReport($window, $group, $sort, array_slice($rows, 0, $limit), $truncated);
@@ -265,6 +270,7 @@ final readonly class PerfReportBuilder
 			$aggregate->sumSys * 1000,
 			$aggregate->sumMem,
 			$aggregate->maxMem,
+			$aggregate->maxDuration * 1000,
 			$this->percentiles->p95($aggregate->durationHistogram),
 			$aggregate->hits === 0 ? 0.0 : $aggregate->errors() / $aggregate->hits,
 			$aggregate->extra,
