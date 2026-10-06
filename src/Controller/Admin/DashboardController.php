@@ -46,9 +46,21 @@ final class DashboardController extends AbstractDashboardController
 			]);
 	}
 
+	/**
+	 * The administration speaks whatever the installation speaks.
+	 *
+	 * EasyAdmin's default translation domain is `messages` and this bundle's catalogue is
+	 * `BugCatcher`, so every label here - the menu, every field of every CRUD, every help text -
+	 * read as English whatever the locale, while EasyAdmin's own interface around them was
+	 * translated. That half comes from the `EasyAdminBundle` domain and is untouched by this.
+	 *
+	 * A label with no entry in the catalogue falls back to its own key, which is the English it
+	 * was already showing - so this cannot make anything worse, only less finished.
+	 */
 	public function configureDashboard(): Dashboard {
 		return Dashboard::new()
-			->setTitle($this->appName);
+			->setTitle($this->appName)
+			->setTranslationDomain('BugCatcher');
 	}
 
 	public function configureCrud(): Crud {

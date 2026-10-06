@@ -591,6 +591,151 @@
 			<source>%path% is not among the busiest rows of this window — the charts above are still its own.</source>
 			<target>%path% nie je medzi najvyťaženejšími riadkami tohto okna – grafy vyššie sú však stále jej vlastné.</target>
 		  </trans-unit>
+
+		  <!-- the administration. EasyAdmin translates its own interface out of the EasyAdminBundle
+		       domain, but every label this bundle writes - the menu, the fields, the help texts -
+		       comes through here, which is what DashboardController::configureDashboard() points
+		       at. A field whose label is the same word in both languages is left out on purpose. -->
+		  <trans-unit id="142">
+			<source>Users</source>
+			<target>Užívatelia</target>
+		  </trans-unit>
+		  <trans-unit id="143">
+			<source>Projects</source>
+			<target>Projekty</target>
+		  </trans-unit>
+		  <trans-unit id="144">
+			<source>Withholders</source>
+			<target>Zadržiavače</target>
+		  </trans-unit>
+		  <trans-unit id="145">
+			<source>Notifiers</source>
+			<target>Notifikátory</target>
+		  </trans-unit>
+		  <trans-unit id="146">
+			<source>Sound</source>
+			<target>Zvuk</target>
+		  </trans-unit>
+		  <trans-unit id="147">
+			<source>Email</source>
+			<target>E-mail</target>
+		  </trans-unit>
+
+		  <!-- the project form, where the two performance switches live -->
+		  <trans-unit id="148">
+			<source>Code</source>
+			<target>Kód</target>
+		  </trans-unit>
+		  <trans-unit id="149">
+			<source>Name</source>
+			<target>Názov</target>
+		  </trans-unit>
+		  <trans-unit id="150">
+			<source>Enabled</source>
+			<target>Zapnutý</target>
+		  </trans-unit>
+		  <trans-unit id="151">
+			<source>Show latency on the dashboard row. Needs the collector shipping buckets for this project.</source>
+			<target>Zobrazí na riadku nástenky odozvu. Vyžaduje collector, ktorý pre tento projekt posiela buckety.</target>
+		  </trans-unit>
+		  <trans-unit id="152">
+			<source>Workload</source>
+			<target>Druh záťaže</target>
+		  </trans-unit>
+		  <trans-unit id="153">
+			<source>Web — people are waiting</source>
+			<target>Web – čakajú ľudia</target>
+		  </trans-unit>
+		  <trans-unit id="154">
+			<source>Worker — cron jobs, messenger, loops</source>
+			<target>Worker – crony, messenger, slučky</target>
+		  </trans-unit>
+		  <trans-unit id="155">
+			<source>A worker row drops Apdex and p95, which measure how long somebody waited, and shows a regression count against this project's own baseline plus the rate it is running at.</source>
+			<target>Worker riadok vynechá Apdex a p95, ktoré merajú, ako dlho niekto čakal, a namiesto nich zobrazí počet regresií proti vlastnej baseline tohto projektu a frekvenciu, s akou beží.</target>
+		  </trans-unit>
+		  <trans-unit id="156">
+			<source>Ping Collector</source>
+			<target>Ping kolektor</target>
+		  </trans-unit>
+		  <trans-unit id="157">
+			<source>Db Connection</source>
+			<target>Databázové pripojenie</target>
+		  </trans-unit>
+
+		  <!-- the user form -->
+		  <trans-unit id="158">
+			<source>Fullname</source>
+			<target>Celé meno</target>
+		  </trans-unit>
+		  <trans-unit id="159">
+			<source>Roles</source>
+			<target>Role</target>
+		  </trans-unit>
+		  <trans-unit id="160">
+			<source>New password</source>
+			<target>Nové heslo</target>
+		  </trans-unit>
+
+		  <!-- the notifier form -->
+		  <trans-unit id="161">
+			<source>Minimal Importance</source>
+			<target>Minimálna dôležitosť</target>
+		  </trans-unit>
+		  <trans-unit id="162">
+			<source>Threshold</source>
+			<target>Hranica</target>
+		  </trans-unit>
+		  <trans-unit id="163">
+			<source>Component</source>
+			<target>Komponent</target>
+		  </trans-unit>
+		  <trans-unit id="164">
+			<source>Delay</source>
+			<target>Odklad</target>
+		  </trans-unit>
+		  <trans-unit id="165">
+			<source>Delay Interval</source>
+			<target>Interval odkladu</target>
+		  </trans-unit>
+		  <trans-unit id="166">
+			<source>Repeat</source>
+			<target>Opakovanie</target>
+		  </trans-unit>
+		  <trans-unit id="167">
+			<source>Repeat Interval</source>
+			<target>Interval opakovania</target>
+		  </trans-unit>
+		  <trans-unit id="168">
+			<source>Clear At</source>
+			<target>Zrušiť pri</target>
+		  </trans-unit>
+		  <trans-unit id="169">
+			<source>Clear Interval</source>
+			<target>Interval zrušenia</target>
+		  </trans-unit>
+		  <trans-unit id="170">
+			<source>Title</source>
+			<target>Titulok</target>
+		  </trans-unit>
+		  <trans-unit id="171">
+			<source>Description</source>
+			<target>Popis</target>
+		  </trans-unit>
+
+		  <!-- the withholder form -->
+		  <trans-unit id="172">
+			<source>Threshold Interval</source>
+			<target>Interval hranice</target>
+		  </trans-unit>
+		  <trans-unit id="173">
+			<source>The number of times the regex must be matched within the threshold interval to trigger a notification</source>
+			<target>Koľkokrát sa musí regex zhodovať v rámci intervalu hranice, aby sa poslala notifikácia</target>
+		  </trans-unit>
+		  <trans-unit id="174">
+			<source>The time interval in seconds over which the threshold is calculated</source>
+			<target>Časový interval v sekundách, za ktorý sa hranica počíta</target>
+		  </trans-unit>
         </body>
     </file>
 </xliff>
