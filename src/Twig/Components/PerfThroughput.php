@@ -19,7 +19,9 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
  * Per minute rather than a total, so that a row reading an hour and a row reading a day are the
  * same number for the same traffic.
  *
- * Opt-in: add `PerfThroughput` to `bug_catcher.perf_status_list_components`.
+ * In `bug_catcher.worker_status_list_components` by default: on a cron box this is the cell that
+ * carries the real incident, because a worker that stopped being scheduled looks perfect by every
+ * other measure. Opt-in on a web row: add it to `bug_catcher.perf_status_list_components`.
  */
 #[AsTwigComponent]
 final class PerfThroughput extends AbsComponent

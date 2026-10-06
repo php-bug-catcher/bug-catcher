@@ -7,11 +7,15 @@
 	component list is configurable through bug_catcher.status_list_components - the row cannot
 	know what it will be asked to contain.
 
-	A project with performance switched on gets a different list
-	(bug_catcher.perf_status_list_components). `dense` is read once for the whole wall, not per
-	row: the two lists cut the same twelve columns differently, and a wall of cards is read by
-	scanning down a column. One project with latency on therefore puts every row on the same
-	grid - the ones without it just get a wider sparkline where the two numbers would be.
+	A project with performance switched on gets a different list, and which one depends on its
+	workload: bug_catcher.perf_status_list_components for a web project, and
+	bug_catcher.worker_status_list_components for a cron box, where latency measures nothing
+	because nobody is waiting. StatusList::componentsFor() is where both questions are asked.
+
+	`dense` is read once for the whole wall, not per row: all three lists cut the same twelve
+	columns differently, and a wall of cards is read by scanning down a column. One project with
+	performance on therefore puts every row on the same grid - the ones without it just get a
+	wider sparkline where the two numbers would be.
 #}
 <div{{ attributes.defaults({
 	class:'space-y-2'

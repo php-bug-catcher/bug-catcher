@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use BugCatcher\Enum\Importance;
+use BugCatcher\Enum\PerfProfile;
 use BugCatcher\Repository\ProjectRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -47,6 +48,18 @@ class Project {
 	 * that turned into three empty columns after an upgrade would read as "this is broken".
 	 */
 	private bool $perfEnabled = false;
+
+	/**
+	 * Which of the two performance rows this project gets, once `perfEnabled` has decided that it
+	 * gets one at all.
+	 *
+	 * Nullable, and null means {@see PerfProfile::Web} — the row every installation already has.
+	 * A non-nullable column would need a hand-finished `DEFAULT 'web'` in the generated migration
+	 * (which is how `perf_enabled` ended up `NOT NULL DEFAULT 0` on a live database) and would put
+	 * `doctrine:schema:validate` at odds with the DDL that produced. Null costs one `??` in
+	 * {@see self::getPerfProfile()}, which is the only place that ever sees it.
+	 */
+	private ?PerfProfile $perfProfile = null;
 
 	/**
 	 * @var Collection<int, User>
@@ -135,6 +148,17 @@ class Project {
 
 	public function setPerfEnabled(bool $perfEnabled): static {
 		$this->perfEnabled = $perfEnabled;
+
+		return $this;
+	}
+
+	/** Never null: an unset profile is a web project, which is what every row was before. */
+	public function getPerfProfile(): PerfProfile {
+		return $this->perfProfile ?? PerfProfile::Web;
+	}
+
+	public function setPerfProfile(?PerfProfile $perfProfile): static {
+		$this->perfProfile = $perfProfile;
 
 		return $this;
 	}

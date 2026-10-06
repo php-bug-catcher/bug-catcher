@@ -158,18 +158,37 @@ return static function (DefinitionConfigurator $definition): void {
 		)
 		->prototype('scalar')->end()
 		->end()
-		// the row of a project with `perfEnabled` set, when bug_catcher.perf.enabled is also on.
-		// The error count stays - it is the thing the dashboard has always been for - and the
-		// rest of the twelve columns answer "are the people using this waiting": Apdex says how
-		// many of them, p95 says how long, and the sparkline says whether it is getting worse.
-		// PerfThroughput and PerfRegressions are built and not in the default row; adding one
-		// means taking a column from something else
+		// the row of a project with `perfEnabled` set and the Web workload, when
+		// bug_catcher.perf.enabled is also on. The error count stays - it is the thing the
+		// dashboard has always been for - and the rest of the twelve columns answer "are the
+		// people using this waiting": Apdex says how many of them, p95 says how long, and the
+		// sparkline says whether it is getting worse. Adding a cell means taking a column from
+		// something else; see worker_status_list_components for the other row
 		->arrayNode("perf_status_list_components")
 		->defaultValue([
 				"ProjectStatus",
 				"LogCount",
 				"PerfApdex",
 				"PerfLatency",
+				"PerfSparkLine",
+				"WarningSound",
+			]
+		)
+		->prototype('scalar')->end()
+		->end()
+		// the row of a project whose Project::$perfProfile is Worker - a cron box, a messenger
+		// consumer, anything that runs in a loop. No Apdex and no p95, because nobody is waiting
+		// on a cron job and both of them say "disaster" every time one does its job: see
+		// BugCatcher\Enum\PerfProfile for why moving Apdex's threshold is not an option. What is
+		// left are the two cells that can answer a worker - PerfRegressions, which is a judgement
+		// against the route's own day-of-week baseline, and PerfThroughput, which goes *down*
+		// when the thing stops running. Still twelve columns: 4 + 1 + 2 + 2 + 3
+		->arrayNode("worker_status_list_components")
+		->defaultValue([
+				"ProjectStatus",
+				"LogCount",
+				"PerfRegressions",
+				"PerfThroughput",
 				"PerfSparkLine",
 				"WarningSound",
 			]

@@ -233,9 +233,11 @@ The hint has a partial of its own, so a component does not repeat the markup:
 } only %}
 ```
 
-A project with `perfEnabled` set draws its row from `perf_status_list_components` instead, and
-every component is told so through a `dense` prop - the same twelve columns then have five cells
-to share rather than three. Honour it if your component goes on both rows:
+A project with `perfEnabled` set draws its row from one of two other lists instead -
+`perf_status_list_components` for a web project and `worker_status_list_components` for one whose
+`perfProfile` is `Worker`, which is a cron box or a messenger consumer with nobody waiting on it.
+Either way every component is told so through a `dense` prop: the same twelve columns then have
+five cells to share rather than three. Honour it if your component goes on more than one row:
 
 ```twig
 <div{{ attributes.defaults({class:(dense ? 'col-span-1' : 'col-span-2') ~ ' text-right'}) }}>

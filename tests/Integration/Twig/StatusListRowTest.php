@@ -8,6 +8,7 @@ use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\RecordPerformance;
 use BugCatcher\Enum\PerfGranularity;
+use BugCatcher\Enum\PerfProfile;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
 use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
@@ -38,32 +39,82 @@ class StatusListRowTest extends KernelTestCase
 		$this->assertSame($list->components, $list->componentsFor($project));
 	}
 
-	public function testAProjectWithPerformanceGetsTheOtherList(): void
+	/**
+	 * A project that predates `perfProfile` has null in the column, and null is Web - so the row
+	 * it gets after the upgrade is the row it had before it.
+	 */
+	public function testAProjectWithPerformanceAndNoWorkloadSetGetsTheWebList(): void
 	{
-		$project = ProjectFactory::createOne(['perfEnabled' => true])->_real();
+		$project = ProjectFactory::createOne(['perfEnabled' => true, 'perfProfile' => null])->_real();
 
 		$list = $this->list();
 
 		$this->assertTrue($list->usesPerf($project));
+		$this->assertSame(PerfProfile::Web, $project->getPerfProfile());
 		$this->assertSame($list->perfComponents, $list->componentsFor($project));
 		$this->assertContains('LogCount', $list->perfComponents, 'the error count is the one cell that stays');
+	}
+
+	/**
+	 * The point of the whole thing: a cron box is measured, but not with Apdex.
+	 *
+	 * Apdex pins T at 500 ms because T and 4T have to land on histogram bin edges, and there is no
+	 * cron-scale T that does - so on a worker the cell reads 0.00 in red for ever, whatever the
+	 * machine is doing. The worker row asks the two questions a job can answer instead.
+	 */
+	public function testAWorkerProjectGetsARowWithoutApdexOrLatency(): void
+	{
+		$project = ProjectFactory::createOne(['perfEnabled' => true, 'perfProfile' => PerfProfile::Worker])->_real();
+
+		$list = $this->list();
+
+		$this->assertSame($list->workerComponents, $list->componentsFor($project));
+		$this->assertNotContains('PerfApdex', $list->workerComponents);
+		$this->assertNotContains('PerfLatency', $list->workerComponents);
+		$this->assertContains('PerfRegressions', $list->workerComponents, 'the baseline is what a job is judged against');
+		$this->assertContains('PerfThroughput', $list->workerComponents, 'a worker that stopped running is the real incident');
+		$this->assertContains('LogCount', $list->workerComponents, 'the error count never leaves');
+	}
+
+	/**
+	 * The workload picks between the two performance rows; it does not conjure one up. A cron box
+	 * with no collector on it has nothing in `perf_bucket`, and a row of dashes is worse than the
+	 * row the dashboard had before.
+	 */
+	public function testAWorkerProjectWithoutTheCollectorKeepsThePlainRow(): void
+	{
+		$project = ProjectFactory::createOne(['perfEnabled' => false, 'perfProfile' => PerfProfile::Worker])->_real();
+
+		$list = $this->list();
+
+		$this->assertFalse($list->usesPerf($project));
+		$this->assertSame($list->components, $list->componentsFor($project));
 	}
 
 	/** Twelve columns, in every combination - a cell too many wraps the row and a wall is full of them. */
 	public function testEveryRowFillsTwelveColumnsExactly(): void
 	{
-		$plain = ProjectFactory::createOne(['perfEnabled' => false, 'pingCollector' => 'none'])->_real();
-		$perf  = ProjectFactory::createOne(['perfEnabled' => true, 'pingCollector' => 'none'])->_real();
+		$plain  = ProjectFactory::createOne(['perfEnabled' => false, 'pingCollector' => 'none'])->_real();
+		$perf   = ProjectFactory::createOne(['perfEnabled' => true, 'pingCollector' => 'none'])->_real();
+		$worker = ProjectFactory::createOne([
+			'perfEnabled'   => true,
+			'perfProfile'   => PerfProfile::Worker,
+			'pingCollector' => 'none',
+		])->_real();
 		$this->measured($perf);
+		$this->measured($worker);
 
-		$plainRow = ['ProjectStatus', 'LogCount', 'LogSparkLine'];
-		$perfRow  = ['ProjectStatus', 'LogCount', 'PerfApdex', 'PerfLatency', 'PerfSparkLine'];
+		$plainRow  = ['ProjectStatus', 'LogCount', 'LogSparkLine'];
+		$perfRow   = ['ProjectStatus', 'LogCount', 'PerfApdex', 'PerfLatency', 'PerfSparkLine'];
+		$workerRow = ['ProjectStatus', 'LogCount', 'PerfRegressions', 'PerfThroughput', 'PerfSparkLine'];
 
 		// a wall with no performance anywhere is the layout it always had
 		$this->assertSame(12, $this->columnsOf($plain, false, $plainRow));
 		// and one where some project reports latency puts every row on the same grid
 		$this->assertSame(12, $this->columnsOf($plain, true, $plainRow));
 		$this->assertSame(12, $this->columnsOf($perf, true, $perfRow));
+		// the worker row cuts the same twelve differently, so the two sit side by side
+		$this->assertSame(12, $this->columnsOf($worker, true, $workerRow));
 	}
 
 	/**

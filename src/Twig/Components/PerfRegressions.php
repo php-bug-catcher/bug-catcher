@@ -19,7 +19,9 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
  * Rows rather than occurrences - see {@see RecordPerformanceRepository::countOpenSince()} - and
  * only the unresolved ones, so clearing a record clears the cell.
  *
- * Opt-in: add `PerfRegressions` to `bug_catcher.perf_status_list_components`.
+ * In `bug_catcher.worker_status_list_components` by default, where it stands where a web row's
+ * Apdex does - a cron job has no Apdex worth printing. Opt-in on a web row: add it to
+ * `bug_catcher.perf_status_list_components`, and take its two columns from something else.
  */
 #[AsTwigComponent]
 final class PerfRegressions extends AbsComponent

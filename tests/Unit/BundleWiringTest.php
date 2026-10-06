@@ -105,6 +105,7 @@ class BundleWiringTest extends TestCase
 			'no_bug_funny_messages'  => [],
 			'status_list_components' => [],
 			'perf_status_list_components' => [],
+			'worker_status_list_components' => [],
 			'mcp'                    => ['access_token' => null, 'record_types' => []],
 			...$root,
 		];

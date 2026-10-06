@@ -31,6 +31,13 @@
              already had. -->
         <field name="perfEnabled" type="boolean" nullable="false"/>
 
+        <!-- which of the two performance rows this project gets. Nullable, and null is Web: an
+             existing installation upgrades into the row it already had with a migration that
+             doctrine:migrations:diff generates unedited. A NOT NULL column would need the
+             DEFAULT written in by hand. -->
+        <field name="perfProfile" type="string" length="16" nullable="true"
+               enum-type="BugCatcher\Enum\PerfProfile"/>
+
         <many-to-many field="users" target-entity="BugCatcher\Entity\User" mapped-by="projects">
             <join-table name="user_project">
                 <join-columns>

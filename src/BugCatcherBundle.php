@@ -268,6 +268,7 @@ final class BugCatcherBundle extends AbstractBundle
 			->autoconfigure()
 			->arg('$components', $config["status_list_components"])
 			->arg('$perfComponents', $config["perf_status_list_components"])
+			->arg('$workerComponents', $config["worker_status_list_components"])
 			->arg('$perfEnabled', $config["perf"]["enabled"]);
 		$services->set(Favicon::class)
 			->autowire()
