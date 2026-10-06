@@ -17,7 +17,11 @@
 #   APP_PORT            port the built-in server listens on (default 8099)
 #   E2E_WORKDIR         where the project is built (default a fresh mktemp -d, removed on exit)
 #   E2E_BUNDLE          "working-copy" (default) or "released" - the latter installs the skeleton's
-#                       committed lock untouched, which is what `create-project` hands out today
+#                       committed lock untouched, which is what `create-project` hands out today.
+#                       This script grows an assertion with every feature, so a released run has to
+#                       be judged by the contract of the version the lock pins: skeleton.yml checks
+#                       `tests/skeleton` and `templates` out at that tag before running this leg,
+#                       and a local released run is only honest if you do the same.
 #   E2E_BUNDLE_VERSION  version the path repository claims (default from the skeleton's constraint)
 #   E2E_SKIP_YARN       set to 1 to skip the Encore build
 #

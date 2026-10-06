@@ -46,8 +46,7 @@ jobs:
         php-versions: [ "8.4", "8.5" ]
         # working-copy: does the skeleton still fit this branch of the bundle?
         # released: does `composer create-project` work today, with the version the skeleton's
-        #   committed lock pins? A fix here that the skeleton has not re-locked against is still a
-        #   broken installation, and only this leg says so.
+        #   committed lock pins? Run against that release's own harness - see the pinning step.
         bundle: [ working-copy, released ]
 
     steps:
@@ -55,6 +54,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: bundle
+          # the released leg needs the tags, to find the one the skeleton's lock pins
+          fetch-depth: 0
 
       - name: Checkout the skeleton
         uses: actions/checkout@v4
@@ -88,6 +89,30 @@ jobs:
         run: |
           mysql --protocol=tcp -h 127.0.0.1 -P ${{ job.services.mysql.ports['3306'] }} -uroot -psymfony \
             -e "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+
+      # The released leg installs the skeleton's committed lock, so it has to be judged by the
+      # contract of the bundle version that lock pins - not by this branch's. e2e.sh grows an
+      # assertion with every feature, and asserting a 2.4 feature against a 2.0 install is a red
+      # that says nothing about whether `create-project` works. Pinning the harness to the tag makes
+      # this leg fail only when the published pair is genuinely broken. The lock being behind is a
+      # release chore rather than a regression, so it is reported as a warning instead.
+      - name: Pin the harness to the release the skeleton locks
+        if: matrix.bundle == 'released'
+        run: |
+          locked="$(jq -r '.packages[] | select(.name == "php-bug-catcher/bug-catcher") | .version' skeleton/composer.lock)"
+          newest="$(git -C bundle tag --list 'v*' --sort=-v:refname | head -n 1)"
+          echo "the skeleton locks ${locked}; the newest tag here is ${newest}"
+
+          if [ "${locked}" != "${newest}" ]; then
+            echo "::warning title=The skeleton's lock is behind::composer create-project installs ${locked}, but ${newest} is released. Run 'composer update php-bug-catcher/bug-catcher' in the skeleton and commit the lock."
+          fi
+
+          if git -C bundle cat-file -e "${locked}:tests/skeleton/e2e.sh" 2>/dev/null; then
+            git -C bundle checkout "${locked}" -- tests/skeleton templates
+            echo "harness pinned to ${locked}"
+          else
+            echo "::warning title=No harness at ${locked}::that tag ships no tests/skeleton, so this leg runs the harness of the branch under test"
+          fi
 
       - name: Run the end-to-end check
         env:
