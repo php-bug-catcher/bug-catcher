@@ -291,7 +291,16 @@ step "Ingest performance buckets"
 # Two minutes: one a couple of minutes ago, which is what the dashboard row and the minute-grained
 # charts read, and one inside the previous whole hour, which is the only thing app:perf:rollup
 # --granularity=hour is going to find anything in.
+#
+# One instant for the whole run, rather than time() per call: the anchored-window step below asks
+# for [at, at+1h) and has to name the minute these rows actually landed in. Recomputing "two
+# minutes ago" down there put the window one minute late whenever the run crossed a minute
+# boundary in between, and the row it was looking for fell outside it - a flake that hit roughly
+# one leg in four and read like the path hash had changed.
+PERF_NOW="$(php -r 'echo time();')"
+PERF_AT="$(php -r 'echo gmdate("Y-m-d\TH:i", (int) $argv[1] - 120);' "${PERF_NOW}")"
 PERF_PAYLOAD="$(php -r '
+$now = (int) $argv[2];
 $row = static function (int $at, int $hits, float $sumDuration, string $path = "/user/{id}", string $host = "127.0.0.1", int $errors = 1): array {
 	$h = array_fill(0, 16, 0);
 	$h[8] = $hits;
@@ -305,13 +314,13 @@ $row = static function (int $at, int $hits, float $sumDuration, string $path = "
 	];
 };
 echo json_encode(["projectCode" => $argv[1], "rows" => [
-	$row(time() - 120, 12, 7.2),
-	$row(strtotime(gmdate("Y-m-d H:00:00", time() - 3600)) + 600, 30, 18.5),
+	$row($now - 120, 12, 7.2),
+	$row(strtotime(gmdate("Y-m-d H:00:00", $now - 3600)) + 600, 30, 18.5),
 	// A console run, which is the one row shape phpunit cannot prove: `host` is empty, which has
 	// to survive a unique key it is part of, and the path has a colon in it, which has to survive
 	// the anchor round-trip. No error counters either - http_response_code() is false in CLI.
-	$row(time() - 120, 1, 94.0, "/console/app:import/orders", "", 0),
-]]);' "${PROJECT_CODE}")"
+	$row($now - 120, 1, 94.0, "/console/app:import/orders", "", 0),
+]]);' "${PROJECT_CODE}" "${PERF_NOW}")"
 http 204 POST /api/perf_buckets -H 'Content-Type: application/json' -d "${PERF_PAYLOAD}"
 
 # ------------------------------------------------------------------------- 6. the pages, signed in
@@ -365,7 +374,9 @@ step "The performance page honours the window a regression's link writes"
 # Only prod builds the container the way a deployment does, and only here is the asset build real:
 # the two date pickers are a front-end dependency, so a forgotten `yarn build` shows up as a page
 # without `data-controller="perf-range"` and nowhere else.
-AT="$(date -u -d '-2 minutes' '+%Y-%m-%dT%H:%M' 2>/dev/null || date -u -v-2M '+%Y-%m-%dT%H:%M')"
+# The minute the rows above were ingested into, not "two minutes before whenever this line runs" -
+# the window is [at, at+1h) and the row has to be inside it however long the steps in between took.
+AT="${PERF_AT}"
 http 200 GET "/performance/${PROJECT_ID}?at=${AT}&hours=1&path=/user/%7Bid%7D"
 body_has 'data-controller="perf-range"'
 # the pickers are filled in from the resolved window rather than left empty
