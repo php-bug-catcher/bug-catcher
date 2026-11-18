@@ -13,14 +13,18 @@ use BugCatcher\Enum\PerfTopPathSort;
 use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Repository\PerfBucketRepository;
 use BugCatcher\Service\Perf\Histogram\PercentileEstimator;
+use BugCatcher\Service\Perf\PerfSliceFilter;
 use BugCatcher\Service\Perf\PerfWindow;
+use BugCatcher\Service\Perf\Report\Dto\DatabaseReport;
 use BugCatcher\Service\Perf\Report\Dto\LatencyBands;
 use BugCatcher\Service\Perf\Report\Dto\PathDetailReport;
 use BugCatcher\Service\Perf\Report\Dto\PerfHealth;
+use BugCatcher\Service\Perf\Report\Dto\PerfSummary;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimePoint;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use BugCatcher\Service\Perf\Report\Dto\TopPathRow;
 use BugCatcher\Service\Perf\Report\Dto\TopPathsReport;
+use BugCatcher\Service\Perf\SqlMetrics;
 use BugCatcher\Service\Perf\WindowAggregate;
 use DateInterval;
 use DateTimeImmutable;
@@ -42,6 +46,9 @@ final readonly class PerfReportBuilder
 	private const string DETAIL_HOURS_AROUND = 'PT12H';
 
 	public const int DEFAULT_TOP_PATHS = 20;
+
+	/** How many routes the database panel lists. */
+	public const int DATABASE_ROUTES = 10;
 
 	/**
 	 * The windows a panel offers, in hours.
@@ -65,14 +72,16 @@ final readonly class PerfReportBuilder
 	 * @param Project|null $project null is every project at once - what the dashboard shows
 	 *     until somebody picks one
 	 * @param string|null $path one route rather than the whole project
+	 * @param PerfSliceFilter $filter anything else to narrow by; `$path` wins over its hash
 	 */
 	public function timeSeries(
 		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $path = null,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 	): PerfTimeSeries {
-		return $this->seriesOver($this->granularity->window($from, $to), $project, $path);
+		return $this->seriesOver($this->granularity->window($from, $to), $project, $path, $filter);
 	}
 
 	/**
@@ -82,14 +91,19 @@ final readonly class PerfReportBuilder
 	 * {@see \BugCatcher\Repository\PerfBucketRepository::aggregateWindow()} for why it is not a
 	 * sum of {@see timeSeries()}.
 	 */
-	public function health(?Project $project, DateTimeImmutable $from, DateTimeImmutable $to): PerfHealth
-	{
+	public function health(
+		?Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
+	): PerfHealth {
 		$window    = $this->granularity->window($from, $to);
 		$aggregate = $this->repository->aggregateWindow(
 			$window->granularity,
 			$project,
 			$window->from,
 			$window->to,
+			$filter,
 		);
 
 		if ($aggregate->hits === 0) {
@@ -102,6 +116,68 @@ final readonly class PerfReportBuilder
 			$this->percentiles->p95($aggregate->durationHistogram),
 			$this->apdex(LatencyBands::fromHistogram($aggregate->durationHistogram)),
 			$aggregate->errors() / $aggregate->hits,
+		);
+	}
+
+	/**
+	 * Everything there is to say about one slice of the window, as one row.
+	 *
+	 * The same single read {@see health()} makes, turned into the per-request numbers a point of
+	 * the series carries rather than the four a dashboard cell has room for.
+	 */
+	public function summary(
+		?Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
+	): PerfSummary {
+		$window    = $this->granularity->window($from, $to);
+		$aggregate = $this->repository->aggregateWindow(
+			$window->granularity,
+			$project,
+			$window->from,
+			$window->to,
+			$filter,
+		);
+
+		if ($aggregate->hits === 0) {
+			return new PerfSummary($window, PerfTimePoint::empty($window->from), 0.0, null);
+		}
+
+		return new PerfSummary(
+			$window,
+			$this->point($window->from, $aggregate),
+			$aggregate->maxDuration * 1000,
+			$this->apdex(LatencyBands::fromHistogram($aggregate->durationHistogram)),
+		);
+	}
+
+	/**
+	 * The database half of the window, and the routes that spend the most of it there.
+	 *
+	 * The routes are the heaviest of the busiest: the window is cut to its
+	 * {@see DEFAULT_TOP_PATHS} most-visited routes before they are sorted by time in the
+	 * database, the way the p95 column of the top paths table is. They ignore `$path`, because a
+	 * list of one route is not a list.
+	 */
+	public function database(
+		?Project $project,
+		DateTimeImmutable $from,
+		DateTimeImmutable $to,
+		?string $path = null,
+		int $routes = self::DATABASE_ROUTES,
+	): DatabaseReport {
+		$rows = array_values(array_filter(
+			$this->topPaths($project, $from, $to)->rows,
+			static fn(TopPathRow $row): bool => $row->extraTotal(SqlMetrics::SECONDS) !== null,
+		));
+
+		usort($rows, static fn(TopPathRow $a, TopPathRow $b): int
+			=> $b->extraTotal(SqlMetrics::SECONDS) <=> $a->extraTotal(SqlMetrics::SECONDS));
+
+		return new DatabaseReport(
+			$this->timeSeries($project, $from, $to, $path),
+			array_slice($rows, 0, $routes),
 		);
 	}
 
@@ -140,6 +216,7 @@ final readonly class PerfReportBuilder
 		PerfTopPathGroup $group = PerfTopPathGroup::Path,
 		PerfTopPathSort $sort = PerfTopPathSort::Hits,
 		int $limit = self::DEFAULT_TOP_PATHS,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 	): TopPathsReport {
 		$window = $this->granularity->window($from, $to);
 
@@ -152,6 +229,7 @@ final readonly class PerfReportBuilder
 			$window->to,
 			$limit + 1,
 			$sort,
+			$filter,
 		);
 
 		$truncated = count($aggregates) > $limit;
@@ -204,14 +282,19 @@ final readonly class PerfReportBuilder
 		);
 	}
 
-	private function seriesOver(PerfWindow $window, ?Project $project, ?string $path): PerfTimeSeries
-	{
+	private function seriesOver(
+		PerfWindow $window,
+		?Project $project,
+		?string $path,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
+	): PerfTimeSeries {
 		$aggregates = $this->repository->aggregateByBucket(
 			$window->granularity,
 			$project,
 			$window->from,
 			$window->to,
 			$path === null ? null : PerfBucket::hashPath($path),
+			$filter,
 		);
 
 		$points = [];

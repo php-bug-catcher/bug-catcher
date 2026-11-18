@@ -32,6 +32,9 @@ return static function (DefinitionConfigurator $definition): void {
 		->defaultValue([
 			RecordLog::class,
 			RecordLogTrace::class,
+			// a regression is a finding like an error, and resolving it is what the dashboard's
+			// buttons do to it too - the perf tools only read
+			RecordPerformance::class,
 		])
 		->requiresAtLeastOneElement()
 		->prototype('scalar')->cannotBeEmpty()->end()

@@ -2,7 +2,7 @@ mcp:
   servers:
     bug_catcher:
       name: 'bug-catcher'
-      description: 'Read and resolve the errors Bug Catcher collected from the client applications.'
+      description: 'Read and resolve the errors Bug Catcher collected from the client applications, and read their performance.'
       instructions: |
         Start with list_projects to learn the project codes, then search_records to find the
         unresolved errors of one of them. Not every entry is a PHP exception: each one carries a
@@ -14,6 +14,14 @@ mcp:
         carries whatever the record type knows beyond the common fields. Once the cause is fixed in
         the client application, call set_record_status with "resolved", or with "archived" for an
         error that needs no fixing.
+
+        Performance: get_perf_health without a project says which monitored project is slow or
+        failing, get_perf_top_paths lists its heaviest routes (find a route or script by part of its
+        path with pathContains), get_perf_path reads one route in full and get_perf_timeseries bucket
+        by bucket, get_perf_database says what the database costs. Every window is "hours" long and
+        ends now, or starts at "at". Durations are milliseconds, memory bytes, rates 0 to 1.
+        Regressions the detector found are records of type "perf": search_records finds them,
+        get_perf_regression shows the route around the time, set_record_status resolves them.
       transports:
         http: true
       http:

@@ -3,6 +3,7 @@
 namespace BugCatcher\Tests\Integration\Mcp;
 
 use BugCatcher\Mcp\Tool\ProjectTools;
+use BugCatcher\Enum\PerfProfile;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
@@ -27,9 +28,11 @@ class ProjectToolsTest extends KernelTestCase {
 
 		$this->assertSame([
 			[
-				'code' => 'shop',
-				'name' => 'E-shop',
-				'url'  => 'https://shop.example.com',
+				'code'        => 'shop',
+				'name'        => 'E-shop',
+				'url'         => 'https://shop.example.com',
+				'perfEnabled' => false,
+				'perfProfile' => null,
 			],
 		], $this->tools->listProjects());
 	}
@@ -66,7 +69,28 @@ class ProjectToolsTest extends KernelTestCase {
 		]);
 
 		$this->assertSame([
-			['code' => 'no-url', 'name' => 'No URL', 'url' => null],
+			['code' => 'no-url', 'name' => 'No URL', 'url' => null, 'perfEnabled' => false, 'perfProfile' => null],
 		], $this->tools->listProjects());
+	}
+
+	/**
+	 * Which projects the perf tools have anything to say about, and which of them are workers -
+	 * the ones whose Apdex means nothing.
+	 */
+	public function testAProjectSaysWhetherItIsMonitoredAndAsWhat() {
+		ProjectFactory::createOne(["code" => "shop", "enabled" => true, "perfEnabled" => true]);
+		ProjectFactory::createOne([
+			"code"        => "queue",
+			"enabled"     => true,
+			"perfEnabled" => true,
+			"perfProfile" => PerfProfile::Worker,
+		]);
+
+		$listed = array_column($this->tools->listProjects(), null, 'code');
+
+		$this->assertTrue($listed['shop']['perfEnabled']);
+		// null on the entity is the web row, and is reported as what it means
+		$this->assertSame('web', $listed['shop']['perfProfile']);
+		$this->assertSame('worker', $listed['queue']['perfProfile']);
 	}
 }

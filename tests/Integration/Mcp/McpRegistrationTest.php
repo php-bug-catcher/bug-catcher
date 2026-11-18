@@ -28,7 +28,11 @@ class McpRegistrationTest extends KernelTestCase {
 		self::getContainer()->get('mcp.server.bug_catcher');
 
 		$this->assertEqualsCanonicalizing(
-			['list_projects', 'search_records', 'get_record_detail', 'set_record_status'],
+			[
+				'list_projects', 'search_records', 'get_record_detail', 'set_record_status',
+				'get_perf_health', 'get_perf_top_paths', 'get_perf_path', 'get_perf_timeseries',
+				'get_perf_database', 'get_perf_regression',
+			],
 			array_keys($registry->getTools()->references)
 		);
 	}

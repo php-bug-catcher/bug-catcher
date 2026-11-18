@@ -2,7 +2,11 @@
 
 namespace BugCatcher\Tests\Functional\Mcp;
 
+use BugCatcher\Entity\PerfBucket;
 use BugCatcher\Entity\Project;
+use BugCatcher\Enum\PerfGranularity;
+use BugCatcher\Service\Perf\Histogram\HistogramBins;
+use BugCatcher\Service\Perf\Ingest\PerfBucketUpserter;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
 use BugCatcher\Tests\App\Factory\RecordCronFactory;
 use BugCatcher\Tests\App\Factory\RecordLogTraceFactory;
@@ -30,7 +34,11 @@ class McpToolsTest extends KernelTestCase {
 		$tools = $this->rpc($browser, $session, 'tools/list')['result']['tools'];
 
 		$this->assertEqualsCanonicalizing(
-			['list_projects', 'search_records', 'get_record_detail', 'set_record_status'],
+			[
+				'list_projects', 'search_records', 'get_record_detail', 'set_record_status',
+				'get_perf_health', 'get_perf_top_paths', 'get_perf_path', 'get_perf_timeseries',
+				'get_perf_database', 'get_perf_regression',
+			],
 			array_column($tools, 'name')
 		);
 	}
@@ -135,6 +143,38 @@ class McpToolsTest extends KernelTestCase {
 		$this->assertFalse($detail['isError'], $detail['text']);
 		$this->assertSame('app:import', $detail['payload']['details']['command']);
 		$this->assertNull($detail['payload']['details']['lastEnd']);
+	}
+
+	/**
+	 * The perf tools answer with an object rather than a list, nesting the window and the rows - this
+	 * is the proof that it reaches the client as structured content intact.
+	 */
+	public function testTheTopPathsAnswerOverTheTransport() {
+		$this->project = ProjectFactory::createOne(["code" => "shop", "enabled" => true, "perfEnabled" => true])->_real();
+		$histogram     = HistogramBins::empty();
+		$histogram[HistogramBins::binFor(120.0)] = 5;
+		(new PerfBucketUpserter(self::getContainer()->get(EntityManagerInterface::class)))->upsert([
+			new PerfBucket(
+				PerfGranularity::Minute, new DateTimeImmutable('2026-03-10 10:05:00'), $this->project,
+				'web-01', 'www.site.com', '/cron/import.php',
+				hits: 5, sumDuration: 0.6, maxDuration: 0.2, durationHistogram: $histogram,
+			),
+		]);
+		[$browser] = $this->browser();
+		$session   = $this->openSession($browser);
+
+		$result = $this->callTool($browser, $session, 'get_perf_top_paths', [
+			'projectCode'  => 'shop',
+			'at'           => '2026-03-10T10:00:00',
+			'pathContains' => 'import',
+			'sortBy'       => 'max_time',
+		]);
+
+		$this->assertFalse($result['isError'], $result['text']);
+		$this->assertSame('/cron/import.php', $result['payload']['rows'][0]['label']);
+		$this->assertSame(5, $result['payload']['rows'][0]['hits']);
+		$this->assertEquals(200.0, $result['payload']['rows'][0]['maxMs']);
+		$this->assertSame('minute', $result['payload']['window']['granularity']);
 	}
 
 	/**

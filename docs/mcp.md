@@ -2,7 +2,8 @@
 
 Bug Catcher can expose the errors it collected over the [Model Context Protocol](https://modelcontextprotocol.io),
 so an AI assistant working in a client application can find the errors that application reported,
-read their stack traces, and mark them resolved once it has fixed the cause.
+read their stack traces, and mark them resolved once it has fixed the cause - and read everything the
+[performance page](performance.md) shows about it.
 
 The server speaks HTTP at `/mcp` and is guarded by a bearer token.
 
@@ -10,14 +11,52 @@ The server speaks HTTP at `/mcp` and is guarded by a bearer token.
 
 | Tool | What it does |
 |---|---|
-| `list_projects` | The enabled projects and their codes. Everything else is filtered by one of those codes. |
+| `list_projects` | The enabled projects and their codes, and whether performance monitoring is on for each (`perfEnabled`, `perfProfile`). Everything else is filtered by one of those codes. |
 | `search_records` | The distinct errors of a project. Filter by `status`, `code`, `minLevel`, `type` and a date range. |
 | `get_record_detail` | One error in full: metadata, the stack trace as readable text, the type's own `details`, and the history of its occurrences. |
 | `set_record_status` | Marks an error and every other occurrence of it as `resolved` or `archived`. |
+| `get_perf_health` | A project's dashboard row: hits, requests per minute, p95, Apdex and its rating, error rate, open regressions. Without `projectCode`, every monitored project - the place to start. |
+| `get_perf_top_paths` | The heaviest routes, vhosts or machines (`groupBy`), sorted the way the page sorts (`sortBy`). `pathContains` finds a route or script by part of its path; `host` and `server` narrow to one. |
+| `get_perf_path` | One route in full - latency, CPU and waiting, memory, status mix, latency bands, database - and the same per machine and per vhost. |
+| `get_perf_timeseries` | The charts as numbers, bucket by bucket, for a project, a route, a vhost or a machine. |
+| `get_perf_database` | Queries and time in the database per request, its share of the response, and the routes that spend the most there. |
+| `get_perf_regression` | A regression the detector found, with its route around the time it was found. |
 
 Occurrences of one error are collapsed into a single entry, keyed by the record hash. `count` is how
 often it happened in the range asked for, `date` is the latest occurrence, `firstOccurrence` the
 earliest.
+
+### Performance
+
+The `get_perf_*` tools read through the same report builder the performance page draws, so the
+numbers are the page's numbers. They only read; a regression is resolved with `set_record_status`
+like any other record. While `bug_catcher.perf.enabled` is false every one of them refuses with a
+message saying so.
+
+**The window** is the page's `?at=&hours=`: `hours` long (1 by default, clamped to a year), starting
+at `at`, or ending now when `at` is left out. Unlike the page, an `at` that cannot be read is refused
+rather than quietly replaced by the live window - a person sees the chart move, an assistant would
+report on the wrong hour. `at` is read in the server's timezone when it names none, and moved into it
+when it does, because the stored times carry none. Every answer says which `window` it read, rounded
+to buckets: minutes up to two hours, hours up to seven days, days beyond.
+
+**Anything wider than two hours needs `app:perf:rollup`** to have run. An empty answer at hour or day
+granularity carries a `note` saying so, because the reader cannot see that the minute rows are there.
+
+**Units are in the key**: `Ms` is milliseconds, `Bytes` bytes, and `errorRate`, `apdex` and
+`shareOfResponse` are ratios from 0 to 1. Per-request numbers and totals are both there - `avgMs` and
+`totalMs` - since the page's "per hit" toggle is presentation. `database` is null where nothing
+counted queries, which means `php-bug-catcher/perf-collector-bundle` is missing from the monitored
+application, not that the route runs none. `waitMs` is null on a machine that reports no CPU at all.
+
+**Finding a script**: `get_perf_top_paths` with `pathContains: "import"` matches every route whose
+path contains it, case-insensitively and literally - a `%` or `_` is a character, not a wildcard.
+`get_perf_path`, `get_perf_timeseries` and `get_perf_database` take `path` exactly, as a `label` of
+that list spells it for one project; across projects the label is prefixed with the project code.
+
+**Apdex** is at T = 500 ms. A project whose `profile` is `worker` - queue consumers and cron jobs -
+reads near zero by design; judge it by `hits` and `openRegressions` instead, as its dashboard row
+does.
 
 ### Which record types the tools see
 
@@ -30,10 +69,15 @@ bug_catcher:
         record_types:
             - BugCatcher\Entity\RecordLog
             - BugCatcher\Entity\RecordLogTrace
+            - BugCatcher\Entity\RecordPerformance
             - App\Entity\RecordCron       # your own type
 ```
 
-The default is `RecordLog` and `RecordLogTrace` - everything the ingest API accepts out of the box.
+The default is `RecordLog`, `RecordLogTrace` and `RecordPerformance` - everything the ingest API
+accepts out of the box, and the regressions `app:perf:detect` writes, which `search_records` finds
+under the type `perf`. An installation that lists `record_types` itself does not get
+`RecordPerformance` by upgrading; add it to the list to let `get_perf_regression` start from
+`search_records`.
 Subclasses of a listed class come along, the way `INSTANCE OF RecordLog` would also match a traced
 log. A class that is not in the discriminator map of `Record` is refused with an exception naming the
 ones that are, rather than silently never matching.
@@ -132,6 +176,7 @@ bug_catcher:
     record_types:                                      # the default
       - BugCatcher\Entity\RecordLog
       - BugCatcher\Entity\RecordLogTrace
+      - BugCatcher\Entity\RecordPerformance
 ```
 
 Two environment variables:
@@ -155,7 +200,7 @@ Check the result with:
 php bin/console debug:mcp
 ```
 
-which lists the four tools and the schema of their arguments.
+which lists the ten tools and the schema of their arguments.
 
 ### Connecting a client
 

@@ -453,7 +453,8 @@ MCP_HEADERS=(
 )
 http 202 POST /mcp "${MCP_HEADERS[@]}" -d '{"jsonrpc":"2.0","method":"notifications/initialized"}'
 http 200 POST /mcp "${MCP_HEADERS[@]}" -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
-for tool in list_projects search_records get_record_detail set_record_status; do
+for tool in list_projects search_records get_record_detail set_record_status \
+	get_perf_health get_perf_top_paths get_perf_path get_perf_timeseries get_perf_database get_perf_regression; do
 	body_has "${tool}"
 done
 
@@ -461,6 +462,16 @@ step "An MCP tool answers with the data the API ingested"
 http 200 POST /mcp "${MCP_HEADERS[@]}" \
 	-d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_projects","arguments":{}}}'
 body_has "${PROJECT_CODE}"
+
+step "An MCP perf tool finds a route by part of its path"
+# The console row ingested above, searched for the way an assistant looks up a script. Its path
+# has a colon and its vhost is empty - the row shape phpunit cannot reach - and the search is a
+# LIKE with escaping that has to survive the platform this installation runs on.
+http 200 POST /mcp "${MCP_HEADERS[@]}" \
+	-d '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_perf_top_paths","arguments":{"projectCode":"'"${PROJECT_CODE}"'","pathContains":"app:import"}}}'
+# the slash-free part only: the answer is JSON inside a JSON-RPC envelope, and whether a `/` is
+# escaped on the way is the encoder's business, not this tool's
+body_has 'app:import'
 COOKIES="${SAVED_COOKIES}"
 
 # ------------------------------------------------------------------------------- 8. the cron commands

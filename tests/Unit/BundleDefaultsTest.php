@@ -44,11 +44,15 @@ class BundleDefaultsTest extends TestCase
 	/**
 	 * Reading records is a decision of its own - an assistant holding the token can resolve what
 	 * it finds - so a new record type does not join the MCP list by being added to the bundle.
+	 *
+	 * A regression was taken on deliberately, together with the perf tools: `get_perf_regression`
+	 * starts from the id `search_records` returns, and resolving one is what the dashboard's
+	 * buttons do to it anyway. The next type is a decision again.
 	 */
-	public function testTheNewRecordTypeIsNotReadableOverMcpUntilSomebodySaysSo(): void
+	public function testOnlyTheTypesSomebodyChoseAreReadableOverMcp(): void
 	{
 		$this->assertSame(
-			[RecordLog::class, RecordLogTrace::class],
+			[RecordLog::class, RecordLogTrace::class, RecordPerformance::class],
 			$this->defaults()['mcp']['record_types'],
 		);
 	}

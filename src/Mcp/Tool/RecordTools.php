@@ -2,7 +2,6 @@
 
 namespace BugCatcher\Mcp\Tool;
 
-use BugCatcher\Entity\Project;
 use BugCatcher\Entity\Record;
 use BugCatcher\Entity\RecordLogTrace;
 use BugCatcher\Mcp\HasMcpDetails;
@@ -10,12 +9,10 @@ use BugCatcher\Mcp\RecordFinder;
 use BugCatcher\Mcp\RecordSearchCriteria;
 use BugCatcher\Mcp\RecordTypes;
 use BugCatcher\Mcp\StackTraceFormatter;
-use BugCatcher\Repository\ProjectRepository;
+use BugCatcher\Mcp\ToolArguments;
 use BugCatcher\Repository\RecordRepositoryInterface;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Exception;
 use InvalidArgumentException;
 use LogicException;
 use Mcp\Capability\Attribute\McpTool;
@@ -53,7 +50,7 @@ final class RecordTools
 
 	public function __construct(
 		private readonly RecordFinder        $finder,
-		private readonly ProjectRepository   $projects,
+		private readonly ToolArguments       $arguments,
 		private readonly StackTraceFormatter $stackTraces,
 		private readonly ManagerRegistry     $registry,
 		private readonly EntityManagerInterface $em,
@@ -200,12 +197,12 @@ final class RecordTools
 	): RecordSearchCriteria {
 		try {
 			return new RecordSearchCriteria(
-				$projectCode === null ? null : $this->project($projectCode),
+				$this->arguments->optionalProject($projectCode),
 				$status,
 				$code,
 				$minLevel,
-				$this->date($dateFrom, 'dateFrom'),
-				$this->date($dateTo, 'dateTo'),
+				$this->arguments->date($dateFrom, 'dateFrom'),
+				$this->arguments->date($dateTo, 'dateTo'),
 				$limit,
 				$this->type($type),
 			);
@@ -213,17 +210,6 @@ final class RecordTools
 			// the value objects's own rules - limit out of range, range ending before it starts
 			throw new ToolCallException($e->getMessage(), previous: $e);
 		}
-	}
-
-	private function project(string $code): Project {
-		$project = $this->projects->findOneBy(['code' => $code]);
-		if ($project === null) {
-			throw new ToolCallException(sprintf(
-				'There is no project with the code "%s". Call list_projects for the known ones.', $code,
-			));
-		}
-
-		return $project;
 	}
 
 	/**
@@ -241,21 +227,6 @@ final class RecordTools
 			'There is no searchable record type "%s". This server searches: %s.',
 			$type, implode(', ', $this->types->discriminators()),
 		));
-	}
-
-	private function date(?string $value, string $argument): ?DateTimeImmutable {
-		if ($value === null) {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Exception $e) {
-			throw new ToolCallException(sprintf(
-				'"%s" is not a date I can read as "%s". Use an ISO 8601 value such as "2026-01-31T23:59:59".',
-				$value, $argument,
-			), previous: $e);
-		}
 	}
 
 	private function record(string $recordId): Record {

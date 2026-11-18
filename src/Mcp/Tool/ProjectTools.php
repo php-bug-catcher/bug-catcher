@@ -17,9 +17,12 @@ final class ProjectTools
 	/**
 	 * Lists the projects Bug Catcher collects errors for.
 	 *
-	 * Use the returned `code` as the `projectCode` argument of the other tools.
+	 * Use the returned `code` as the `projectCode` argument of the other tools. `perfEnabled` says
+	 * whether the project ships performance data for the `get_perf_*` tools, and `perfProfile`
+	 * whether it serves web requests ("web") or runs queue consumers and cron jobs ("worker"); it
+	 * is null when performance monitoring is off for the project.
 	 *
-	 * @return array<int, array{code: string|null, name: string|null, url: string|null}>
+	 * @return array<int, array{code: string|null, name: string|null, url: string|null, perfEnabled: bool, perfProfile: string|null}>
 	 */
 	#[McpTool(name: 'list_projects')]
 	public function listProjects(): array {
@@ -28,9 +31,11 @@ final class ProjectTools
 		$projects = $this->projects->findBy(['enabled' => true], ['code' => 'ASC']);
 
 		return array_map(fn(Project $project) => [
-			'code' => $project->getCode(),
-			'name' => $project->getName(),
-			'url'  => $project->getUrl(),
+			'code'        => $project->getCode(),
+			'name'        => $project->getName(),
+			'url'         => $project->getUrl(),
+			'perfEnabled' => $project->isPerfEnabled(),
+			'perfProfile' => $project->isPerfEnabled() ? $project->getPerfProfile()->value : null,
 		], $projects);
 	}
 }

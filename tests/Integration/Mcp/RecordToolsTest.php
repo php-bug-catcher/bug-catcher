@@ -4,6 +4,8 @@ namespace BugCatcher\Tests\Integration\Mcp;
 
 use BugCatcher\Entity\Project;
 use BugCatcher\Entity\RecordLog;
+use BugCatcher\Entity\RecordPerformance;
+use BugCatcher\Enum\PerfUnit;
 use BugCatcher\Mcp\Tool\RecordTools;
 use BugCatcher\Tests\App\Entity\RecordCron;
 use BugCatcher\Tests\App\Factory\ProjectFactory;
@@ -316,6 +318,28 @@ class RecordToolsTest extends KernelTestCase {
 			'dql injection' => ["resolved' WHERE 1=1 OR l.status='new"],
 			'empty'         => [''],
 		];
+	}
+
+	/**
+	 * A regression is a finding the way an error is, and `get_perf_regression` starts from its id -
+	 * so the record tools have to find one, and say what it is about.
+	 */
+	public function testARegressionIsSearchableAsARecordOfItsOwnType() {
+		$regression = new RecordPerformance(
+			$this->project, '/checkout', 'p95', PerfUnit::Milliseconds, 210.0, 3100.0,
+			new DateTimeImmutable('2026-01-03 10:00:00'), new DateTimeImmutable('2026-01-03 10:00:00'),
+		);
+		$regression->setHash($regression->calculateHash());
+		$em = self::getContainer()->get(EntityManagerInterface::class);
+		$em->persist($regression);
+		$em->flush();
+
+		$found = $this->tools->searchRecords(projectCode: 'shop', type: 'perf');
+
+		$this->assertCount(1, $found);
+		$this->assertSame('/checkout', $found[0]['requestUri']);
+		$this->assertNull($found[0]['level']);
+		$this->assertSame('/checkout', $this->tools->getRecordDetail($found[0]['id'])['details']['path']);
 	}
 
 	public function testSettingTheStatusOfAnUnknownRecordIsReportedBackToTheCaller() {

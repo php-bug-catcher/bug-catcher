@@ -13,6 +13,7 @@ use BugCatcher\Enum\PerfTopPathGroup;
 use BugCatcher\Enum\PerfTopPathSort;
 use BugCatcher\Service\Perf\WindowAggregate;
 use BugCatcher\Service\Perf\Histogram\HistogramBins;
+use BugCatcher\Service\Perf\PerfSliceFilter;
 use BugCatcher\Service\Perf\PerfWindow;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -237,7 +238,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		DateTimeImmutable $to,
 		?string $pathHash = null,
 	): array {
-		return $this->aggregate('pathHash', 'path', $granularity, $project, $from, $to, $pathHash);
+		return $this->aggregate('pathHash', 'path', $granularity, $project, $from, $to, new PerfSliceFilter($pathHash));
 	}
 
 	/**
@@ -263,6 +264,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		DateTimeImmutable $to,
 		int $limit,
 		PerfTopPathSort $sort = PerfTopPathSort::Hits,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 	): array {
 		return $this->aggregate(
 			$group->field(),
@@ -271,6 +273,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$project,
 			$from,
 			$to,
+			$filter,
 			limit: $limit,
 			sort: $sort,
 			// across projects every row has to say which application it belongs to: two of them
@@ -294,12 +297,13 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
 		?string $pathHash = null,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 	): array {
 		$type       = Type::getType(Types::DATETIME_IMMUTABLE);
 		$platform   = $this->connection()->getDatabasePlatform();
 		$aggregates = [];
 
-		foreach ($this->aggregate('bucketAt', 'bucketAt', $granularity, $project, $from, $to, $pathHash) as $slice) {
+		foreach ($this->aggregate('bucketAt', 'bucketAt', $granularity, $project, $from, $to, $pathHash === null ? $filter : $filter->withPathHash($pathHash)) as $slice) {
 			$at = $type->convertToPHPValue($slice->label, $platform)->format('Y-m-d H:i:s');
 
 			$aggregates[$at] = new WindowAggregate(
@@ -338,8 +342,9 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 	): WindowAggregate {
-		$rows = $this->aggregateRows([], $granularity, $project, $from, $to);
+		$rows = $this->aggregateRows([], $granularity, $project, $from, $to, $filter);
 		$row  = $rows[0] ?? null;
 
 		// an aggregate over no rows is one row of nulls, which is a window with no traffic
@@ -360,7 +365,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			(int)$row['clientErrors'],
 			(int)$row['serverErrors'],
 			$this->histogramOf($row),
-			$this->aggregateExtra([], $granularity, $project, $from, $to)[''] ?? [],
+			$this->aggregateExtra([], $granularity, $project, $from, $to, $filter)[''] ?? [],
 		);
 	}
 
@@ -376,7 +381,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
-		?string $pathHash = null,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 		?int $limit = null,
 		bool $splitByProject = false,
 		PerfTopPathSort $sort = PerfTopPathSort::Hits,
@@ -385,10 +390,10 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		// the extras have to be sliced the same way the measurements are, project included:
 		// grouped only by the key field, every application's `/login` would be handed the sum of
 		// all of them
-		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $pathHash, $splitByProject);
+		$extra      = $this->aggregateExtra($groupBy, $granularity, $project, $from, $to, $filter, $splitByProject);
 		$aggregates = [];
 
-		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $pathHash, $limit, $splitByProject, $sort) as $row) {
+		foreach ($this->aggregateRows($groupBy, $granularity, $project, $from, $to, $filter, $limit, $splitByProject, $sort) as $row) {
 			$code = $splitByProject ? (string)$row['projectCode'] : '';
 			$key  = $code === '' ? (string)$row[$keyField] : $code . "\x1f" . $row[$keyField];
 
@@ -429,7 +434,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
-		?string $pathHash = null,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 		?int $limit = null,
 		bool $splitByProject = false,
 		PerfTopPathSort $sort = PerfTopPathSort::Hits,
@@ -477,10 +482,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$grouped[] = sprintf('p.%s', $projects->getColumnName('code'));
 		}
 
-		if ($pathHash !== null) {
-			$where    .= sprintf(' AND b.%s = ?', $metadata->getColumnName('pathHash'));
-			$params[]  = $pathHash;
-		}
+		$where .= $this->sliceConditions($metadata, $filter, $params);
 
 		$sql = sprintf(
 			'SELECT %s FROM %s b%s WHERE b.%s = ? AND b.%s >= ? AND b.%s < ?%s%s',
@@ -532,7 +534,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		?Project $project,
 		DateTimeImmutable $from,
 		DateTimeImmutable $to,
-		?string $pathHash = null,
+		PerfSliceFilter $filter = new PerfSliceFilter(),
 		bool $splitByProject = false,
 	): array {
 		$bucket = $this->bucketMetadata();
@@ -565,10 +567,7 @@ final class PerfBucketRepository extends ServiceEntityRepository
 			$keyColumns[] = sprintf('p.%s', $projects->getColumnName('code'));
 		}
 
-		if ($pathHash !== null) {
-			$route    .= sprintf(' AND b.%s = ?', $bucket->getColumnName('pathHash'));
-			$params[]  = $pathHash;
-		}
+		$route .= $this->sliceConditions($bucket, $filter, $params);
 
 		// the metric name is always selected and always grouped by; the key columns come first
 		// when there are any, and there are none when the whole window is one row
@@ -609,6 +608,40 @@ final class PerfBucketRepository extends ServiceEntityRepository
 		}
 
 		return $extra;
+	}
+
+	/**
+	 * The conditions of a {@see PerfSliceFilter}, for {@see aggregateRows()} and
+	 * {@see aggregateExtra()} alike - one method, so the two cannot come to disagree about which
+	 * rows a slice is.
+	 *
+	 * Plain strings all of them, so nothing is added to the parameter types.
+	 *
+	 * @param list<mixed> $params appended to, in the order the placeholders appear
+	 */
+	private function sliceConditions(ClassMetadata $metadata, PerfSliceFilter $filter, array &$params): string
+	{
+		$where = '';
+
+		if ($filter->pathHash !== null) {
+			$where   .= sprintf(' AND b.%s = ?', $metadata->getColumnName('pathHash'));
+			$params[] = $filter->pathHash;
+		}
+
+		if ($filter->pathContains !== null && $filter->pathContains !== '') {
+			// a route is free to contain the wildcards, and a search for `100%` means that text
+			$where   .= sprintf(" AND b.%s LIKE ? ESCAPE '!'", $metadata->getColumnName('path'));
+			$params[] = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $filter->pathContains) . '%';
+		}
+
+		foreach (['host' => $filter->host, 'serverName' => $filter->serverName] as $field => $value) {
+			if ($value !== null) {
+				$where   .= sprintf(' AND b.%s = ?', $metadata->getColumnName($field));
+				$params[] = $value;
+			}
+		}
+
+		return $where;
 	}
 
 	/** @return list<int> */

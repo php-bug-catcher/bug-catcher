@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace BugCatcher\Twig\Components;
 
 use BugCatcher\Entity\Project;
-use BugCatcher\Enum\PerfTopPathGroup;
-use BugCatcher\Enum\PerfTopPathSort;
 use BugCatcher\Service\Perf\Chart\DatabaseChartBuilder;
-use BugCatcher\Service\Perf\Report\Dto\PerfTimePoint;
+use BugCatcher\Service\Perf\Report\Dto\DatabaseReport;
 use BugCatcher\Service\Perf\Report\Dto\PerfTimeSeries;
 use BugCatcher\Service\Perf\Report\Dto\TopPathRow;
 use BugCatcher\Service\Perf\Report\PerfRangeResolver;
 use BugCatcher\Service\Perf\Report\PerfReportBuilder;
-use BugCatcher\Service\Perf\SqlMetrics;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -32,6 +29,8 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
  * band, and waiting is where a slow application spends its time. This says how much of that band
  * is the database, over time and per route.
  *
+ * The arithmetic is {@see DatabaseReport}'s, shared with the MCP tools; this only draws it.
+ *
  * Opt-in: add `PerfDatabase` to `bug_catcher.dashboard_components`.
  */
 #[AsLiveComponent]
@@ -41,15 +40,12 @@ final class PerfDatabase
 	use PerfRangeProps;
 
 	/** How many routes the table under the charts lists. A screenful, like every other panel. */
-	public const int ROUTES = 10;
+	public const int ROUTES = PerfReportBuilder::DATABASE_ROUTES;
 
 	#[LiveProp]
 	public ?Project $project = null;
 
-	private ?PerfTimeSeries $series = null;
-
-	/** @var list<TopPathRow>|null */
-	private ?array $routes = null;
+	private ?DatabaseReport $result = null;
 
 	public function __construct(
 		private readonly PerfReportBuilder $report,
@@ -58,39 +54,35 @@ final class PerfDatabase
 	) {
 	}
 
-	/** One read of the window, shared by the charts and the totals above them. */
-	public function getSeries(): PerfTimeSeries
+	public function getReport(): DatabaseReport
 	{
+		if ($this->result !== null) {
+			return $this->result;
+		}
+
 		$range = $this->getRange();
 
-		return $this->series ??= $this->report->timeSeries(
+		return $this->result = $this->report->database(
 			$this->project,
 			$range->from,
 			$range->to,
 			$this->path,
+			self::ROUTES,
 		);
 	}
 
-	/**
-	 * Whether anything in this window counted its queries at all.
-	 *
-	 * An empty panel is a question - is the application fast, or is nobody looking? - so the
-	 * template answers it, and this is what it answers from. Deliberately not "are there hits":
-	 * a window with plenty of traffic and no `sq` means the collector bundle is missing, which
-	 * is a different problem from a quiet night.
-	 */
-	public function isCollected(): bool
+	public function getSeries(): PerfTimeSeries
 	{
-		foreach ($this->getSeries()->points as $point) {
-			if (isset($point->extra[SqlMetrics::QUERIES]) || isset($point->extra[SqlMetrics::SECONDS])) {
-				return true;
-			}
-		}
-
-		return false;
+		return $this->getReport()->series;
 	}
 
-	/** @return array{queries: string, time: string} two SVGs, or empty strings */
+	/** See {@see DatabaseReport::isCollected()}. */
+	public function isCollected(): bool
+	{
+		return $this->getReport()->isCollected();
+	}
+
+	/** @return array{queries: string, time: string} */
 	public function getCharts(): array
 	{
 		$series = $this->getSeries();
@@ -102,115 +94,49 @@ final class PerfDatabase
 		return $this->charts->build($series);
 	}
 
-	/** Queries per request over the whole window, not the mean of the per-bucket means. */
 	public function getQueriesPerHit(): float
 	{
-		return $this->perHit($this->total(SqlMetrics::QUERIES));
+		return $this->getReport()->queriesPerHit();
 	}
 
 	public function getDbMsPerHit(): float
 	{
-		return $this->perHit($this->total(SqlMetrics::SECONDS)) * 1000;
+		return $this->getReport()->dbMsPerHit();
 	}
 
 	public function getQueries(): float
 	{
-		return $this->total(SqlMetrics::QUERIES);
+		return $this->getReport()->queries();
 	}
 
-	/**
-	 * What share of the window's wallclock was spent in the database, 0 to 1.
-	 *
-	 * The number worth putting at the top of the panel: "12 queries a request" means nothing
-	 * without knowing whether they cost 2 % of the response or 80 % of it.
-	 */
 	public function getShareOfWallclock(): float
 	{
-		$wallMs = array_sum(array_map(
-			static fn(PerfTimePoint $point): float => $point->avgMs * $point->hits,
-			$this->getSeries()->points,
-		));
-
-		return $wallMs <= 0.0 ? 0.0 : min(1.0, $this->total(SqlMetrics::SECONDS) * 1000 / $wallMs);
+		return $this->getReport()->shareOfWallclock();
 	}
 
-	/**
-	 * The routes of the window that spent the longest in the database.
-	 *
-	 * Sorted here rather than in SQL, and the consequence is worth stating: the report is asked
-	 * for the busiest routes, so this is the heaviest *of the busiest*. Unlike the sorts
-	 * `PerfTopPaths` offers, this one could not be pushed into the `ORDER BY` even in principle -
-	 * the extras live in `perf_bucket_extra` and are read by a query of their own, so the
-	 * measurements query has nothing to sort by. A route called twice an hour that runs ten
-	 * thousand queries each time is therefore not on this list; the regression detector is what
-	 * finds that one.
-	 *
-	 * @return list<TopPathRow>
-	 */
+	/** @return list<TopPathRow> */
 	public function getRoutes(): array
 	{
-		if ($this->routes !== null) {
-			return $this->routes;
-		}
-
-		$range = $this->getRange();
-
-		$rows = $this->report->topPaths(
-			$this->project,
-			$range->from,
-			$range->to,
-			PerfTopPathGroup::Path,
-			PerfTopPathSort::Hits,
-		)->rows;
-
-		$rows = array_values(array_filter(
-			$rows,
-			static fn(TopPathRow $row): bool => $row->extraTotal(SqlMetrics::SECONDS) !== null,
-		));
-
-		usort($rows, static fn(TopPathRow $a, TopPathRow $b): int
-			=> $b->extraTotal(SqlMetrics::SECONDS) <=> $a->extraTotal(SqlMetrics::SECONDS));
-
-		return $this->routes = array_slice($rows, 0, self::ROUTES);
+		return $this->getReport()->routes;
 	}
 
-	/** What share of one route's own wallclock was the database, 0 to 1. */
 	public function shareOf(TopPathRow $row): float
 	{
-		$dbMs = ($row->extraTotal(SqlMetrics::SECONDS) ?? 0.0) * 1000;
-
-		return $row->totalMs <= 0.0 ? 0.0 : min(1.0, $dbMs / $row->totalMs);
+		return DatabaseReport::shareOf($row);
 	}
 
 	public function queriesPerHitOf(TopPathRow $row): ?float
 	{
-		return $row->extraPerHit(SqlMetrics::QUERIES);
+		return DatabaseReport::queriesPerHitOf($row);
 	}
 
 	public function dbMsPerHitOf(TopPathRow $row): ?float
 	{
-		$perHit = $row->extraPerHit(SqlMetrics::SECONDS);
-
-		return $perHit === null ? null : $perHit * 1000;
+		return DatabaseReport::dbMsPerHitOf($row);
 	}
 
 	protected function ranges(): PerfRangeResolver
 	{
 		return $this->rangeResolver;
-	}
-
-	private function total(string $metric): float
-	{
-		return array_sum(array_map(
-			static fn(PerfTimePoint $point): float => $point->extra[$metric] ?? 0.0,
-			$this->getSeries()->points,
-		));
-	}
-
-	private function perHit(float $total): float
-	{
-		$hits = $this->getSeries()->hits();
-
-		return $hits === 0 ? 0.0 : $total / $hits;
 	}
 }

@@ -8,6 +8,7 @@ bug_catcher:
             - BugCatcher\Entity\RecordLog
             - BugCatcher\Entity\RecordLogTrace
             - BugCatcher\Tests\App\Entity\RecordCron
+            - BugCatcher\Entity\RecordPerformance
     collectors:
         Http: http
         Messenger: messenger

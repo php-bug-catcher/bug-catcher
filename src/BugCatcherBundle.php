@@ -18,6 +18,7 @@ use BugCatcher\Controller\PerformanceController;
 use BugCatcher\Controller\SecurityController;
 use BugCatcher\Entity\Record;
 use BugCatcher\Mcp\RecordTypes;
+use BugCatcher\Mcp\Tool\PerfTools;
 use BugCatcher\Repository\RecordLogTraceRepository;
 use BugCatcher\Repository\RecordRepository;
 use BugCatcher\Repository\RecordRepositoryInterface;
@@ -286,6 +287,12 @@ final class BugCatcherBundle extends AbstractBundle
 			->autowire()
 			->autoconfigure()
 			->arg('$classes', $config["mcp"]["record_types"]);
+
+		// refuses every call while performance monitoring is off, the way the perf commands do
+		$services->set(PerfTools::class)
+			->autowire()
+			->autoconfigure()
+			->arg('$perfEnabled', $config["perf"]["enabled"]);
 
         $services->set(RecordRepositoryInterface::class)
             ->autowire()
